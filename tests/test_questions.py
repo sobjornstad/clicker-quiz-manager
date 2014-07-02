@@ -13,7 +13,7 @@ class QuestionTests(unittest.TestCase):
             Question("Goodbye?", ["1", "2", "3", "4"], "d"))
 
     def testAnswerOutput(self):
-        q, a, ca = self.questions[0].getFormattedContent()
+        q, a, ca = self.questions[0].getFormattedContent(1)
         for ans in a:
             self.failUnless(".\t" in ans)
             let = ans.split('.\t')[0]
@@ -21,7 +21,7 @@ class QuestionTests(unittest.TestCase):
                     "Answer letter missing or incorrect on answer %r" % ans
 
     def testCorrectAnswerOutput(self):
-        q, a, ca = self.questions[0].getFormattedContent()
+        q, a, ca = self.questions[0].getFormattedContent(2)
 
         self.assertTrue('\t' in ca), "Missing tab"
         ans, let = ca.split('\t')
@@ -29,7 +29,7 @@ class QuestionTests(unittest.TestCase):
         self.assertTrue(let in Question._qLetters)
 
     def testQNumOutput(self):
-        q, a, ca = self.questions[0].getFormattedContent()
+        q, a, ca = self.questions[0].getFormattedContent(3)
 
         self.assertTrue(".\t" in q), "Missing tab"
         num = q.split('.')[0]

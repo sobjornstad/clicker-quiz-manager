@@ -8,12 +8,14 @@ def genRtfFile(questions):
 
     section.append("MULTIPLE CHOICE")
     section.append("")
+    qNum = 1
     for question in questions:
-        q, a, ca = question.getFormattedContent()
+        q, a, ca = question.getFormattedContent(qNum)
         section.append(q)
         for ans in a:
             section.append(ans)
         section.append(ca)
+        qNum += 1
 
     return doc
 

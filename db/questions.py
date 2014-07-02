@@ -8,15 +8,12 @@ class QuestionFormatError(Exception):
         return repr(self.emsg)
 
 class Question(object):
-    questionNum = 1
     _qLetters = ['a', 'b', 'c', 'd', 'e']
 
     def __init__(self, question, answersList, correctAnswer):
         self.q = question
         self.a = answersList
         self.ca = correctAnswer
-        self.num = Question.questionNum
-        Question.questionNum += 1
         self.prevalidate()
 
     def prevalidate(self):
@@ -41,9 +38,9 @@ class Question(object):
             raise QuestionFormatError("The correct answer choice was not a " \
                     "valid letter.")
 
-    def getFormattedContent(self):
+    def getFormattedContent(self, questionNum):
         "Return question data formatted for ExamView rtf file format."
-        oQ = '.\t'.join([str(self.num), self.q])
+        oQ = '.\t'.join([str(questionNum), self.q])
         curLetter = 0
         oA = []
         for ans in self.a:
