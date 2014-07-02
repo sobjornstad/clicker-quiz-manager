@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import PyRTF as rtf
 import unittest
 
 class QuestionFormatError(Exception):
@@ -52,28 +51,3 @@ class Question(object):
             curLetter += 1
         oCA = '\t'.join(['ANS:', self.ca])
         return oQ, oA, oCA
-
-def genRtfFile(questions):
-    doc = rtf.Document()
-    section = rtf.Section()
-    doc.Sections.append(section)
-
-    section.append("MULTIPLE CHOICE")
-    section.append("")
-    for question in questions:
-        q, a, ca = question.getFormattedContent()
-        section.append(q)
-        for ans in a:
-            section.append(ans)
-        section.append(ca)
-
-    return doc
-
-def render(questions, filename):
-    DR = rtf.Renderer()
-    doc3 = genRtfFile(questions)
-    DR.Write(doc3, file(filename, 'w'))
-
-
-if __name__ == '__main__':
-    unittest.main()

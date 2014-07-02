@@ -1,4 +1,4 @@
-import unittest, nose
+import unittest
 import sys
 sys.path.append("../")
 
@@ -37,21 +37,6 @@ class QuestionTests(unittest.TestCase):
             num = int(num)
         except TypeError:
             self.assertTrue(False), "Returned question number not an int"
-
-    def testRender(self):
-        fname = 'testfile.rtf'
-        questions = [Question("Hello?", ["foo", "bar", "baz", "quux"], "c")]
-        render(questions, fname)
-        try:
-            f = open(fname)
-        except IOError:
-            self.assertTrue(False), "File was not created successfully"
-        else:
-            self.assertTrue(f.readlines()), "No data in file"
-        finally:
-            f.close()
-            import os
-            os.remove(fname)
 
 if __name__ == "__main__":
     unittest.main()
