@@ -9,6 +9,7 @@ def makeDatabase(fname):
     cursor.execute('CREATE TABLE sets (sid INTEGER PRIMARY KEY, name TEXT, num INTEGER)')
     cursor.execute('CREATE TABLE history (hid INTEGER PRIMARY KEY, sid INTEGER, introOrd INTEGER)')
     cursor.execute('CREATE TABLE conf (conf TEXT)')
+    return connection
 
 if __name__ == "__main__":
     print "Quiz Generator Database Creator - Interactive Interface"
