@@ -9,7 +9,7 @@ from db.rtfexport import *
 class RtfExportTests(unittest.TestCase):
     def testRender(self):
         fname = 'testfile.rtf'
-        against_fname = 'resources/test_format_against.rtf'
+        against_fname = 'tests/resources/test_format_against.rtf'
         questions = [Question("Hello?", ["foo", "bar", "baz", "quux"], "c")]
         render(questions, fname)
         try:
