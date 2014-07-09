@@ -31,9 +31,7 @@ class Set(object):
             # new set, not in db
             d.cursor.execute('INSERT INTO sets VALUES (null, ?, ?)',
                     (self._name, self._num))
-            d.cursor.execute('SELECT sid FROM sets WHERE name=? AND num=?',
-                    (self._name, self._num))
-            self._sid = d.cursor.fetchall()[0][0]
+            self._sid = d.cursor.lastrowid
 
         # at some point we will want to eliminate this for performance reasons;
         # just leaving it here to make sure things are consistent for now
