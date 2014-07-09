@@ -10,7 +10,6 @@ class SetTests(utils.DbTestCase):
         # update the set; sid should not change
         savedSid = s.getSid()
         s.setName("Maud's Question Set")
-        s.dump()
         assert savedSid == s.getSid(), "sid changed after update"
 
         # pull the set back in and make sure it's the same
