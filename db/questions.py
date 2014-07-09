@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import database as d
+import sets
 
 class QuestionFormatError(Exception):
     def __init__(self, emsg):
@@ -22,12 +23,12 @@ class Question(object):
 
     _qLetters = ['a', 'b', 'c', 'd', 'e']
 
-    def __init__(self, question, answersList, correctAnswer, sid, order, qid=None):
+    def __init__(self, question, answersList, correctAnswer, st, order, qid=None):
         self._qid = qid
         self._q = question
         self._a = answersList
         self._ca = correctAnswer
-        self._sid = sid
+        self._sid = st.getSid()
         self._order = order
         if (not qid) and self.prevalidate():
             # if we were passed qid, it must already be in the db as given
@@ -54,6 +55,8 @@ class Question(object):
         return self._ca
     def getSid(self):
         return self._sid
+    def getSet(self):
+        return sets.getSetBySid(self._sid)
     def getOrder(self):
         return self._order
     def getQid(self):
@@ -146,6 +149,8 @@ class Question(object):
         oCA = '\t'.join(['ANS:', self._ca])
         return oQ, oA, oCA
 
+
+
 def getById(qid):
     """Return a Question from the db, given the qid. Return None if it doesn't
     exist."""
@@ -154,6 +159,6 @@ def getById(qid):
     qid, order, q, ca, answers, sid = d.cursor.fetchall()[0]
     if qid:
         answers = json.loads(answers)
-        return Question(q, answers, ca, sid, order, qid)
+        return Question(q, answers, ca, sets.getSetBySid(sid), order, qid)
     else:
         return None

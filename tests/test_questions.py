@@ -1,4 +1,5 @@
 from db.questions import *
+from db.sets import Set
 import utils
 
 class QuestionTests(utils.DbTestCase):
@@ -8,14 +9,15 @@ class QuestionTests(utils.DbTestCase):
         a = ["Bethamer", "Thorne", "Almzead", "Jallwei"]
         ca = "c"
         order = 1
-        sid = 1
-        ques = Question(q, a, ca, sid, order)
+        st = Set("Maudiverse Set", 5)
+        ques = Question(q, a, ca, st, order)
 
         # make sure getters work
         assert ques.getQuestion() == q
         assert ques.getAnswersList() == a
         assert ques.getCorrectAnswer() == ca
-        assert ques.getSid() == sid
+        assert ques.getSid() == st.getSid()
+        assert ques.getSet().getSid() == st.getSid()
         assert ques.getOrder() == order
         assert ques.getQid()
 
@@ -37,7 +39,8 @@ class QuestionTests(utils.DbTestCase):
 
     def testDbWriteRead(self):
         # create a question
-        q = Question("Hello?", ["foo", "bar", "baz", "quux"], "c", 1, 1)
+        st = Set("Test Set", 3)
+        q = Question("Hello?", ["foo", "bar", "baz", "quux"], "c", st, 1)
         qid = q.getQid()
 
         # read back in, make sure they're the same
@@ -45,8 +48,9 @@ class QuestionTests(utils.DbTestCase):
         assert q == q2
 
     def testOutput(self):
-        q = Question("Hello?", ["foo", "bar", "baz", "quux"], "c", 1, 1)
-        q2 = Question("Goodbye?", ["1", "2", "3", "4"], "d", 1, 2)
+        st = Set("Test Set", 3)
+        q = Question("Hello?", ["foo", "bar", "baz", "quux"], "c", st, 1)
+        q2 = Question("Goodbye?", ["1", "2", "3", "4"], "d", st, 2)
         questions = [q, q2]
 
         # answers
