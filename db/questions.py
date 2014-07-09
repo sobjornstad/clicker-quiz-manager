@@ -8,6 +8,16 @@ class QuestionFormatError(Exception):
         return repr(self.emsg)
 
 class Question(object):
+    """
+    Represents one stored multiple-choice question and its answers.
+
+    A question has a question ID from the database (qid, TODO), question string
+    (question), a list of answer strings (answersList), a correct answer string
+    that is one of 'a' through 'e', and a set object (set, TODO).
+
+    ##TODO: ^ The code should eventually be changed to match above schema
+    """
+
     _qLetters = ['a', 'b', 'c', 'd', 'e']
 
     def __init__(self, question, answersList, correctAnswer):
