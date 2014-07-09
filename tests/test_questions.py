@@ -1,23 +1,7 @@
-import unittest
-import os
-import sys
-sys.path.append("../")
-
-import db.database
-import db.tools.create_database
 from db.questions import *
+import utils
 
-TEST_DB_FNAME = "test.db"
-
-class QuestionTests(unittest.TestCase):
-    def setUp(self):
-        db.tools.create_database.makeDatabase(TEST_DB_FNAME)
-        db.database.connect(TEST_DB_FNAME)
-
-    def tearDown(self):
-        db.database.connection.close()
-        os.remove(TEST_DB_FNAME)
-
+class QuestionTests(utils.DbTestCase):
     def testGettersSetters(self):
         # compile a sample question
         q = "What is Maud's family name?"

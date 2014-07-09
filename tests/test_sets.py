@@ -1,24 +1,7 @@
-import unittest
-import os
-import sys
-sys.path.append("../")
-
+import utils
 import db.sets
-import db.database
-import db.tools.create_database
 
-TEST_DB_FNAME = "test.db"
-
-
-class SetTests(unittest.TestCase):
-    def setUp(self):
-        db.tools.create_database.makeDatabase(TEST_DB_FNAME)
-        db.database.connect(TEST_DB_FNAME)
-
-    def tearDown(self):
-        db.database.connection.close()
-        os.remove(TEST_DB_FNAME)
-
+class SetTests(utils.DbTestCase):
     def testDbWriteRead(self):
         # create a set in db; make sure it has a sid
         s = db.sets.Set("Maud's Questions", 3)
