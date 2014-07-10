@@ -120,9 +120,9 @@ class Question(object):
                        " an answer choice was not a string.")
                return False
 
-        # 3-5 answers
-        if not 3 <= len(self._a) <= 5:
-            raise QuestionFormatError("You must have 3-5 answers.")
+        # 2-5 answers
+        if not 2 <= len(self._a) <= 5:
+            raise QuestionFormatError("You must have 2-5 answers.")
             return False
 
         # correct answer must be a lc MC letter
