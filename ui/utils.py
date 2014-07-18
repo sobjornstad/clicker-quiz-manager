@@ -10,9 +10,9 @@ def informationBox(text, title=None):
         msgBox.setWindowTitle(title)
     msgBox.exec_()
 
-def confirmDeleteBox(item):
+def confirmDeleteBox(item, additional):
     msgBox = QMessageBox()
-    s = "Are you sure you want to delete this %s?" % item
+    s = "Are you sure you want to delete this %s? %s" % (item, additional)
     msgBox.setText(s)
     msgBox.setIcon(QMessageBox.Question)
     msgBox.setWindowTitle("Delete %s" % item.title())

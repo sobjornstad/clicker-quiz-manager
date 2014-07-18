@@ -45,3 +45,29 @@ def getClassByCid(cid):
         return Class(name, cid)
     else:
         return None
+
+def getClassByName(name):
+    """Return the first Class from the db by a given name when given the name.
+    Return None if it doesn't exist."""
+
+    d.cursor.execute('SELECT cid FROM classes WHERE name=?', (name,))
+    cid = d.cursor.fetchall()[0][0]
+    if cid:
+        return Class(name, cid)
+    else:
+        return None
+
+def getAllClasses():
+    """Return a list of all classes in the database."""
+
+    d.cursor.execute('SELECT cid, name FROM classes')
+    return [getClassByCid(i[0]) for i in d.cursor.fetchall()]
+
+def deleteClass(name):
+    name = str(name) # dumb QStrings
+    cid = getClassByName(name).getCid()
+    #TODO: When history is in place, we need to delete that
+    d.cursor.execute('DELETE FROM classes WHERE cid=?', (cid,))
+    d.connection.commit()
+
+#TOTEST: Dupe names, deletion

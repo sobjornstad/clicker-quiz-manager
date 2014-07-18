@@ -24,3 +24,6 @@ def openDbConnect(conn):
     global connection, cursor
     connection = conn
     cursor = connection.cursor()
+
+def close():
+    connection.close()

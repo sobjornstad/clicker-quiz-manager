@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Edit Question Set</string>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -42,7 +42,7 @@ QGroupBox::title {
       <property name="title">
        <string>Question List</string>
       </property>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -153,7 +153,7 @@ QGroupBox::title {
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -218,7 +218,7 @@ QGroupBox::title {
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -243,21 +243,10 @@ QGroupBox::title {
          </item>
         </layout>
        </widget>
-       <zorder>answerE</zorder>
-       <zorder>answerD</zorder>
-       <zorder>answerB</zorder>
-       <zorder>label_4</zorder>
-       <zorder>label_7</zorder>
-       <zorder>label_8</zorder>
-       <zorder>answerA</zorder>
-       <zorder>label_5</zorder>
-       <zorder>label_6</zorder>
-       <zorder>answerC</zorder>
-       <zorder></zorder>
-       <zorder>label_2</zorder>
-       <zorder>correctAnswerCombo</zorder>
+       <zorder>layoutWidget</zorder>
+       <zorder>layoutWidget</zorder>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>40</x>
@@ -317,7 +306,7 @@ QGroupBox::title {
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -366,29 +355,6 @@ QGroupBox::title {
     </item>
    </layout>
   </widget>
-  <zorder>label</zorder>
-  <zorder>label_3</zorder>
-  <zorder>label_4</zorder>
-  <zorder>label_5</zorder>
-  <zorder>label_6</zorder>
-  <zorder>label_7</zorder>
-  <zorder>label_8</zorder>
-  <zorder>answerA</zorder>
-  <zorder>answerB</zorder>
-  <zorder>answerC</zorder>
-  <zorder>answerD</zorder>
-  <zorder>answerE</zorder>
-  <zorder>questionBox</zorder>
-  <zorder>difficultySpinner</zorder>
-  <zorder>label_2</zorder>
-  <zorder>correctAnswerCombo</zorder>
-  <zorder>horizontalSpacer</zorder>
-  <zorder>groupBox_2</zorder>
-  <zorder>groupBox_3</zorder>
-  <zorder>jumpCombo</zorder>
-  <zorder>label_9</zorder>
-  <zorder>horizontalSpacer_2</zorder>
-  <zorder>closeButton</zorder>
  </widget>
  <tabstops>
   <tabstop>questionBox</tabstop>

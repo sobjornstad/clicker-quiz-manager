@@ -1,12 +1,15 @@
 import sys
+sys.path.append("../")
+
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QApplication, QMainWindow
 from forms.mw import Ui_MainWindow
 
-import classes
+import db.database
 
 class MainWindow(QMainWindow):
     def __init__(self):
+        db.database.connect("quiz.db")
         QMainWindow.__init__(self)
         self.form = Ui_MainWindow()
         self.form.setupUi(self)
@@ -32,6 +35,7 @@ class MainWindow(QMainWindow):
         qsw.exec_()
 
     def quit(self):
+        db.database.close()
         sys.exit(0)
 
 app = QApplication(sys.argv)
