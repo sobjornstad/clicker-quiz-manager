@@ -24,7 +24,6 @@ class ClassTests(utils.DbTestCase):
         #assertRaises(
 
     def testGets(self):
-        #TODO: Cause the class to raise some kind of error if we try to use it
         # create two classes
         c = db.classes.Class("First Class")
         c2 = db.classes.Class("Second Class")
