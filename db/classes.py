@@ -1,5 +1,4 @@
 import database as d
-from errors import DupeError
 
 class Class(object):
     def __init__(self, name, cid=None):
