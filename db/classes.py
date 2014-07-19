@@ -1,4 +1,5 @@
 import database as d
+from errors import DupeError
 
 class Class(object):
     def __init__(self, name, cid=None):
@@ -35,27 +36,36 @@ class Class(object):
         # just leaving it here to make sure things are consistent for now
         d.connection.commit()
 
+def isDupe(name=None, cid=None):
+    if cid and getClassByCid(cid): # guarded
+        return True
+    if name and getClassByName(name):
+        return True
+    return False
+
 def getClassByCid(cid):
     """Return a Class from the db when given the cid. Return None if it doesn't
     exist."""
 
     d.cursor.execute('SELECT name FROM classes WHERE cid=?', (cid,))
-    name = d.cursor.fetchall()[0][0]
-    if name and cid:
-        return Class(name, cid)
-    else:
+    try:
+        name = d.cursor.fetchall()[0][0]
+    except IndexError:
         return None
+    else:
+        return Class(name, cid)
 
 def getClassByName(name):
     """Return the first Class from the db by a given name when given the name.
     Return None if it doesn't exist."""
 
     d.cursor.execute('SELECT cid FROM classes WHERE name=?', (name,))
-    cid = d.cursor.fetchall()[0][0]
-    if cid:
-        return Class(name, cid)
-    else:
+    try:
+        cid = d.cursor.fetchall()[0][0]
+    except IndexError:
         return None
+    else:
+        return Class(name, cid)
 
 def getAllClasses():
     """Return a list of all classes in the database."""
@@ -69,5 +79,6 @@ def deleteClass(name):
     #TODO: When history is in place, we need to delete that
     d.cursor.execute('DELETE FROM classes WHERE cid=?', (cid,))
     d.connection.commit()
+    #TODO: Cause the class to raise some kind of error if we try to use it
 
 #TOTEST: Dupe names, deletion

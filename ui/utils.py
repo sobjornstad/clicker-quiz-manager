@@ -5,7 +5,15 @@ from PyQt4.QtCore import QObject
 def informationBox(text, title=None):
     msgBox = QMessageBox()
     msgBox.setText(text)
-    msgBox.setIcon(QtGui.QMessageBox.Information)
+    msgBox.setIcon(QMessageBox.Information)
+    if title:
+        msgBox.setWindowTitle(title)
+    msgBox.exec_()
+
+def errorBox(text, title=None):
+    msgBox = QMessageBox()
+    msgBox.setText(text)
+    msgBox.setIcon(QMessageBox.Critical)
     if title:
         msgBox.setWindowTitle(title)
     msgBox.exec_()

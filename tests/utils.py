@@ -5,6 +5,7 @@ sys.path.append("../")
 import db.database
 import db.tools.create_database
 
+# use a test db in memory, which is waaaaaaay faster
 TEST_DB_FNAME = ":memory:"
 
 class DbTestCase(unittest.TestCase):
