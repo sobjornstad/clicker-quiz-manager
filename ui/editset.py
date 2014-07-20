@@ -1,5 +1,5 @@
 from PyQt4 import QtGui, QtCore
-from PyQt4.QtGui import QDialog, QMessageBox, QInputDialog
+from PyQt4.QtGui import QDialog, QMessageBox, QInputDialog, QPlainTextEdit
 from forms.editset import Ui_Dialog
 
 import utils
@@ -35,12 +35,23 @@ class SetEditor(QDialog):
     def onAdd(self):
         nqText = "New Question"
         self.form.questionList.addItem(nqText)
-        self.form.questionList.findItems(nqText,
-                QtCore.Qt.MatchExactly)[0].setSelected(True)
+        newRow = self.form.questionList.count() - 1
+        self.form.questionList.setCurrentRow(newRow)
+        print "done"
+        #self.form.questionList.findItems(nqText,
+        #        QtCore.Qt.MatchExactly)[0].setSelected(True)
 
         self.form.questionBox.setPlainText(nqText)
         self.form.questionBox.setFocus()
         self.form.questionBox.selectAll()
+        self.form.questionBox.textChanged.connect(self.updateListQuestion)
+
+    def updateListQuestion(self):
+        """Called when editing the question, to keep the question's entry in the
+        list in sync."""
+
+        txt = str(self.form.questionBox.toPlainText())
+        self.form.questionList.currentItem().setData(0, txt)
 
     def onDelete(self):
         pass
