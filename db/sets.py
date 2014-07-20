@@ -28,7 +28,6 @@ class Set(object):
     def setNum(self, num):
         self._num = num
         self.dump()
-    # you cannot reset the sid of an existing set, thus no function is provided
 
     def dump(self):
         if self._sid:

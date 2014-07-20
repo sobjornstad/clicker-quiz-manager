@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>382</width>
-    <height>360</height>
+    <width>369</width>
+    <height>357</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,21 +23,21 @@
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="3" column="1">
+    <item row="4" column="1">
      <widget class="QPushButton" name="upButton">
       <property name="text">
        <string>Move Up</string>
       </property>
      </widget>
     </item>
-    <item row="5" column="1">
+    <item row="6" column="1">
      <widget class="QPushButton" name="closeButton">
       <property name="text">
        <string>Close</string>
       </property>
      </widget>
     </item>
-    <item row="6" column="1">
+    <item row="7" column="1">
      <spacer name="verticalSpacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -50,10 +50,10 @@
       </property>
      </spacer>
     </item>
-    <item row="0" column="0" rowspan="7">
+    <item row="0" column="0" rowspan="8">
      <widget class="QListWidget" name="setList"/>
     </item>
-    <item row="2" column="1">
+    <item row="3" column="1">
      <widget class="QPushButton" name="deleteButton">
       <property name="text">
        <string>Delete</string>
@@ -74,16 +74,33 @@
       </property>
      </widget>
     </item>
-    <item row="4" column="1">
+    <item row="5" column="1">
      <widget class="QPushButton" name="downButton">
       <property name="text">
        <string>Move Down</string>
       </property>
      </widget>
     </item>
+    <item row="2" column="1">
+     <widget class="QPushButton" name="renameButton">
+      <property name="text">
+       <string>Rename</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>setList</tabstop>
+  <tabstop>addButton</tabstop>
+  <tabstop>editButton</tabstop>
+  <tabstop>renameButton</tabstop>
+  <tabstop>deleteButton</tabstop>
+  <tabstop>upButton</tabstop>
+  <tabstop>downButton</tabstop>
+  <tabstop>closeButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
