@@ -25,11 +25,16 @@ class Set(object):
     def setName(self, name):
         self._name = name
         self.dump()
-    def setNum(self, num):
+    def setNum(self, num, commit=True):
         self._num = num
-        self.dump()
+        self.dump(commit)
 
-    def dump(self):
+    def dump(self, commit=True):
+        """
+        Update the database to match the state of this object. If commit is set
+        to True (turn off for bulk operations on many sets), commit new state.
+        """
+
         if self._sid:
             # exists already
             d.cursor.execute('UPDATE sets SET name=?, num=? WHERE sid=?',
@@ -42,7 +47,8 @@ class Set(object):
 
         # at some point we will want to eliminate this for performance reasons;
         # just leaving it here to make sure things are consistent for now
-        d.connection.commit()
+        if commit:
+            d.connection.commit()
 
     def delete(self):
         d.cursor.execute('DELETE FROM sets WHERE sid=?', (self._sid,))
@@ -93,3 +99,15 @@ def getAllSets():
 
     d.cursor.execute('SELECT sid FROM sets ORDER BY num')
     return [findSet(sid=i[0]) for i in d.cursor.fetchall()]
+
+def shiftNums():
+    """Shift all 'nums' to fill in a gap caused by deleting a set."""
+
+    sets = getAllSets() # ordered with lowest first
+    curNum = 0
+    for s in sets:
+        if s.getNum() != curNum:
+            s.setNum(curNum, commit=False)
+        curNum += 1
+    d.connection.commit()
+

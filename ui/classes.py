@@ -51,6 +51,7 @@ class ClassesWindow(QDialog):
         if not text:
             utils.errorBox("You must enter a name for the class.",
                     "No name provided")
+            return
 
         # check for dupes
         text = str(text)

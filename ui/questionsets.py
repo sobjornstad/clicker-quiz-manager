@@ -29,17 +29,25 @@ class QuestionSetsDialog(QDialog):
         for s in self.sl:
             self.form.setList.addItem(s.getName())
 
-    #TODO: FIX DUPE ADD / RENAME
     def add(self):
-        inp = QInputDialog()
-        inp.setLabelText("What do you want to call the new set?")
-        inp.setWindowTitle("Add Set")
-        inp.exec_()
-        toAdd = inp.textValue()
+        toAdd, didEnter = QInputDialog.getText(self, "Add Set",
+                 "What do you want to call the new set?")
+        toAdd = str(toAdd)
+
+        if not didEnter:
+            return
+        if not toAdd:
+            utils.errorBox("You must enter a name for the set.",
+                    "No name provided")
+            return
+        if db.sets.isDupe(toAdd):
+            utils.errorBox("You already have a set by that name.",
+                    "Duplicate Entry")
+            return
 
         self.form.setList.addItem(toAdd)
         num = self.form.setList.count() - 1 # row numbering starts from 0
-        db.sets.Set(str(toAdd), num)
+        db.sets.Set(toAdd, num)
 
     def edit(self):
         import editset
@@ -55,6 +63,7 @@ class QuestionSetsDialog(QDialog):
         val = self.form.setList.currentRow()
         db.sets.findSet(num=val).delete()
         self.form.setList.takeItem(val)
+        db.sets.shiftNums() # fill in gap in ordering
 
     def rename(self):
         pass
