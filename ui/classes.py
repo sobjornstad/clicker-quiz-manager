@@ -51,14 +51,18 @@ class ClassesWindow(QDialog):
         if not text:
             utils.errorBox("You must enter a name for the class.",
                     "No name provided")
+
+        # check for dupes
         text = str(text)
+        if db.classes.isDupe(text):
+            utils.errorBox("You already have a class by that name.",
+                    "Duplicate Entry")
+            return
 
         # update state, db, and listbox
         rClass = db.classes.getClassByName(name)
         rClass.setName(text)
         curItem.setData(0, text)
-
-
 
     def delete(self):
         classToDelete = self.form.listWidget.currentItem()
