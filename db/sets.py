@@ -81,9 +81,10 @@ def findSet(sid=None, name=None, num=None):
         return Set(name, num, sid)
 
 def getAllSets():
-    """Return a list of all sets in the database."""
+    """Return a list of all sets in the database, ordered by their num field
+    for insertion into a correctly ordered list."""
 
-    d.cursor.execute('SELECT sid FROM sets')
+    d.cursor.execute('SELECT sid FROM sets ORDER BY num')
     return [findSet(sid=i[0]) for i in d.cursor.fetchall()]
 
 def deleteSet(name):

@@ -25,7 +25,6 @@ class QuestionSetsDialog(QDialog):
 
     def fillList(self):
         "Fill sets window with sets stored in the db."
-        #TODO: Make sure these are aligned based on the nums
         self.sl = db.sets.getAllSets()
         for s in self.sl:
             self.form.setList.addItem(s.getName())
