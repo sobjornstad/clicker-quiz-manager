@@ -66,7 +66,29 @@ class QuestionSetsDialog(QDialog):
         db.sets.shiftNums() # fill in gap in ordering
 
     def rename(self):
-        pass
+        # get new name and confirm change
+        curItem = self.form.setList.currentItem()
+        name = str(curItem.text())
+        text, didEnter = QInputDialog.getText(self, "Rename Set",
+                "Rename to:", text=name)
+        if not didEnter:
+            return
+        if not text:
+            utils.errorBox("You must enter a name for the set.",
+                    "No name provided")
+            return
+
+        # check for dupes
+        text = str(text)
+        if db.sets.isDupe(text):
+            utils.errorBox("You already have a set by that name.",
+                    "Duplicate Entry")
+            return
+
+        # update state, db, and listbox
+        rSet = db.sets.findSet(name=name)
+        rSet.setName(text)
+        curItem.setData(0, text)
 
     def moveUp(self):
         pass
