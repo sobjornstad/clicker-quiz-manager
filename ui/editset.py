@@ -3,6 +3,7 @@ from PyQt4.QtGui import QDialog, QMessageBox, QInputDialog
 from forms.editset import Ui_Dialog
 
 import utils
+from db.sets import getAllSets
 
 class SetEditor(QDialog):
     def __init__(self, setList):
@@ -22,9 +23,12 @@ class SetEditor(QDialog):
         self.form.closeButton.clicked.connect(self.accept)
 
     def populateSets(self):
-        # add all sets to set list; for now, add test
-        j = self.sl.form.setList.currentItem().text()
-        self.form.jumpCombo.addItem(j)
+        # add all sets to set list; for n
+        "Fill sets window with sets stored in the db."
+        self.l = getAllSets()
+        for s in self.l:
+            self.form.jumpCombo.addItem(s.getName())
+        #j = self.sl.form.setList.currentItem().text()
 
         # end test code
         txt = self.sl.form.setList.currentItem().text()
