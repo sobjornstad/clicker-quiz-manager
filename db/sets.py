@@ -46,46 +46,36 @@ class Set(object):
         d.connection.commit()
 
 def isDupe(name=None, num=None, sid=None):
-    if name and getSetByName(name):
+    if name and findSet(name=name):
         return True
-    if num and getSetByNumber(num):
+    if num and findSet(num=num):
         return True
-    if sid and getSetBySid(sid): # guarded
+    if sid and findSet(sid=sid): # guarded
         return True
     return False
 
-#TODO: Make these use an umbrella function
-def getSetBySid(sid):
-    """Return a Set from the db when given the sid. Return None if it doesn't
-    exist."""
+def findSet(sid=None, name=None, num=None):
+    """
+    Return a set when a sid, name, or num is given, or None if that criterion
+    does not match any sets in the db. Use keyword args to specify which one
+    you're providing.
+    """
 
-    d.cursor.execute('SELECT name, num FROM sets WHERE sid=?', (sid,))
+    vals = {'sid':sid, 'name':name, 'num':num}
+
+    has = None
+    value = None
+    for i in vals.keys():
+        if vals[i] is not None:
+            value = vals[i]
+            has = i
+    if not has:
+        assert False, "No criterion provided to findSet!"
+
+    query = 'SELECT sid, name, num FROM sets WHERE %s=?' % (has)
+    d.cursor.execute(query, (value,))
     try:
-        name, num = d.cursor.fetchall()[0]
-    except IndexError:
-        return None
-    else:
-        return Set(name, num, sid)
-
-def getSetByName(name):
-    """Return a Set from the db when given the name. Return None if it doesn't
-    exist."""
-
-    d.cursor.execute('SELECT sid, num FROM sets WHERE name=?', (name,))
-    try:
-        sid, num = d.cursor.fetchall()[0]
-    except IndexError:
-        return None
-    else:
-        return Set(name, num, sid)
-
-def getSetByNumber(num):
-    """Return a Set from the db when given the number. Return None if it doesn't
-    exist."""
-
-    d.cursor.execute('SELECT sid, name FROM sets WHERE num=?', (num,))
-    try:
-        sid, name = d.cursor.fetchall()[0]
+        sid, name, num = d.cursor.fetchall()[0]
     except IndexError:
         return None
     else:
@@ -95,7 +85,7 @@ def getAllSets():
     """Return a list of all sets in the database."""
 
     d.cursor.execute('SELECT sid FROM sets')
-    return [getSetBySid(i[0]) for i in d.cursor.fetchall()]
+    return [findSet(sid=i[0]) for i in d.cursor.fetchall()]
 
 def deleteSet(name):
     name = str(name) # dumb QStrings

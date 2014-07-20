@@ -56,7 +56,7 @@ class Question(object):
     def getSid(self):
         return self._sid
     def getSet(self):
-        return sets.getSetBySid(self._sid)
+        return sets.findSet(sid=self._sid)
     def getOrder(self):
         return self._order
     def getQid(self):
@@ -159,6 +159,6 @@ def getById(qid):
     qid, order, q, ca, answers, sid = d.cursor.fetchall()[0]
     if qid:
         answers = json.loads(answers)
-        return Question(q, answers, ca, sets.getSetBySid(sid), order, qid)
+        return Question(q, answers, ca, sets.findSet(sid=sid), order, qid)
     else:
         return None

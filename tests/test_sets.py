@@ -13,7 +13,7 @@ class SetTests(utils.DbTestCase):
         assert savedSid == s.getSid(), "sid changed after update"
 
         # pull the set back in and make sure it's the same
-        s2 = db.sets.getSetBySid(s.getSid())
+        s2 = db.sets.findSet(sid=s.getSid())
         assert s2 is not None, "set did not exist in db"
         assert s.getName() == s2.getName()
         assert s.getNum()== s2.getNum()
@@ -31,13 +31,22 @@ class SetTests(utils.DbTestCase):
         #TODO: add checks based on number
 
         # get class set by name
-        sByName = db.sets.getSetByName("Second Set")
+        sByName = db.sets.findSet(name="Second Set")
         assert sByName == s2
+
+        # by sid
+        sBySid = db.sets.findSet(sid=s.getSid())
+        assert sBySid == s
+
+        # by num
+        sByNum = db.sets.findSet(sid=s.getNum())
+        assert sByNum == s
 
     def testNonexistentGets(self):
         # try getting things that don't exist
-        assert db.sets.getSetByName("tulgey") == None
-        assert db.sets.getSetBySid(9000) == None
+        assert db.sets.findSet(name="tulgey") == None
+        assert db.sets.findSet(sid=9000) == None
+        assert db.sets.findSet(num=9000) == None
 
     def testDupeCheck(self):
         # create a set in db to check against
@@ -48,11 +57,11 @@ class SetTests(utils.DbTestCase):
         assert not db.sets.isDupe(name="Second Set")
 
         # sid check
-        sid = db.sets.getSetByName("First Set").getSid()
+        sid = db.sets.findSet(name="First Set").getSid()
         assert db.sets.isDupe(sid=sid)
         assert not db.sets.isDupe(sid=9000)
 
         # num check
-        num = db.sets.getSetByName("First Set").getNum()
+        num = db.sets.findSet(name="First Set").getNum()
         assert db.sets.isDupe(num=num)
         assert not db.sets.isDupe(num=9000)
