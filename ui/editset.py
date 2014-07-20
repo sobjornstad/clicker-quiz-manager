@@ -23,14 +23,11 @@ class SetEditor(QDialog):
         self.form.closeButton.clicked.connect(self.accept)
 
     def populateSets(self):
-        # add all sets to set list; for n
-        "Fill sets window with sets stored in the db."
         self.l = getAllSets()
         for s in self.l:
             self.form.jumpCombo.addItem(s.getName())
-        #j = self.sl.form.setList.currentItem().text()
 
-        # end test code
+        # select the set we're editing from it
         txt = self.sl.form.setList.currentItem().text()
         i = self.form.jumpCombo.findText(txt)
         self.form.jumpCombo.setCurrentIndex(i)
@@ -41,7 +38,9 @@ class SetEditor(QDialog):
         self.form.questionList.findItems(nqText,
                 QtCore.Qt.MatchExactly)[0].setSelected(True)
 
+        self.form.questionBox.setPlainText(nqText)
         self.form.questionBox.setFocus()
+        self.form.questionBox.selectAll()
 
     def onDelete(self):
         pass
