@@ -29,6 +29,7 @@ class QuestionSetsDialog(QDialog):
         for s in self.sl:
             self.form.setList.addItem(s.getName())
 
+    #TODO: FIX DUPE ADD / RENAME
     def add(self):
         inp = QInputDialog()
         inp.setLabelText("What do you want to call the new set?")
@@ -52,9 +53,8 @@ class QuestionSetsDialog(QDialog):
             return
 
         val = self.form.setList.currentRow()
-        print val
-        item = self.form.setList.takeItem(val)
-        db.sets.deleteSet(db.sets.findSet(num=val).getName())
+        db.sets.findSet(num=val).delete()
+        self.form.setList.takeItem(val)
 
     def rename(self):
         pass

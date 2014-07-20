@@ -44,6 +44,13 @@ class Set(object):
         # just leaving it here to make sure things are consistent for now
         d.connection.commit()
 
+    def delete(self):
+        d.cursor.execute('DELETE FROM sets WHERE sid=?', (self._sid,))
+        d.connection.commit()
+        # we shouldn't use this instance again of course, but the class does
+        # not enforce its nonuse.
+
+
 def isDupe(name=None, num=None, sid=None):
     if name and findSet(name=name):
         return True
@@ -86,11 +93,3 @@ def getAllSets():
 
     d.cursor.execute('SELECT sid FROM sets ORDER BY num')
     return [findSet(sid=i[0]) for i in d.cursor.fetchall()]
-
-def deleteSet(name):
-    name = str(name) # dumb QStrings
-    cid = getSetByName(name).getSid()
-    #TODO: When we have questions, we need to delete those
-    d.cursor.execute('DELETE FROM sets WHERE sid=?', (sid,))
-    d.connection.commit()
-    #TODO: Cause the class to raise some kind of error if we try to use it

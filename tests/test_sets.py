@@ -65,3 +65,9 @@ class SetTests(utils.DbTestCase):
         num = db.sets.findSet(name="First Set").getNum()
         assert db.sets.isDupe(num=num)
         assert not db.sets.isDupe(num=9000)
+
+    def testDelete(self):
+        s = db.sets.Set("Doomed Set", 1)
+        assert db.sets.isDupe(num=1)
+        s.delete()
+        assert not db.sets.isDupe(num=1)
