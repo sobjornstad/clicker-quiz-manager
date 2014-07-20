@@ -1,0 +1,4 @@
+Dependencies:
+- PyRTF (in the thirdparty/ directory)
+- pyuic4 (for building)
+- sqlite3
