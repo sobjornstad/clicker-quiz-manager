@@ -71,3 +71,11 @@ class SetTests(utils.DbTestCase):
         assert db.sets.isDupe(num=1)
         s.delete()
         assert not db.sets.isDupe(num=1)
+
+    def testSwap(self):
+        s = db.sets.Set("First Set", 1)
+        s2 = db.sets.Set("Second Set", 2)
+
+        db.sets.swapRows(s, s2)
+        assert s.getNum() == 2, s.getNum()
+        assert s2.getNum() == 1

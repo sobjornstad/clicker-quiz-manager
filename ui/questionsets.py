@@ -91,6 +91,26 @@ class QuestionSetsDialog(QDialog):
         curItem.setData(0, text)
 
     def moveUp(self):
-        pass
+        self.move('up')
     def moveDown(self):
-        pass
+        self.move('down')
+    def move(self, direction):
+        # what needs to be swapped?
+        cRow = self.form.setList.currentRow()
+
+        # make sure it can go that way
+        maxRow = self.form.setList.count() - 1
+        if (cRow == 0 and direction == 'up') or (
+                cRow == maxRow and direction == 'down'):
+            # assume the user will know what she did wrong; keep our mouth shut
+            return
+
+        # modify the db
+        s1 = db.sets.findSet(num=cRow)
+        s2 = db.sets.findSet(num=(cRow-1 if direction == 'up' else cRow+1))
+        db.sets.swapRows(s1, s2)
+
+        # update the list on-screen
+        i = self.form.setList.takeItem(cRow)
+        self.form.setList.insertItem(cRow-1 if direction == 'up' else cRow+1, i)
+        self.form.setList.setCurrentRow(cRow-1 if direction == 'up' else cRow+1)

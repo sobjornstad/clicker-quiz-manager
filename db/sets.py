@@ -111,3 +111,9 @@ def shiftNums():
         curNum += 1
     d.connection.commit()
 
+def swapRows(s1, s2):
+    "Swap the nums of the two sets passed."
+    r1, r2 = s1.getNum(), s2.getNum()
+    s1.setNum(r2, commit=False)
+    s2.setNum(r1, commit=False)
+    d.connection.commit()
