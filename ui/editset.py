@@ -14,7 +14,7 @@ class SetEditor(QDialog):
 
         self.populateSets()
 
-        self.form.addButton.clicked.connect(self.onAdd)
+        self.form.newButton.clicked.connect(self.onNew)
         self.form.deleteButton.clicked.connect(self.onDelete)
         self.form.importButton.clicked.connect(self.onImport)
         self.form.exportButton.clicked.connect(self.onExport)
@@ -32,15 +32,11 @@ class SetEditor(QDialog):
         i = self.form.jumpCombo.findText(txt)
         self.form.jumpCombo.setCurrentIndex(i)
 
-    def onAdd(self):
+    def onNew(self):
         nqText = "New Question"
         self.form.questionList.addItem(nqText)
         newRow = self.form.questionList.count() - 1
         self.form.questionList.setCurrentRow(newRow)
-        print "done"
-        #self.form.questionList.findItems(nqText,
-        #        QtCore.Qt.MatchExactly)[0].setSelected(True)
-
         self.form.questionBox.setPlainText(nqText)
         self.form.questionBox.setFocus()
         self.form.questionBox.selectAll()

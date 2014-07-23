@@ -65,9 +65,9 @@ QGroupBox::title {
         <item>
          <layout class="QGridLayout" name="gridLayout_2">
           <item row="0" column="0">
-           <widget class="QPushButton" name="addButton">
+           <widget class="QPushButton" name="newButton">
             <property name="text">
-             <string>Add</string>
+             <string>New</string>
             </property>
            </widget>
           </item>
@@ -386,7 +386,7 @@ QGroupBox::title {
   <tabstop>answerE</tabstop>
   <tabstop>correctAnswerCombo</tabstop>
   <tabstop>questionList</tabstop>
-  <tabstop>addButton</tabstop>
+  <tabstop>newButton</tabstop>
   <tabstop>deleteButton</tabstop>
   <tabstop>importButton</tabstop>
   <tabstop>moveUpButton</tabstop>
