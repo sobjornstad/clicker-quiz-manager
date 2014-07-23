@@ -7,7 +7,7 @@ from db.sets import getAllSets
 
 class CorrectAnswersComboBox(QComboBox):
     def focusInEvent(self, event):
-        self.window().celebrate()
+        self.window().populateCorrectAnswer()
 
 class SetEditor(QDialog):
     def __init__(self, setList):
@@ -48,8 +48,28 @@ class SetEditor(QDialog):
         self.form.questionBox.textChanged.connect(self.updateListQuestion)
 
     def populateCorrectAnswer(self):
-        """Called when selecting the 'correct answer' box to figure out what
+        """Called when focusing the 'correct answer' box to figure out what
         should go in there."""
+
+        # save user's current choice, if any
+        pass
+
+        # empty existing choices, if any
+        self.form.correctAnswerCombo.clear()
+
+        # fill with new set of choices
+        sf = self.form
+        aBoxes = [sf.answerA, sf.answerB, sf.answerC, sf.answerD, sf.answerE]
+        aNames = {sf.answerA: 'A', sf.answerB: 'B', sf.answerC: 'C',
+                sf.answerD: 'D', sf.answerE: 'E'}
+        for ans in aBoxes:
+            if ans.text() != '':
+                print "adding ans %r" % aNames[ans]
+                self.form.correctAnswerCombo.addItem(aNames[ans], 0)
+            else:
+                # that was the last answer choice; we don't want to allow, say,
+                # 'A', 'B', and 'D' as options
+                break
 
     def updateListQuestion(self):
         """Called when editing the question, to keep the question's entry in the
@@ -62,9 +82,6 @@ class SetEditor(QDialog):
         """Called when clicking the "save changes" button, or hopefully
         eventually when question editing section of the dialog loses focus."""
         pass
-
-    def celebrate(self):
-        print "Hallelujah!"
 
     def onDelete(self):
         pass
