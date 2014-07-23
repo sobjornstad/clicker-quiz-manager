@@ -20,6 +20,7 @@ class SetEditor(QDialog):
         self.form.exportButton.clicked.connect(self.onExport)
         self.form.moveDownButton.clicked.connect(self.onMoveDown)
         self.form.moveUpButton.clicked.connect(self.onMoveUp)
+        self.form.saveButton.clicked.connect(self.onSaveQuestion)
         self.form.closeButton.clicked.connect(self.accept)
 
     def populateSets(self):
@@ -48,6 +49,11 @@ class SetEditor(QDialog):
 
         txt = unicode(self.form.questionBox.toPlainText())
         self.form.questionList.currentItem().setData(0, txt)
+
+    def onSaveQuestion(self):
+        """Called when clicking the "save changes" button, or hopefully
+        eventually when question editing section of the dialog loses focus."""
+        pass
 
     def onDelete(self):
         pass
