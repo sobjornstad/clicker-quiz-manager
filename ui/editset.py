@@ -1,9 +1,13 @@
 from PyQt4 import QtGui, QtCore
-from PyQt4.QtGui import QDialog, QMessageBox, QInputDialog, QPlainTextEdit
+from PyQt4.QtGui import QDialog, QMessageBox, QInputDialog, QPlainTextEdit, QComboBox
 from forms.editset import Ui_Dialog
 
 import utils
 from db.sets import getAllSets
+
+class CorrectAnswersComboBox(QComboBox):
+    def focusInEvent(self, event):
+        self.window().celebrate()
 
 class SetEditor(QDialog):
     def __init__(self, setList):
@@ -43,6 +47,10 @@ class SetEditor(QDialog):
         self.form.questionBox.selectAll()
         self.form.questionBox.textChanged.connect(self.updateListQuestion)
 
+    def populateCorrectAnswer(self):
+        """Called when selecting the 'correct answer' box to figure out what
+        should go in there."""
+
     def updateListQuestion(self):
         """Called when editing the question, to keep the question's entry in the
         list in sync."""
@@ -54,6 +62,9 @@ class SetEditor(QDialog):
         """Called when clicking the "save changes" button, or hopefully
         eventually when question editing section of the dialog loses focus."""
         pass
+
+    def celebrate(self):
+        print "Hallelujah!"
 
     def onDelete(self):
         pass
