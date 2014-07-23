@@ -50,7 +50,7 @@ class SetEditor(QDialog):
         """Called when editing the question, to keep the question's entry in the
         list in sync."""
 
-        txt = str(self.form.questionBox.toPlainText())
+        txt = unicode(self.form.questionBox.toPlainText())
         self.form.questionList.currentItem().setData(0, txt)
 
     def onDelete(self):

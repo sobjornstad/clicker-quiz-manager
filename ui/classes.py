@@ -32,7 +32,7 @@ class ClassesWindow(QDialog):
         if not text:
             utils.errorBox("You must enter a name for the class.",
                     "No name provided")
-        text = str(text) # away from QString
+        text = unicode(text) # away from QString
         if db.classes.isDupe(text):
             utils.errorBox("You already have a class by that name.",
                     "Duplicate Entry")
@@ -43,7 +43,7 @@ class ClassesWindow(QDialog):
     def rename(self):
         # get new name and confirm change
         curItem = self.form.listWidget.currentItem()
-        name = str(curItem.text())
+        name = unicode(curItem.text())
         text, didEnter = QInputDialog.getText(self, "Rename Class",
                 "Rename to:", text=name)
         if not didEnter:
@@ -56,7 +56,7 @@ class ClassesWindow(QDialog):
             return # assume user meant to cancel
 
         # check for dupes
-        text = str(text)
+        text = unicode(text)
         if db.classes.isDupe(text):
             utils.errorBox("You already have a class by that name.",
                     "Duplicate Entry")

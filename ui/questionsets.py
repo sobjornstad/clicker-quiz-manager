@@ -32,7 +32,7 @@ class QuestionSetsDialog(QDialog):
     def add(self):
         toAdd, didEnter = QInputDialog.getText(self, "Add Set",
                  "What do you want to call the new set?")
-        toAdd = str(toAdd)
+        toAdd = unicode(toAdd)
 
         if not didEnter:
             return
@@ -68,7 +68,7 @@ class QuestionSetsDialog(QDialog):
     def rename(self):
         # get new name and confirm change
         curItem = self.form.setList.currentItem()
-        name = str(curItem.text())
+        name = unicode(curItem.text())
         text, didEnter = QInputDialog.getText(self, "Rename Set",
                 "Rename to:", text=name)
         if not didEnter:
@@ -81,7 +81,7 @@ class QuestionSetsDialog(QDialog):
             return # assume user meant to cancel
 
         # check for dupes
-        text = str(text)
+        text = unicode(text)
         if db.sets.isDupe(text):
             utils.errorBox("You already have a set by that name.",
                     "Duplicate Entry")
