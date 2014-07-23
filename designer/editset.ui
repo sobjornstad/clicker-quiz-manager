@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>859</width>
+    <width>1025</width>
     <height>612</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
     <rect>
      <x>20</x>
      <y>10</y>
-     <width>811</width>
+     <width>991</width>
      <height>541</height>
     </rect>
    </property>
@@ -47,13 +47,20 @@ QGroupBox::title {
         <rect>
          <x>10</x>
          <y>30</y>
-         <width>381</width>
+         <width>622</width>
          <height>491</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QListWidget" name="questionList"/>
+         <widget class="QListWidget" name="questionList">
+          <property name="minimumSize">
+           <size>
+            <width>620</width>
+            <height>0</height>
+           </size>
+          </property>
+         </widget>
         </item>
         <item>
          <layout class="QGridLayout" name="gridLayout_2">
@@ -103,10 +110,19 @@ QGroupBox::title {
         </item>
        </layout>
       </widget>
+      <zorder>layoutWidget</zorder>
+      <zorder>groupBox_3</zorder>
+      <zorder>groupBox_3</zorder>
      </widget>
     </item>
     <item>
      <widget class="QGroupBox" name="groupBox_3">
+      <property name="maximumSize">
+       <size>
+        <width>345</width>
+        <height>16777215</height>
+       </size>
+      </property>
       <property name="styleSheet">
        <string notr="true">QGroupBox{
 	border: 2px solid gray;
@@ -127,8 +143,8 @@ QGroupBox::title {
       <widget class="QGroupBox" name="groupBox">
        <property name="geometry">
         <rect>
-         <x>70</x>
-         <y>220</y>
+         <x>40</x>
+         <y>210</y>
          <width>271</width>
          <height>260</height>
         </rect>
@@ -243,13 +259,11 @@ QGroupBox::title {
          </item>
         </layout>
        </widget>
-       <zorder>layoutWidget</zorder>
-       <zorder>layoutWidget</zorder>
       </widget>
       <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
-         <x>40</x>
+         <x>10</x>
          <y>40</y>
          <width>325</width>
          <height>145</height>
@@ -311,7 +325,7 @@ QGroupBox::title {
     <rect>
      <x>30</x>
      <y>570</y>
-     <width>791</width>
+     <width>981</width>
      <height>31</height>
     </rect>
    </property>
@@ -327,8 +341,14 @@ QGroupBox::title {
      <widget class="QComboBox" name="jumpCombo">
       <property name="minimumSize">
        <size>
-        <width>250</width>
+        <width>450</width>
         <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>300</width>
+        <height>16777215</height>
        </size>
       </property>
      </widget>
