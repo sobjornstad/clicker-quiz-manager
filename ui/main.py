@@ -1,5 +1,5 @@
 import sys
-sys.path.append("../")
+#sys.path.append("../")
 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QApplication, QMainWindow
@@ -38,7 +38,8 @@ class MainWindow(QMainWindow):
         db.database.close()
         sys.exit(0)
 
-app = QApplication(sys.argv)
-mw = MainWindow()
-mw.show()
-app.exec_()
+def start():
+    app = QApplication(sys.argv)
+    mw = MainWindow()
+    mw.show()
+    app.exec_()
