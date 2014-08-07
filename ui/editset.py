@@ -5,10 +5,6 @@ from forms.editset import Ui_Dialog
 import utils
 from db.sets import getAllSets
 
-class CorrectAnswersComboBox(QComboBox):
-    def focusInEvent(self, event):
-        self.window().populateCorrectAnswer()
-
 class SetEditor(QDialog):
     def __init__(self, setList):
         QDialog.__init__(self)
@@ -17,6 +13,9 @@ class SetEditor(QDialog):
         self.form.setupUi(self)
 
         self.populateSets()
+        self.populateCorrectAnswer()
+
+        self.form.correctAnswerCombo.activated.connect(self.onCorrectAnswerChoice)
 
         self.form.newButton.clicked.connect(self.onNew)
         self.form.deleteButton.clicked.connect(self.onDelete)
@@ -37,6 +36,19 @@ class SetEditor(QDialog):
         i = self.form.jumpCombo.findText(txt)
         self.form.jumpCombo.setCurrentIndex(i)
 
+    def populateCorrectAnswer(self):
+        """Fill correct answer box with A-E. It would be ideal to only fill the
+        ones that the user had selected, but we appear to have run into Qt bugs
+        there: http://goo.gl/mQ1b83"""
+
+        self.form.correctAnswerCombo.addItem("", 0) # no choice selected yet
+        for ans in ['A', 'B', 'C', 'D', 'E']:
+            self.form.correctAnswerCombo.addItem(ans, 0)
+
+    def onCorrectAnswerChoice(self):
+        i = self.form.correctAnswerCombo.findText("")
+        self.form.correctAnswerCombo.removeItem(i)
+
     def onNew(self):
         nqText = "New Question"
         self.form.questionList.addItem(nqText)
@@ -46,30 +58,6 @@ class SetEditor(QDialog):
         self.form.questionBox.setFocus()
         self.form.questionBox.selectAll()
         self.form.questionBox.textChanged.connect(self.updateListQuestion)
-
-    def populateCorrectAnswer(self):
-        """Called when focusing the 'correct answer' box to figure out what
-        should go in there."""
-
-        # save user's current choice, if any
-        pass
-
-        # empty existing choices, if any
-        self.form.correctAnswerCombo.clear()
-
-        # fill with new set of choices
-        sf = self.form
-        aBoxes = [sf.answerA, sf.answerB, sf.answerC, sf.answerD, sf.answerE]
-        aNames = {sf.answerA: 'A', sf.answerB: 'B', sf.answerC: 'C',
-                sf.answerD: 'D', sf.answerE: 'E'}
-        for ans in aBoxes:
-            if ans.text() != '':
-                print "adding ans %r" % aNames[ans]
-                self.form.correctAnswerCombo.addItem(aNames[ans], 0)
-            else:
-                # that was the last answer choice; we don't want to allow, say,
-                # 'A', 'B', and 'D' as options
-                break
 
     def updateListQuestion(self):
         """Called when editing the question, to keep the question's entry in the
