@@ -79,5 +79,20 @@ class QuestionTests(utils.DbTestCase):
         except TypeError:
             self.assertTrue(False), "Returned question number not an int"
 
+    def testSetGet(self):
+        st = Set("Test Set", 4)
+        # these are in the set
+        q = Question("Hello?", ["foo", "bar", "baz", "quux"], "c", st, 1)
+        q2 = Question("Goodbye?", ["1", "2", "3", "4"], "d", st, 2)
+        # this is *not* (included to be sure it doesn't accidentally get pulled)
+        q3 = Question("Bye-bye?", ["1", "2", "3", "4"], "d", Set("t", 2), 2)
+
+        # make sure gotten questions and originals are the same
+        sets = getBySet(st)
+        assert len(sets) == 2
+        assert sets[0].getQid() == q.getQid()
+        assert sets[1].getQid() == q2.getQid()
+
+
 if __name__ == "__main__":
     unittest.main()

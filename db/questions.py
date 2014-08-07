@@ -162,3 +162,16 @@ def getById(qid):
         return Question(q, answers, ca, sets.findSet(sid=sid), order, qid)
     else:
         return None
+
+def getBySet(st):
+    """Return a list of all questions in the given SET, sorted by their ORD."""
+    sid = st.getSid()
+
+    d.cursor.execute('SELECT * FROM questions WHERE sid = ? \
+                      ORDER BY ord', (sid,))
+    questionList = []
+    for i in d.cursor.fetchall():
+        qid, order, q, ca, answers, sid = i
+        questionList.append(Question(q, answers, ca, st, order, qid))
+
+    return questionList

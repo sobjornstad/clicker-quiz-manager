@@ -7,7 +7,7 @@ from forms.editset import Ui_Dialog
 import utils
 from db.sets import getAllSets
 from db.questions import Question, QuestionFormatError
-import db.sets
+import db.sets, db.questions
 
 class SetEditor(QDialog):
     def __init__(self, setList):
@@ -17,6 +17,7 @@ class SetEditor(QDialog):
         self.form.setupUi(self)
 
         self.populateSets()
+        self.populateQuestions()
         self.populateCorrectAnswer()
 
         self.form.correctAnswerCombo.activated.connect(self.onCorrectAnswerChoice)
@@ -39,6 +40,13 @@ class SetEditor(QDialog):
         set = self.sl.form.setList.currentItem().text()
         i = self.form.jumpCombo.findText(set)
         self.form.jumpCombo.setCurrentIndex(i)
+
+    def populateQuestions(self):
+        "Fill list box with existing questions in the set."
+
+        questions = db.questions.getBySet(self._currentSet())
+        for i in questions:
+            self.form.questionList.addItem(i.getQuestion())
 
     def populateCorrectAnswer(self):
         """Fill correct answer box with A-E. It would be ideal to only fill the
@@ -89,7 +97,7 @@ class SetEditor(QDialog):
         question = unicode(sf.questionBox.toPlainText())
         answersList = [unicode(i.text()).lower() for i in ansChoices if i.text()]
         correctAnswer = unicode(sf.correctAnswerCombo.currentText()).lower()
-        st = db.sets.findSet(name= unicode(sf.jumpCombo.currentText()))
+        st = self._currentSet()
         order = sf.questionList.row(sf.questionList.findItems(question, QtCore.Qt.MatchExactly)[0])
 
         # validate: at least 2 choices
@@ -142,3 +150,7 @@ class SetEditor(QDialog):
 
     def onMoveUp(self):
         pass
+
+    ### UTILITIES ###
+    def _currentSet(self):
+        return db.sets.findSet(name= unicode(self.form.jumpCombo.currentText()))
