@@ -1,3 +1,5 @@
+# -*- encoding: utf-8 -*-
+
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QDialog, QMessageBox, QInputDialog, QPlainTextEdit, QComboBox
 from forms.editset import Ui_Dialog
@@ -72,24 +74,59 @@ class SetEditor(QDialog):
         """Called when clicking the "save changes" button, or hopefully
         eventually when question editing section of the dialog loses focus."""
 
+        def saveError(msg):
+            deferror = "The question you provided is invalid: %s." % msg
+            utils.errorBox(deferror, "Save Error")
+
         sf = self.form
+        ansChoices = [sf.answerA, sf.answerB, sf.answerC, sf.answerD, sf.answerE]
+        ansDict = {'a': unicode(ansChoices[0].text()),
+                   'b': unicode(ansChoices[1].text()),
+                   'c': unicode(ansChoices[2].text()),
+                   'd': unicode(ansChoices[3].text()),
+                   'e': unicode(ansChoices[4].text())}
 
         question = unicode(sf.questionBox.toPlainText())
-        answersList = [i.lower() for i in
-                [unicode(sf.answerA.text()), unicode(sf.answerB.text()),
-                 unicode(sf.answerC.text()), unicode(sf.answerD.text()),
-                 unicode(sf.answerE.text())] if i]
+        answersList = [unicode(i.text()).lower() for i in ansChoices if i.text()]
         correctAnswer = unicode(sf.correctAnswerCombo.currentText()).lower()
         st = db.sets.findSet(name= unicode(sf.jumpCombo.currentText()))
         order = sf.questionList.row(sf.questionList.findItems(question, QtCore.Qt.MatchExactly)[0])
 
+        # validate: at least 2 choices
+        if len(answersList) < 2:
+            saveError("you must enter at least 2 answer choices.")
+            return
+
+        # validate: no gaps in answer choices
+        reachedEnd = False
+        for i in ansChoices:
+            if i.text() and reachedEnd:
+                saveError("you may not leave answer choices blank unless " \
+                          "they are at the end")
+                return
+            elif not i.text():
+                reachedEnd = True
+
+        # validate: correct answer chosen
+        if correctAnswer == '':
+            saveError("you must choose a correct answer")
+            return
+
+        # validate: selected answer exists
+        if ansDict[correctAnswer] == '':
+            saveError("you must provide an answer choice for the answer that " \
+                      "you have selected as correct")
+            return
+
         try:
             nq = Question(question, answersList, correctAnswer, st, order)
         except QuestionFormatError as qfe:
-            print "Error: %s" % qfe
-            # handle error
+            utils.errorBox("Oops! The database returned the following " \
+                    "error:\n\n %s" % qfe, "Save Error")
+            return
 
-        # update screen state? move cursor?
+        #TODO: indicate somehow that saving was successful?
+        self.form.newButton.setFocus()
 
     def onDelete(self):
         pass
