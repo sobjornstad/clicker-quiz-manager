@@ -108,14 +108,14 @@ class Question(object):
     def prevalidate(self):
         "Make sure provided question input is valid."
         # correct types
-        if type(self._q) is not str or \
-           type(self._a) is not list or \
-           type(self._ca) is not str:
+        if not isinstance(self._q, basestring) or \
+           not isinstance(self._a, list) or \
+           not isinstance(self._ca, basestring):
                raise QuestionFormatError("Program provided invalid question: " \
                        "wrong data type.")
                return False
         for ans in self._a:
-            if type(ans) is not str:
+            if not isinstance(ans, basestring):
                raise QuestionFormatError("Program provided invalid question:" \
                        " an answer choice was not a string.")
                return False

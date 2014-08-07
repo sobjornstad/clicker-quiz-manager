@@ -4,6 +4,8 @@ from forms.editset import Ui_Dialog
 
 import utils
 from db.sets import getAllSets
+from db.questions import Question, QuestionFormatError
+import db.sets
 
 class SetEditor(QDialog):
     def __init__(self, setList):
@@ -32,8 +34,8 @@ class SetEditor(QDialog):
             self.form.jumpCombo.addItem(s.getName())
 
         # select the set we're editing from it
-        txt = self.sl.form.setList.currentItem().text()
-        i = self.form.jumpCombo.findText(txt)
+        set = self.sl.form.setList.currentItem().text()
+        i = self.form.jumpCombo.findText(set)
         self.form.jumpCombo.setCurrentIndex(i)
 
     def populateCorrectAnswer(self):
@@ -69,7 +71,25 @@ class SetEditor(QDialog):
     def onSaveQuestion(self):
         """Called when clicking the "save changes" button, or hopefully
         eventually when question editing section of the dialog loses focus."""
-        pass
+
+        sf = self.form
+
+        question = unicode(sf.questionBox.toPlainText())
+        answersList = [i.lower() for i in
+                [unicode(sf.answerA.text()), unicode(sf.answerB.text()),
+                 unicode(sf.answerC.text()), unicode(sf.answerD.text()),
+                 unicode(sf.answerE.text())] if i]
+        correctAnswer = unicode(sf.correctAnswerCombo.currentText()).lower()
+        st = db.sets.findSet(name= unicode(sf.jumpCombo.currentText()))
+        order = sf.questionList.row(sf.questionList.findItems(question, QtCore.Qt.MatchExactly)[0])
+
+        try:
+            nq = Question(question, answersList, correctAnswer, st, order)
+        except QuestionFormatError as qfe:
+            print "Error: %s" % qfe
+            # handle error
+
+        # update screen state? move cursor?
 
     def onDelete(self):
         pass
