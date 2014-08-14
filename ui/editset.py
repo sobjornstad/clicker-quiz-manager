@@ -21,6 +21,7 @@ class SetEditor(QDialog):
         self.populateCorrectAnswer()
 
         self.form.correctAnswerCombo.activated.connect(self.onCorrectAnswerChoice)
+        self.form.questionList.itemSelectionChanged.connect(self.onQuestionChange)
 
         self.form.newButton.clicked.connect(self.onNew)
         self.form.deleteButton.clicked.connect(self.onDelete)
@@ -60,6 +61,22 @@ class SetEditor(QDialog):
     def onCorrectAnswerChoice(self):
         i = self.form.correctAnswerCombo.findText("")
         self.form.correctAnswerCombo.removeItem(i)
+
+    def onQuestionChange(self):
+        q = db.questions.getByName(
+            unicode(self.form.questionList.currentItem().text()))
+        if not q:
+            print "no q"
+            return
+
+        sf = self.form
+        ansChoices = [sf.answerA, sf.answerB, sf.answerC, sf.answerD, sf.answerE]
+        a = q.getAnswersList()
+        for i in range(len(a)):
+            ansChoices[i].setText(a[i])
+
+        i = Question._qLetters.index(q.getCorrectAnswer())
+        sf.correctAnswerCombo.setCurrentIndex(i)
 
     def onNew(self):
         nqText = "New Question"
