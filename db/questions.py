@@ -163,6 +163,20 @@ def getById(qid):
     else:
         return None
 
+def getByName(name):
+    #TODO: write a test for this function
+    # and/or replace all 3 of these with a find() function like in sets.py
+    """Return a Question, given its text. Return None if it doesn't exist."""
+
+    d.cursor.execute('SELECT * FROM questions WHERE q=?', (name,))
+    data = d.cursor.fetchall()
+    if data:
+        qid, order, q, ca, answers, sid = data[0]
+        answers = json.loads(answers)
+        return Question(q, answers, ca, sets.findSet(sid=sid), order, qid)
+    else:
+        return None
+
 def getBySet(st):
     """Return a list of all questions in the given SET, sorted by their ORD."""
     sid = st.getSid()
@@ -172,6 +186,7 @@ def getBySet(st):
     questionList = []
     for i in d.cursor.fetchall():
         qid, order, q, ca, answers, sid = i
+        answers = json.loads(answers)
         questionList.append(Question(q, answers, ca, st, order, qid))
 
     return questionList
