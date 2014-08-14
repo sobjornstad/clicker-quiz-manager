@@ -66,8 +66,11 @@ class SetEditor(QDialog):
         q = db.questions.getByName(
             unicode(self.form.questionList.currentItem().text()))
         if not q:
-            print "no q"
+            # the question isn't in the db yet, so it's an empty question and
+            # there's nothing to do
+            #TODO: (except maybe to clear the boxes?)
             return
+        self.form.questionBox.setPlainText(q.getQuestion())
 
         sf = self.form
         ansChoices = [sf.answerA, sf.answerB, sf.answerC, sf.answerD, sf.answerE]
