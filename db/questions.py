@@ -9,6 +9,12 @@ class QuestionFormatError(Exception):
     def __str__(self):
         return repr(self.emsg)
 
+class DuplicateError(Exception):
+    def __init__(self):
+        pass
+    def __str__(self):
+        return "A question by that name already exists."
+
 class Question(object):
     """
     Represents one stored multiple-choice question and its answers.
@@ -30,9 +36,12 @@ class Question(object):
         self._ca = correctAnswer
         self._sid = st.getSid()
         self._order = order
-        if (not qid) and self.prevalidate():
-            # if we were passed qid, it must already be in the db as given
-            self.dump()
+        if not qid:
+            # if we already have the qid, it's in the db already
+            if self.isDupe():
+                raise DuplicateError
+            if self.prevalidate():
+                self.dump()
 
     def __eq__(self, other):
         return (self._qid == other._qid and
@@ -132,6 +141,15 @@ class Question(object):
             return False
 
         return True
+
+    def isDupe(self):
+        """Make sure provided question name isn't a duplicate of another
+        question that already exists."""
+
+        if getByName(self._q):
+            return True
+        else:
+            return False
 
 
     ### OUTPUT TO FILE ###

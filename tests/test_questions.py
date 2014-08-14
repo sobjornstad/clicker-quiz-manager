@@ -93,6 +93,20 @@ class QuestionTests(utils.DbTestCase):
         assert sets[0].getQid() == q.getQid()
         assert sets[1].getQid() == q2.getQid()
 
+    def testDupeQuestionNames(self):
+        st = Set("Test Set", 1)
+        q = Question("What is the answer?", ["foo", "bar", "baz", "42"],
+                "d", st, 1)
+        with self.assertRaises(DuplicateError):
+            Question("What is the answer?", ["foo", "bar", "42", "quux"],
+                    "c", st, 2)
+        try:
+            # this one should be fine
+            Question("What is the answer to another question?",
+                    ["foo", "bar", "42", "quux"], "c", st, 2)
+        except Exception as e:
+            assert False, e
+
 
 if __name__ == "__main__":
     unittest.main()
