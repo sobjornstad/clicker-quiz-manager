@@ -6,7 +6,7 @@ from forms.editset import Ui_Dialog
 
 import utils
 from db.sets import getAllSets
-from db.questions import Question, QuestionFormatError
+from db.questions import Question, QuestionFormatError, DuplicateError
 import db.sets, db.questions
 
 class SetEditor(QDialog):
@@ -43,11 +43,14 @@ class SetEditor(QDialog):
         self.form.jumpCombo.setCurrentIndex(i)
 
     def populateQuestions(self):
-        "Fill list box with existing questions in the set."
+        """Fill list box with existing questions in the set, and save list of
+        questions for internal use."""
 
+        self.qidList = []
         questions = db.questions.getBySet(self._currentSet())
         for i in questions:
             self.form.questionList.addItem(i.getQuestion())
+            self.qidList.append(i)
 
     def populateCorrectAnswer(self):
         """Fill correct answer box with A-E. It would be ideal to only fill the
@@ -146,9 +149,17 @@ class SetEditor(QDialog):
                       "you have selected as correct")
             return
 
+        #TODO: This fails if we change the question name
         try:
             nq = Question(question, answersList, correctAnswer, st, order)
+        except DuplicateError:
+            # then what we really want to do is update the existing one
+            nq = db.questions.getByName(question)
+            nq.setAnswersList(answersList)
+            nq.setCorrectAnswer(correctAnswer)
+            # order and set can't have changed from this operation
         except QuestionFormatError as qfe:
+            # this shouldn't happen unless we screwed up
             utils.errorBox("Oops! The database returned the following " \
                     "error:\n\n %s" % qfe, "Save Error")
             return
