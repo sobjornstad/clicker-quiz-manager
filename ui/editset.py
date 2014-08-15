@@ -44,14 +44,11 @@ class SetEditor(QDialog):
         self.form.jumpCombo.setCurrentIndex(i)
 
     def populateQuestions(self):
-        """Fill list box with existing questions in the set, and save list of
-        questions for internal use."""
+        """Fill list box with existing questions in the set."""
 
-        self.qidList = []
         questions = db.questions.getBySet(self._currentSet())
         for i in questions:
             self.form.questionList.addItem(i.getQuestion())
-            self.qidList.append(i)
 
     def populateCorrectAnswer(self, isNewQuestion):
         """
