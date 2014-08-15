@@ -82,6 +82,7 @@ class SetEditor(QDialog):
             # there's nothing to do
             #TODO: (except maybe to clear the boxes?)
             return
+        self.currentQid = q.getQid()
         self.form.questionBox.setPlainText(q.getQuestion())
 
         sf = self.form
@@ -95,7 +96,8 @@ class SetEditor(QDialog):
         sf.correctAnswerCombo.setCurrentIndex(i)
 
     def onNew(self):
-        nqText = "New Question"
+        self.currentQid = None
+        nqText = "New Question" #TODO: Add #'s so this doesn't create a dupe
         self.form.questionList.addItem(nqText)
         newRow = self.form.questionList.count() - 1
         self.form.questionList.setCurrentRow(newRow)
@@ -160,19 +162,20 @@ class SetEditor(QDialog):
             return
 
         #TODO: This fails if we change the question name
-        try:
-            nq = Question(question, answersList, correctAnswer, st, order)
-        except DuplicateError:
-            # then what we really want to do is update the existing one
-            nq = db.questions.getByName(question)
+        if self.currentQid is not None:
+            # update the existing one
+            nq = db.questions.getById(self.currentQid)
             nq.setAnswersList(answersList)
             nq.setCorrectAnswer(correctAnswer)
             # order and set can't have changed from this operation
-        except QuestionFormatError as qfe:
-            # this shouldn't happen unless we screwed up
-            utils.errorBox("Oops! The database returned the following " \
-                    "error:\n\n %s" % qfe, "Save Error")
-            return
+        else:
+            try:
+                nq = Question(question, answersList, correctAnswer, st, order)
+            except QuestionFormatError as qfe:
+                # this shouldn't happen unless we screwed up
+                utils.errorBox("Oops! The database returned the following " \
+                        "error:\n\n %s" % qfe, "Save Error")
+                return
 
         #TODO: indicate somehow that saving was successful?
         self.form.newButton.setFocus()
