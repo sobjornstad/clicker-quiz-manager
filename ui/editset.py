@@ -187,10 +187,10 @@ class SetEditor(QDialog):
         utils.informationBox("This feature is not implemented yet.", "Sorry!")
 
     def onMoveDown(self):
-        pass
+        utils.informationBox("This feature is not implemented yet.", "Sorry!")
 
     def onMoveUp(self):
-        pass
+        utils.informationBox("This feature is not implemented yet.", "Sorry!")
 
     ### UTILITIES ###
     def _currentSet(self):
