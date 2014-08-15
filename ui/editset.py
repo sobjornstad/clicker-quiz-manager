@@ -130,7 +130,7 @@ class SetEditor(QDialog):
                    'e': unicode(ansChoices[4].text())}
 
         question = unicode(sf.questionBox.toPlainText())
-        answersList = [unicode(i.text()).lower() for i in ansChoices if i.text()]
+        answersList = [unicode(i.text()) for i in ansChoices if i.text()]
         correctAnswer = unicode(sf.correctAnswerCombo.currentText()).lower()
         st = self._currentSet()
         order = sf.questionList.row(sf.questionList.findItems(question, QtCore.Qt.MatchExactly)[0])
