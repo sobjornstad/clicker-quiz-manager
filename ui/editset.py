@@ -18,7 +18,8 @@ class SetEditor(QDialog):
 
         self.populateSets()
         self.populateQuestions()
-        self.populateCorrectAnswer()
+        #TODO: remove this eventually, or automatically select first question
+        self.populateCorrectAnswer(isNewQuestion=True)
 
         self.form.correctAnswerCombo.activated.connect(self.onCorrectAnswerChoice)
         self.form.questionList.itemSelectionChanged.connect(self.onQuestionChange)
@@ -52,16 +53,27 @@ class SetEditor(QDialog):
             self.form.questionList.addItem(i.getQuestion())
             self.qidList.append(i)
 
-    def populateCorrectAnswer(self):
-        """Fill correct answer box with A-E. It would be ideal to only fill the
-        ones that the user had selected, but we appear to have run into Qt bugs
-        there: http://goo.gl/mQ1b83"""
+    def populateCorrectAnswer(self, isNewQuestion):
+        """
+        Clear any current contents of the correct answer box and add options
+        A-E. It would be ideal to only fill the ones that the user had
+        selected, but we appear to have run into Qt bugs there:
+        http://goo.gl/mQ1b83.
 
-        self.form.correctAnswerCombo.addItem("", 0) # no choice selected yet
+        If isNewQuestion, a blank option will be added to the top of the list,
+        to be removed once an option is selected.
+        """
+
+        self.form.correctAnswerCombo.clear()
+        if isNewQuestion:
+            self.form.correctAnswerCombo.addItem("", 0) # no choice selected yet
         for ans in ['A', 'B', 'C', 'D', 'E']:
             self.form.correctAnswerCombo.addItem(ans, 0)
 
     def onCorrectAnswerChoice(self):
+        """Remove the blank item from the list once the combo box is activated
+        for the first time. See the docstring for populateCorrectAnswer()."""
+
         i = self.form.correctAnswerCombo.findText("")
         self.form.correctAnswerCombo.removeItem(i)
 
@@ -82,6 +94,7 @@ class SetEditor(QDialog):
             ansChoices[i].setText(a[i])
 
         i = Question._qLetters.index(q.getCorrectAnswer())
+        self.populateCorrectAnswer(False)
         sf.correctAnswerCombo.setCurrentIndex(i)
 
     def onNew(self):
