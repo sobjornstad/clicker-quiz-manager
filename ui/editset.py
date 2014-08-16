@@ -177,7 +177,7 @@ class SetEditor(QDialog):
 
         # validate: at least 2 choices
         if len(answersList) < 2:
-            saveError("you must enter at least 2 answer choices.")
+            saveError("you must enter at least 2 answer choices")
             return
 
         # validate: no gaps in answer choices
