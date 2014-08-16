@@ -84,6 +84,7 @@ class SetEditor(QDialog):
             return
         self.currentQid = q.getQid()
         self.form.questionBox.setPlainText(q.getQuestion())
+        self.form.questionBox.textChanged.connect(self.updateListQuestion)
 
         sf = self.form
         ansChoices = [sf.answerA, sf.answerB, sf.answerC, sf.answerD, sf.answerE]
@@ -165,6 +166,7 @@ class SetEditor(QDialog):
         if self.currentQid is not None:
             # update the existing one
             nq = db.questions.getById(self.currentQid)
+            nq.setQuestion(question)
             nq.setAnswersList(answersList)
             nq.setCorrectAnswer(correctAnswer)
             # order and set can't have changed from this operation
