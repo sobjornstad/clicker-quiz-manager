@@ -29,8 +29,7 @@ class Question(object):
 
     _qLetters = ['a', 'b', 'c', 'd', 'e']
 
-    def __init__(self, question, answersList, correctAnswer, st, order,
-                 qid=None, ignoreDupe=False):
+    def __init__(self, question, answersList, correctAnswer, st, order, qid=None):
         self._qid = qid
         self._q = question
         self._a = answersList
@@ -39,7 +38,7 @@ class Question(object):
         self._order = order
         if not qid:
             # if we already have the qid, it's in the db already
-            if self.isDupe() and not ignoreDupe:
+            if self.isDupe():
                 raise DuplicateError
             if self.prevalidate():
                 self.dump()
