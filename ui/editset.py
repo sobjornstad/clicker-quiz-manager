@@ -21,11 +21,15 @@ class SetEditor(QDialog):
         self.form = Ui_Dialog()
         self.form.setupUi(self)
 
+        sf = self.form
+        self.ansChoices = [sf.answerA, sf.answerB, sf.answerC, sf.answerD, sf.answerE]
+
         self.populateSets()
         self.populateQuestions()
-        #TODO: remove this eventually, or automatically select first question
-        self.populateCorrectAnswer(isNewQuestion=True)
-        self.currentQid = None
+        # select first question to start with
+        self.form.questionList.setCurrentRow(0)
+        self.onQuestionChange()
+        self.form.questionList.setFocus()
 
         self.form.correctAnswerCombo.activated.connect(self.onCorrectAnswerChoice)
         self.form.questionList.itemSelectionChanged.connect(self.onQuestionChange)
@@ -38,6 +42,7 @@ class SetEditor(QDialog):
         self.form.moveUpButton.clicked.connect(self.onMoveUp)
         self.form.saveButton.clicked.connect(self.onSaveQuestion)
         self.form.closeButton.clicked.connect(self.accept)
+
 
     def populateSets(self):
         self.l = getAllSets()
@@ -84,27 +89,35 @@ class SetEditor(QDialog):
         q = db.questions.getByName(
             unicode(self.form.questionList.currentItem().text()))
         if not q:
-            # the question isn't in the db yet, so it's an empty question and
-            # there's nothing to do
-            #TODO: (except maybe to clear the boxes?)
+            # the question isn't in the db yet, so it's an empty question
+            # and will be handled by onNew
             return
         #TODO: consider if maybe this should store the Question object in future
         self.currentQid = q.getQid()
         self.form.questionBox.setPlainText(q.getQuestion())
         self.form.questionBox.textChanged.connect(self.updateListQuestion)
 
-        sf = self.form
-        ansChoices = [sf.answerA, sf.answerB, sf.answerC, sf.answerD, sf.answerE]
         a = q.getAnswersList()
         for i in range(len(a)):
-            ansChoices[i].setText(a[i])
+            self.ansChoices[i].setText(a[i])
 
         i = Question._qLetters.index(q.getCorrectAnswer())
         self.populateCorrectAnswer(False)
-        sf.correctAnswerCombo.setCurrentIndex(i)
+        self.form.correctAnswerCombo.setCurrentIndex(i)
+
+    def _clearQuestionInterface(self):
+        """Remove answers, difficult, and correct answer from question side.
+        Don't touch question, as we'll need to set that to the new or existing
+        question value anyway."""
+
+        self.form.difficultySpinner.setValue(1)
+        for i in self.ansChoices:
+            i.setText("")
+        self.populateCorrectAnswer(True)
 
     def onNew(self):
         self.currentQid = None
+        self._clearQuestionInterface()
         nqText = "New Question" #TODO: Add #'s so this doesn't create a dupe
         self.form.questionList.addItem(nqText)
         newRow = self.form.questionList.count() - 1
@@ -147,15 +160,14 @@ class SetEditor(QDialog):
             utils.errorBox(deferror, "Save Error")
 
         sf = self.form
-        ansChoices = [sf.answerA, sf.answerB, sf.answerC, sf.answerD, sf.answerE]
-        ansDict = {'a': unicode(ansChoices[0].text()),
-                   'b': unicode(ansChoices[1].text()),
-                   'c': unicode(ansChoices[2].text()),
-                   'd': unicode(ansChoices[3].text()),
-                   'e': unicode(ansChoices[4].text())}
+        ansDict = {'a': unicode(self.ansChoices[0].text()),
+                   'b': unicode(self.ansChoices[1].text()),
+                   'c': unicode(self.ansChoices[2].text()),
+                   'd': unicode(self.ansChoices[3].text()),
+                   'e': unicode(self.ansChoices[4].text())}
 
         question = unicode(sf.questionBox.toPlainText())
-        answersList = [unicode(i.text()) for i in ansChoices if i.text()]
+        answersList = [unicode(i.text()) for i in self.ansChoices if i.text()]
         correctAnswer = unicode(sf.correctAnswerCombo.currentText()).lower()
         st = self._currentSet()
         order = sf.questionList.row(sf.questionList.findItems(question, QtCore.Qt.MatchExactly)[0])
@@ -167,7 +179,7 @@ class SetEditor(QDialog):
 
         # validate: no gaps in answer choices
         reachedEnd = False
-        for i in ansChoices:
+        for i in self.ansChoices:
             if i.text() and reachedEnd:
                 saveError("you may not leave answer choices blank unless " \
                           "they are at the end")
@@ -186,7 +198,6 @@ class SetEditor(QDialog):
                       "you have selected as correct")
             return
 
-        #TODO: This fails if we change the question name
         if self.currentQid is not None:
             # update the existing one
             nq = db.questions.getById(self.currentQid)
