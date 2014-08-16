@@ -118,10 +118,23 @@ class SetEditor(QDialog):
             i.setText("")
         self.populateCorrectAnswer(True)
 
+    def _findNqText(self):
+        """Determine what text to use for the "new question" boilerplate."""
+
+        ql = self.form.questionList
+        qtexts = [unicode(ql.item(i).text()) for i in range(ql.count())]
+        nq = "New Question"
+        if nq in qtexts:
+            nq = "New Question 2"
+            while nq in qtexts:
+                num = int(nq.split(' ')[2])
+                nq = "New Question %i" % (num + 1)
+        return nq
+
     def onNew(self):
         self.currentQid = None
         self._clearQuestionInterface()
-        nqText = "New Question" #TODO: Add #'s so this doesn't create a dupe
+        nqText = self._findNqText()
         self.form.questionList.addItem(nqText)
         newRow = self.form.questionList.count() - 1
         self.form.questionList.setCurrentRow(newRow)
