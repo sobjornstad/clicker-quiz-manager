@@ -9,6 +9,11 @@ from db.sets import getAllSets
 from db.questions import Question, QuestionFormatError, DuplicateError
 import db.sets, db.questions
 
+class AutosaveQPlainTextEdit(QPlainTextEdit):
+    def focusOutEvent(self, event):
+        super(AutosaveQPlainTextEdit, self).focusOutEvent(event)
+        self.window().onQuestionFocusOut()
+
 class SetEditor(QDialog):
     def __init__(self, setList):
         QDialog.__init__(self)
@@ -20,6 +25,7 @@ class SetEditor(QDialog):
         self.populateQuestions()
         #TODO: remove this eventually, or automatically select first question
         self.populateCorrectAnswer(isNewQuestion=True)
+        self.currentQid = None
 
         self.form.correctAnswerCombo.activated.connect(self.onCorrectAnswerChoice)
         self.form.questionList.itemSelectionChanged.connect(self.onQuestionChange)
@@ -82,6 +88,7 @@ class SetEditor(QDialog):
             # there's nothing to do
             #TODO: (except maybe to clear the boxes?)
             return
+        #TODO: consider if maybe this should store the Question object in future
         self.currentQid = q.getQid()
         self.form.questionBox.setPlainText(q.getQuestion())
         self.form.questionBox.textChanged.connect(self.updateListQuestion)
@@ -114,10 +121,27 @@ class SetEditor(QDialog):
         txt = unicode(self.form.questionBox.toPlainText())
         self.form.questionList.currentItem().setData(0, txt)
 
-    def onSaveQuestion(self):
-        """Called when clicking the "save changes" button, or hopefully
-        eventually when question editing section of the dialog loses focus."""
+    def onQuestionFocusOut(self):
+        """Determine if the text has changed or if it's just an unrelated focus
+        out event, then save if necessary."""
 
+        if not self.currentQid:
+            # question that is not in db is currently displayed
+            return
+        oldQ = db.questions.getById(self.currentQid).getQuestion()
+        newQ = unicode(self.form.questionBox.toPlainText())
+        if oldQ != newQ:
+            self._saveQuestion()
+
+    def onSaveQuestion(self):
+        "Called when clicking the 'save changes' button."
+
+        self._saveQuestion()
+
+        #TODO: indicate somehow that saving was successful?
+        self.form.newButton.setFocus()
+
+    def _saveQuestion(self):
         def saveError(msg):
             deferror = "The question you provided is invalid: %s." % msg
             utils.errorBox(deferror, "Save Error")
@@ -178,9 +202,6 @@ class SetEditor(QDialog):
                 utils.errorBox("Oops! The database returned the following " \
                         "error:\n\n %s" % qfe, "Save Error")
                 return
-
-        #TODO: indicate somehow that saving was successful?
-        self.form.newButton.setFocus()
 
     def onDelete(self):
         pass
