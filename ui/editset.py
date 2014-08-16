@@ -26,10 +26,13 @@ class SetEditor(QDialog):
 
         self.populateSets()
         self.populateQuestions()
-        # select first question to start with
-        self.form.questionList.setCurrentRow(0)
-        self.onQuestionChange()
-        self.form.questionList.setFocus()
+        # select first question, or create new one if there are none
+        if self.form.questionList.count():
+            self.form.questionList.setCurrentRow(0)
+            self.onQuestionChange()
+            self.form.questionList.setFocus()
+        else:
+            self.onNew()
 
         self.form.correctAnswerCombo.activated.connect(self.onCorrectAnswerChoice)
         self.form.questionList.itemSelectionChanged.connect(self.onQuestionChange)
