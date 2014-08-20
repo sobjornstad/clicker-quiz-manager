@@ -260,6 +260,9 @@ class SetEditor(QDialog):
         self._enableList()
 
     def onDelete(self):
+        r = utils.confirmDeleteBox("question", "")
+        if r != QMessageBox.Yes:
+           return
         cRow = self.form.questionList.currentRow()
         q = self.qm.byOrd(cRow)
         self.qm.rmQuestion(q)
