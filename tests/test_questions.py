@@ -95,6 +95,7 @@ class QuestionTests(utils.DbTestCase):
 
     def testDupeQuestionNames(self):
         st = Set("Test Set", 1)
+        st2 = Set("Test Set 2", 2)
         q = Question("What is the answer?", ["foo", "bar", "baz", "42"],
                 "d", st, 1)
         with self.assertRaises(DuplicateError):
@@ -104,6 +105,10 @@ class QuestionTests(utils.DbTestCase):
             # this one should be fine
             Question("What is the answer to another question?",
                     ["foo", "bar", "42", "quux"], "c", st, 2)
+            # and this one tests whether it correctly doesn't consider things
+            # in different sets as dupes when they otherwise are
+            Question("What is the answer?",
+                    ["foo", "bar", "42", "quux"], "c", st2, 3)
         except Exception as e:
             assert False, e
 

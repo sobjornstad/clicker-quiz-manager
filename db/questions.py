@@ -158,7 +158,8 @@ class Question(object):
         """Make sure provided question name isn't a duplicate of another
         question that already exists."""
 
-        if getByName(self._q):
+        q = getByName(self._q)
+        if q and (self._sid == q.getSid()):
             return True
         else:
             return False
