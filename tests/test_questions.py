@@ -107,6 +107,30 @@ class QuestionTests(utils.DbTestCase):
         except Exception as e:
             assert False, e
 
+    def testQuestionManager(self):
+        st = Set("Test Set", 1)
+        q1 = Question("What is the answer?",
+                ["foo", "bar", "baz", "42"], "d", st, 1)
+        q2 = Question("What is the answer to this one?",
+                ["foo", "bar", "42", "quux"], "c", st, 2)
+        qm = QuestionManager(st)
+
+        # iter
+        qs_from_qm = [i for i in qm]
+        assert len(qs_from_qm) == 2
+        assert qs_from_qm[0] == q1
+        assert qs_from_qm[1] == q2
+
+        # byId
+        qid = q1.getQid()
+        qbyid = qm.byId(qid)
+        assert qbyid == q1
+
+        # byName
+        qname = q1.getQuestion()
+        qbyname = qm.byName(qname)
+        assert qbyname == q1
+
 
 if __name__ == "__main__":
     unittest.main()

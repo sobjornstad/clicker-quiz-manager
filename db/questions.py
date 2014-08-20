@@ -167,7 +167,35 @@ class Question(object):
         oCA = '\t'.join(['ANS:', self._ca])
         return oQ, oA, oCA
 
+class QuestionManager(object):
+    """Stores a list of questions that are in a given set and searches through
+    them as needed."""
 
+    def __init__(self, set):
+        self.q = getBySet(set)
+
+    def __iter__(self):
+        # you can iterate over the manager for a simple list of the questions
+        for i in self.q:
+            yield i
+
+    def byId(self, qid):
+        """Return a Question, given the qid. Return None if it doesn't
+        exist."""
+
+        for i in self.q:
+            if i.getQid() == qid:
+                return i
+        return None
+
+    def byName(self, name):
+        """Return a Question, given its text. Return None if it doesn't
+        exist."""
+
+        for i in self.q:
+            if i.getQuestion() == name:
+                return i
+        return None
 
 def getById(qid):
     """Return a Question from the db, given the qid. Return None if it doesn't

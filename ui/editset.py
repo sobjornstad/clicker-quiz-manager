@@ -22,9 +22,11 @@ class SetEditor(QDialog):
         self.form.setupUi(self)
 
         sf = self.form
-        self.ansChoices = [sf.answerA, sf.answerB, sf.answerC, sf.answerD, sf.answerE]
+        self.ansChoices = [sf.answerA, sf.answerB, sf.answerC, sf.answerD,
+                sf.answerE]
 
         self.populateSets()
+        self.qm = db.questions.QuestionManager(self._currentSet())
         self.populateQuestions()
         # select first question, or create new one if there are none
         if self.form.questionList.count():
@@ -60,8 +62,7 @@ class SetEditor(QDialog):
     def populateQuestions(self):
         """Fill list box with existing questions in the set."""
 
-        questions = db.questions.getBySet(self._currentSet())
-        for i in questions:
+        for i in self.qm:
             self.form.questionList.addItem(i.getQuestion())
 
     def populateCorrectAnswer(self, isNewQuestion):
@@ -89,7 +90,7 @@ class SetEditor(QDialog):
         self.form.correctAnswerCombo.removeItem(i)
 
     def onQuestionChange(self):
-        q = db.questions.getByName(
+        q = self.qm.byName(
             unicode(self.form.questionList.currentItem().text()))
         if not q:
             # the question isn't in the db yet, so it's an empty question
@@ -157,7 +158,7 @@ class SetEditor(QDialog):
         if not self.currentQid:
             # question that is not in db is currently displayed
             return
-        oldQ = db.questions.getById(self.currentQid).getQuestion()
+        oldQ = self.qm.byId(self.currentQid).getQuestion()
         newQ = unicode(self.form.questionBox.toPlainText())
         if oldQ != newQ:
             self._saveQuestion()
@@ -216,7 +217,7 @@ class SetEditor(QDialog):
 
         if self.currentQid is not None:
             # update the existing one
-            nq = db.questions.getById(self.currentQid)
+            nq = self.qm.byId(self.currentQid)
             nq.setQuestion(question)
             nq.setAnswersList(answersList)
             nq.setCorrectAnswer(correctAnswer)
