@@ -241,11 +241,33 @@ class SetEditor(QDialog):
         utils.informationBox("This feature is not implemented yet.", "Sorry!")
 
     def onMoveDown(self):
-        utils.informationBox("This feature is not implemented yet.", "Sorry!")
-
+        self._move('down')
     def onMoveUp(self):
-        utils.informationBox("This feature is not implemented yet.", "Sorry!")
+        self._move('up')
+
 
     ### UTILITIES ###
     def _currentSet(self):
         return db.sets.findSet(name= unicode(self.form.jumpCombo.currentText()))
+
+    def _move(self, direction):
+        #TODO: This is essentially identical to the one in the sets code. We
+        # might be able to get some mileage out of a superclass.
+        assert direction in ('up', 'down'), "Invalid direction passed to _move"
+
+        cRow = self.form.questionList.currentRow()
+        maxRow = self.form.questionList.count() - 1
+        if (cRow == 0 and direction == 'up') or (
+                cRow == maxRow and direction == 'down'):
+            # assume the user will know what she did wrong; keep our mouth shut
+            return
+
+        q1 = self.qm.byOrd(cRow)
+        q2 = self.qm.byOrd(cRow-1 if direction == 'up' else cRow+1)
+        db.questions.swapRows(q1, q2)
+        self.qm.update()
+
+        ql = self.form.questionList
+        i = ql.takeItem(cRow)
+        ql.insertItem(cRow-1 if direction == 'up' else cRow+1, i)
+        ql.setCurrentRow(cRow-1 if direction == 'up' else cRow+1)

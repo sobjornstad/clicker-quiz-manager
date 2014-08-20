@@ -131,6 +131,21 @@ class QuestionTests(utils.DbTestCase):
         qbyname = qm.byName(qname)
         assert qbyname == q1
 
+        # byOrd
+        qord = q1.getOrder()
+        qbyord = qm.byOrd(qord)
+        assert qbyord == q1
+
+    def testSwap(self):
+        st = Set("Test Set", 1)
+        q1 = Question("What is the answer?",
+                ["foo", "bar", "baz", "42"], "d", st, 1)
+        q2 = Question("What is the answer to this one?",
+                ["foo", "bar", "42", "quux"], "c", st, 2)
+        swapRows(q1, q2)
+        assert q1.getOrder() == 2
+        assert q2.getOrder() == 1
+
 
 if __name__ == "__main__":
     unittest.main()

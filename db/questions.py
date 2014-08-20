@@ -81,12 +81,12 @@ class Question(object):
     def setCorrectAnswer(self, ca):
         self._ca = ca
         self.dump()
-    def setOrder(self, o):
+    def setOrder(self, o, commit=True):
         self._order = o
-        self.dump()
+        self.dump(commit)
     # not allowed: set change (TODO), qid change
 
-    def dump(self):
+    def dump(self, commit=True):
         # 'new question'
         nq = {
               'question': self._q,
@@ -110,7 +110,8 @@ class Question(object):
 
         # at some point we will want to eliminate this for performance reasons;
         # just leaving it here to make sure things are consistent for now
-        d.connection.commit()
+        if commit:
+            d.connection.commit()
 
 
     ### ERROR CHECKING ###
@@ -172,7 +173,12 @@ class QuestionManager(object):
     them as needed."""
 
     def __init__(self, set):
-        self.q = getBySet(set)
+        self.set = set
+        self.update()
+
+    def update(self):
+        "Update the list of questions from the db."
+        self.q = getBySet(self.set)
 
     def __iter__(self):
         # you can iterate over the manager for a simple list of the questions
@@ -185,6 +191,14 @@ class QuestionManager(object):
 
         for i in self.q:
             if i.getQid() == qid:
+                return i
+        return None
+
+    def byOrd(self, ord):
+        "Return a Question, given its ord. Return None if it doesn't exist."
+
+        for i in self.q:
+            if i.getOrder() == ord:
                 return i
         return None
 
@@ -236,3 +250,10 @@ def getBySet(st):
         questionList.append(Question(q, answers, ca, st, order, qid))
 
     return questionList
+
+def swapRows(q1, q2):
+    "Swap the ords of the two questions passed."
+    r1, r2 = q1.getOrder(), q2.getOrder()
+    q1.setOrder(r2, commit=False)
+    q2.setOrder(r1, commit=False)
+    d.connection.commit()
