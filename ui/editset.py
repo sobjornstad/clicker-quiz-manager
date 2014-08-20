@@ -25,6 +25,8 @@ class SetEditor(QDialog):
         self.ansChoices = [sf.answerA, sf.answerB, sf.answerC, sf.answerD,
                 sf.answerE]
 
+        self.form.cancelButton.setEnabled(False)
+
         self.populateSets()
         self.qm = db.questions.QuestionManager(self._currentSet())
         self.populateQuestions()
@@ -35,6 +37,8 @@ class SetEditor(QDialog):
             self.form.questionList.setFocus()
         else:
             self.onNew()
+            # we don't want to be able to cancel the only question that exists
+            self.form.cancelButton.setEnabled(False)
 
         self.form.correctAnswerCombo.activated.connect(self.onCorrectAnswerChoice)
         self.form.questionList.itemSelectionChanged.connect(self.onQuestionChange)
@@ -46,6 +50,7 @@ class SetEditor(QDialog):
         self.form.moveDownButton.clicked.connect(self.onMoveDown)
         self.form.moveUpButton.clicked.connect(self.onMoveUp)
         self.form.saveButton.clicked.connect(self.onSaveQuestion)
+        self.form.cancelButton.clicked.connect(self.onCancelNew)
         self.form.closeButton.clicked.connect(self.accept)
 
 
@@ -125,16 +130,13 @@ class SetEditor(QDialog):
         ql = self.form.questionList
         qtexts = [unicode(ql.item(i).text()) for i in range(ql.count())]
         nq = "New Question"
-        if nq in qtexts:
-            nq = "New Question 2"
-            while nq in qtexts:
-                num = int(nq.split(' ')[2])
-                nq = "New Question %i" % (num + 1)
-        return nq
+        return self._makeNameUnique(nq, qtexts)
 
     def onNew(self):
         self.currentQid = None
         self._clearQuestionInterface()
+        self._disableList()
+        self.form.cancelButton.setEnabled(True)
         nqText = self._findNqText()
         self.form.questionList.addItem(nqText)
         newRow = self.form.questionList.count() - 1
@@ -143,6 +145,11 @@ class SetEditor(QDialog):
         self.form.questionBox.setFocus()
         self.form.questionBox.selectAll()
         self.form.questionBox.textChanged.connect(self.updateListQuestion)
+
+    def onCancelNew(self):
+        self._enableList()
+        cRow = self.form.questionList.currentRow()
+        self.form.questionList.takeItem(cRow)
 
     def updateListQuestion(self):
         """Called when editing the question, to keep the question's entry in the
@@ -155,13 +162,31 @@ class SetEditor(QDialog):
         """Determine if the text has changed or if it's just an unrelated focus
         out event, then save if necessary."""
 
+        def dupechk(against):
+            """
+            Check if a question named 'against' would create a duplicate
+            question. Display error if necessary.
+            
+            Return True if it is a dupe, False if okay.
+            """
+            if db.questions.getByName(against):
+                utils.errorBox("You already have a question by that name! " \
+                               "Please choose a new name.", "Duplicate")
+                self.form.questionBox.setFocus() # don't tab to next entry
+
         if not self.currentQid:
             # question that is not in db is currently displayed
-            return
-        oldQ = self.qm.byId(self.currentQid).getQuestion()
-        newQ = unicode(self.form.questionBox.toPlainText())
-        if oldQ != newQ:
-            self._saveQuestion()
+            # confirm we don't have a duplicate
+            if dupechk(unicode(self.form.questionBox.toPlainText())):
+                return
+        else:
+            # question exists in db
+            oldQ = self.qm.byId(self.currentQid).getQuestion()
+            newQ = unicode(self.form.questionBox.toPlainText())
+            if oldQ != newQ:
+                if dupechk(newQ):
+                    return
+                self._saveQuestion()
 
     def onSaveQuestion(self):
         "Called when clicking the 'save changes' button."
@@ -231,6 +256,9 @@ class SetEditor(QDialog):
                         "error:\n\n %s" % qfe, "Save Error")
                 return
 
+        self.form.cancelButton.setEnabled(False)
+        self._enableList()
+
     def onDelete(self):
         cRow = self.form.questionList.currentRow()
         q = self.qm.byOrd(cRow)
@@ -274,3 +302,39 @@ class SetEditor(QDialog):
         i = ql.takeItem(cRow)
         ql.insertItem(cRow-1 if direction == 'up' else cRow+1, i)
         ql.setCurrentRow(cRow-1 if direction == 'up' else cRow+1)
+
+    def _makeNameUnique(self, name, compare):
+        """
+        Append a number as necessary to make some name unique in a list.
+
+        Arguments: name to make unique, list of strings to compare to for
+        uniqueness.
+        """
+        nn = name
+        if name in compare:
+            nn = name + " 2"
+            while nn in compare:
+                num = int(nn.split(' ')[-1])
+                nn = "New Question %i" % (num + 1)
+        return nn
+
+    def _disableList(self):
+        self._changeListStatus('disabled')
+    def _enableList(self):
+        self._changeListStatus('enabled')
+    def _changeListStatus(self, which):
+        sf = self.form
+        elements = [
+                    sf.questionList, sf.newButton,
+                    sf.deleteButton, sf.importButton,
+                    sf.moveUpButton, sf.moveDownButton,
+                    sf.exportButton, sf.jumpCombo
+                   ]
+
+        for i in elements:
+            if which == 'enabled':
+                i.setEnabled(True)
+            elif which == 'disabled':
+                i.setEnabled(False)
+            else:
+                assert False, "Invalid argument to _changeListStatus!"
