@@ -113,6 +113,17 @@ class Question(object):
         if commit:
             d.connection.commit()
 
+    def delete(self):
+        """Delete a question from the db. Calling this alone may cause the
+        database to end up in an inconsistent state with gaps in ord values,
+        which are supposed to be adjacent, so always call delete through the
+        question manager."""
+
+        d.cursor.execute('DELETE FROM questions WHERE qid=?', (self._qid,))
+        d.connection.commit()
+        # we shouldn't use this instance again of course, but the class does
+        # not enforce its nonuse.
+
 
     ### ERROR CHECKING ###
     def prevalidate(self):
@@ -177,7 +188,9 @@ class QuestionManager(object):
         self.update()
 
     def update(self):
-        "Update the list of questions from the db."
+        """Update the list of questions from the db. Call this if questions
+        have been changed outside of the QuestionManager instance."""
+
         self.q = getBySet(self.set)
 
     def __iter__(self):
@@ -210,6 +223,15 @@ class QuestionManager(object):
             if i.getQuestion() == name:
                 return i
         return None
+
+    def rmQuestion(self, qu):
+        "Remove a given (qu)estion from the manager and delete it from the db."
+
+        st = qu.getSet()
+        self.q.remove(qu)
+        qu.delete()
+        shiftOrds(st)
+
 
 def getById(qid):
     """Return a Question from the db, given the qid. Return None if it doesn't
@@ -256,4 +278,16 @@ def swapRows(q1, q2):
     r1, r2 = q1.getOrder(), q2.getOrder()
     q1.setOrder(r2, commit=False)
     q2.setOrder(r1, commit=False)
+    d.connection.commit()
+
+def shiftOrds(st):
+    """Shift all ords in a given set to fill in a gap caused by deleting a
+    question. You could call it the "ord defragmenter." """
+
+    qs = getBySet(st) # ordered with lowest first
+    curOrd = 0
+    for q in qs:
+        if q.getOrder() != curOrd:
+            q.setOrder(curOrd, commit=False)
+        curOrd += 1
     d.connection.commit()

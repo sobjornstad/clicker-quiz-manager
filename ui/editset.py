@@ -232,7 +232,10 @@ class SetEditor(QDialog):
                 return
 
     def onDelete(self):
-        pass
+        cRow = self.form.questionList.currentRow()
+        q = self.qm.byOrd(cRow)
+        self.qm.rmQuestion(q)
+        self.form.questionList.takeItem(cRow)
 
     def onImport(self):
         utils.informationBox("This feature is not implemented yet.", "Sorry!")

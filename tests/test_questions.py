@@ -146,6 +146,34 @@ class QuestionTests(utils.DbTestCase):
         assert q1.getOrder() == 2
         assert q2.getOrder() == 1
 
+    def testDelete(self):
+        st = Set("Test Set", 1)
+        q1 = Question("What is the answer?",
+                ["foo", "bar", "baz", "42"], "d", st, 1)
+        q2 = Question("What is the answer to this one?",
+                ["foo", "bar", "42", "quux"], "c", st, 2)
+        q3 = Question("What is the answer to another one?",
+                ["foo", "bar", "42", "quux"], "c", st, 2)
+
+        qm = QuestionManager(st)
+        qs_from_qm = [i for i in qm]
+        assert len(qs_from_qm) == 3
+
+        # bare delete outside of qm (not generally a good idea)
+        q3.delete()
+        # we haven't updated question manager yet
+        qs_from_qm = [i for i in qm]
+        assert len(qs_from_qm) == 3
+        # now...
+        qm.update()
+        qs_from_qm = [i for i in qm]
+        assert len(qs_from_qm) == 2
+
+        # now delete one properly thru the qm
+        qm.rmQuestion(q2)
+        qs_from_qm = [i for i in qm]
+        assert len(qs_from_qm) == 1
+
 
 if __name__ == "__main__":
     unittest.main()
