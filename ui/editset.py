@@ -41,6 +41,7 @@ class SetEditor(QDialog):
             self.form.cancelButton.setEnabled(False)
 
         self.form.correctAnswerCombo.activated.connect(self.onCorrectAnswerChoice)
+        self.form.jumpCombo.activated.connect(self.onJumpToSet)
         self.form.questionList.itemSelectionChanged.connect(self.onQuestionChange)
 
         self.form.newButton.clicked.connect(self.onNew)
@@ -278,6 +279,9 @@ class SetEditor(QDialog):
         self._move('down')
     def onMoveUp(self):
         self._move('up')
+
+    def onJumpToSet(self):
+        utils.informationBox("This feature is not implemented yet.", "Sorry!")
 
 
     ### UTILITIES ###
