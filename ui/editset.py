@@ -71,6 +71,39 @@ class SetEditor(QDialog):
             # we don't want to be able to cancel the only question that exists
             self.form.cancelButton.setEnabled(False)
 
+    def populateSets(self):
+        self.l = getAllSets()
+        for s in self.l:
+            self.form.jumpCombo.addItem(s.getName())
+
+        # select the set we're editing from it
+        set = self.sl.form.setList.currentItem().text()
+        i = self.form.jumpCombo.findText(set)
+        self.form.jumpCombo.setCurrentIndex(i)
+
+    def populateQuestions(self):
+        """Fill list box with existing questions in the set."""
+
+        for i in self.qm:
+            self.form.questionList.addItem(i.getQuestion())
+
+    def populateCorrectAnswer(self, isNewQuestion):
+        """
+        Clear any current contents of the correct answer box and add options
+        A-E. It would be ideal to only fill the ones that the user had
+        selected, but we appear to have run into Qt bugs there:
+        http://goo.gl/mQ1b83.
+
+        If isNewQuestion, a blank option will be added to the top of the list,
+        to be removed once an option is selected.
+        """
+
+        self.form.correctAnswerCombo.clear()
+        if isNewQuestion:
+            self.form.correctAnswerCombo.addItem("", 0) # no choice selected yet
+        for ans in [i.upper() for i in Question._qLetters]:
+            self.form.correctAnswerCombo.addItem(ans, 0)
+
     def reject(self):
         if self.listEnabled:
             super(SetEditor, self).reject()
@@ -107,45 +140,12 @@ class SetEditor(QDialog):
         super(SetEditor, self).reject()
         self.rejectDialog.close()
 
-    def populateSets(self):
-        self.l = getAllSets()
-        for s in self.l:
-            self.form.jumpCombo.addItem(s.getName())
-
-        # select the set we're editing from it
-        set = self.sl.form.setList.currentItem().text()
-        i = self.form.jumpCombo.findText(set)
-        self.form.jumpCombo.setCurrentIndex(i)
-
-    def populateQuestions(self):
-        """Fill list box with existing questions in the set."""
-
-        for i in self.qm:
-            self.form.questionList.addItem(i.getQuestion())
-
-    def populateCorrectAnswer(self, isNewQuestion):
-        """
-        Clear any current contents of the correct answer box and add options
-        A-E. It would be ideal to only fill the ones that the user had
-        selected, but we appear to have run into Qt bugs there:
-        http://goo.gl/mQ1b83.
-
-        If isNewQuestion, a blank option will be added to the top of the list,
-        to be removed once an option is selected.
-        """
-
-        self.form.correctAnswerCombo.clear()
-        if isNewQuestion:
-            self.form.correctAnswerCombo.addItem("", 0) # no choice selected yet
-        for ans in [i.upper() for i in Question._qLetters]:
-            self.form.correctAnswerCombo.addItem(ans, 0)
-
     def onCorrectAnswerChoice(self):
-        """Remove the blank item from the list once the combo box is activated
-        for the first time. See the docstring for populateCorrectAnswer()."""
+    """Remove the blank item from the list once the combo box is activated
+    for the first time. See the docstring for populateCorrectAnswer()."""
 
-        i = self.form.correctAnswerCombo.findText("")
-        self.form.correctAnswerCombo.removeItem(i)
+    i = self.form.correctAnswerCombo.findText("")
+    self.form.correctAnswerCombo.removeItem(i)
 
     def onQuestionChange(self):
         """
@@ -193,14 +193,6 @@ class SetEditor(QDialog):
             i.setText("")
         self.populateCorrectAnswer(True)
 
-    def _findNqText(self):
-        """Determine what text to use for the "new question" boilerplate."""
-
-        ql = self.form.questionList
-        qtexts = [unicode(ql.item(i).text()) for i in range(ql.count())]
-        nq = "New Question"
-        return self._makeNameUnique(nq, qtexts)
-
     def onNew(self):
         self.currentQid = None
         self._clearQuestionInterface()
@@ -212,6 +204,14 @@ class SetEditor(QDialog):
         self.form.questionBox.setPlainText(nqText)
         self.form.questionBox.setFocus()
         self.form.questionBox.selectAll()
+
+    def _findNqText(self):
+        """Determine what text to use for the "new question" boilerplate."""
+
+        ql = self.form.questionList
+        qtexts = [unicode(ql.item(i).text()) for i in range(ql.count())]
+        nq = "New Question"
+        return self._makeNameUnique(nq, qtexts)
 
     def onDiscard(self):
         if self.currentQid:
@@ -349,18 +349,6 @@ class SetEditor(QDialog):
         self._move('down')
     def onMoveUp(self):
         self._move('up')
-
-    def onJumpToSet(self):
-        self.form.questionList.clear()
-        self.setupQuestions()
-        # user might want to move down several with the arrow keys
-        self.form.jumpCombo.setFocus()
-
-
-    ### UTILITIES ###
-    def _currentSet(self):
-        return db.sets.findSet(name= unicode(self.form.jumpCombo.currentText()))
-
     def _move(self, direction):
         #TODO: This is essentially identical to the one in the sets code. We
         # might be able to get some mileage out of a superclass.
@@ -382,6 +370,17 @@ class SetEditor(QDialog):
         i = ql.takeItem(cRow)
         ql.insertItem(cRow-1 if direction == 'up' else cRow+1, i)
         ql.setCurrentRow(cRow-1 if direction == 'up' else cRow+1)
+
+    def onJumpToSet(self):
+        self.form.questionList.clear()
+        self.setupQuestions()
+        # user might want to move down several with the arrow keys
+        self.form.jumpCombo.setFocus()
+
+
+    ### UTILITIES ###
+    def _currentSet(self):
+        return db.sets.findSet(name= unicode(self.form.jumpCombo.currentText()))
 
     def _makeNameUnique(self, name, compare):
         """
