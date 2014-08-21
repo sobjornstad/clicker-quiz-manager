@@ -10,11 +10,6 @@ from db.sets import getAllSets
 from db.questions import Question, QuestionFormatError, DuplicateError
 import db.sets, db.questions
 
-class AutosaveQPlainTextEdit(QPlainTextEdit):
-    def focusOutEvent(self, event):
-        super(AutosaveQPlainTextEdit, self).focusOutEvent(event)
-        self.window().onQuestionFocusOut()
-
 class SetEditor(QDialog):
     def __init__(self, setList):
         QDialog.__init__(self)
@@ -214,9 +209,6 @@ class SetEditor(QDialog):
             # side or a new question
             self._disableList()
 
-    def onQuestionFocusOut(self):
-        pass
-
     def onSaveQuestion(self):
         "Called when clicking the 'save changes' button."
 
@@ -230,7 +222,7 @@ class SetEditor(QDialog):
         successful, False if an error, and display the appropriate error."""
 
         def saveError(msg):
-            deferror = "The question you provided is invalid: %s." % msg
+            deferror = "The question is invalid: %s." % msg
             utils.errorBox(deferror, "Save Error")
 
         sf = self.form
@@ -272,6 +264,11 @@ class SetEditor(QDialog):
                       "you have selected as correct")
             return False
 
+        # validate: question has some text in it
+        if not question.strip():
+            saveError("the question must have some text")
+            return False
+
         if self.currentQid is not None:
             # update the existing one
             nq = self.qm.byId(self.currentQid)
@@ -282,6 +279,9 @@ class SetEditor(QDialog):
         else:
             try:
                 nq = Question(question, answersList, correctAnswer, st, order)
+            except DuplicateError:
+                saveError("you already have a question with the same name")
+                return False
             except QuestionFormatError as qfe:
                 # this shouldn't happen unless we screwed up
                 utils.errorBox("Oops! The database returned the following " \
