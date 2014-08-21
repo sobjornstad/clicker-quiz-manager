@@ -232,14 +232,22 @@ class SetEditor(QDialog):
     def onSaveQuestion(self):
         "Called when clicking the 'save changes' button."
 
-        self._saveQuestion()
-
-        #TODO: indicate somehow that saving was successful?
-        self.form.newButton.setFocus()
+        r = self._saveQuestion()
+        if r == 1: # edited; go back to qlist
+            self.form.questionList.setFocus()
+        elif r == 2: # new; expect to create another new
+            self.form.newButton.setFocus()
 
     def _saveQuestion(self):
-        """Save the current question to the database. Return True if
-        successful, False if an error, and display the appropriate error."""
+        """
+        Save the current question to the database, displaying an appropriate
+        error if necessary.
+        
+        Return:
+        - 2 if a new question was created.
+        - 1 if an old question was updated.
+        - 0 if nothing was changed due to an error.
+        """
 
         def saveError(msg):
             deferror = "The question is invalid: %s." % msg
@@ -290,13 +298,15 @@ class SetEditor(QDialog):
             return False
 
         if self.currentQid is not None:
-            # update the existing one
+            # update the existing question
             nq = self.qm.byId(self.currentQid)
             nq.setQuestion(question)
             nq.setAnswersList(answersList)
             nq.setCorrectAnswer(correctAnswer)
+            retVal = 1
             # order and set can't have changed from this operation
         else:
+            # create a new one
             try:
                 nq = Question(question, answersList, correctAnswer, st, order)
             except DuplicateError:
@@ -307,10 +317,12 @@ class SetEditor(QDialog):
                 utils.errorBox("Oops! The database returned the following " \
                         "error:\n\n %s" % qfe, "Save Error")
                 return False
+            retVal = 2
 
         self.qm.update()
+        self.currentQid = self.qm.byName(question).getQid()
         self._enableList()
-        return True
+        return retVal
 
     def onDelete(self):
         r = utils.confirmDeleteBox("question", "")
