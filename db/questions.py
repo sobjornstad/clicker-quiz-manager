@@ -293,3 +293,14 @@ def shiftOrds(st):
             q.setOrder(curOrd, commit=False)
         curOrd += 1
     d.connection.commit()
+
+def findNextOrd(st):
+    """Find the next unused question ord in a set, or return 1 if there are
+    no questions in the set yet."""
+    sid = st.getSid()
+    d.cursor.execute('SELECT MAX(ord) FROM questions WHERE sid = ?', (sid,))
+    last = d.cursor.fetchall()[0][0]
+    if last:
+        return last + 1
+    else:
+        return 1

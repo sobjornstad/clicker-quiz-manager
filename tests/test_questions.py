@@ -179,6 +179,25 @@ class QuestionTests(utils.DbTestCase):
         qs_from_qm = [i for i in qm]
         assert len(qs_from_qm) == 1
 
+    def testFindNextOrd(self):
+        st = Set("Foo set", 1)
+        q1 = Question("What is the answer?",
+                ["foo", "bar", "baz", "42"], "d", st, 1)
+        q2 = Question("What is the answer to this one?",
+                ["foo", "bar", "42", "quux"], "c", st, 2)
+        q3 = Question("What is the answer to another one?",
+                ["foo", "bar", "42", "quux"], "c", st, 3)
+
+        # to make sure the where clause works
+        throwOffSet = Set("Bar set", 2)
+        q4 = Question("And how about this?",
+                ["foo", "bar", "42", "quux"], "c", throwOffSet, 5)
+
+        o = findNextOrd(st)
+        assert o == 4, "Wrong next ord, expected 4, got %i" % o
+
+
+
 
 if __name__ == "__main__":
     unittest.main()
