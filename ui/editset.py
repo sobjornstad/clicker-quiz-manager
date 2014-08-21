@@ -131,7 +131,7 @@ class SetEditor(QDialog):
         self.form.correctAnswerCombo.clear()
         if isNewQuestion:
             self.form.correctAnswerCombo.addItem("", 0) # no choice selected yet
-        for ans in ['A', 'B', 'C', 'D', 'E']:
+        for ans in [i.upper() for i in Question._qLetters]:
             self.form.correctAnswerCombo.addItem(ans, 0)
 
     def onCorrectAnswerChoice(self):
