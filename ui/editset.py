@@ -1,7 +1,8 @@
 # -*- encoding: utf-8 -*-
 
 from PyQt4 import QtGui, QtCore
-from PyQt4.QtGui import QDialog, QMessageBox, QInputDialog, QPlainTextEdit, QComboBox
+from PyQt4.QtGui import QDialog, QMessageBox, QInputDialog, QPlainTextEdit, \
+     QComboBox, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
 from forms.editset import Ui_Dialog
 
 import utils
@@ -25,7 +26,10 @@ class SetEditor(QDialog):
         self.ansChoices = [sf.answerA, sf.answerB, sf.answerC, sf.answerD,
                 sf.answerE]
 
-        self.form.cancelButton.setEnabled(False)
+        # get buttons into proper state of enablement
+        self.listEnabled = True
+        self._disableList()
+        self._enableList()
 
         self.populateSets()
         self.qm = db.questions.QuestionManager(self._currentSet())
@@ -51,9 +55,52 @@ class SetEditor(QDialog):
         self.form.moveDownButton.clicked.connect(self.onMoveDown)
         self.form.moveUpButton.clicked.connect(self.onMoveUp)
         self.form.saveButton.clicked.connect(self.onSaveQuestion)
-        self.form.cancelButton.clicked.connect(self.onCancelNew)
-        self.form.closeButton.clicked.connect(self.accept)
+        self.form.cancelButton.clicked.connect(self.onDiscard)
+        self.form.closeButton.clicked.connect(self.reject)
 
+        self.form.questionBox.textChanged.connect(self.updateListQuestion)
+        self.form.answerA.textEdited.connect(self._disableList)
+        self.form.answerB.textEdited.connect(self._disableList)
+        self.form.answerC.textEdited.connect(self._disableList)
+        self.form.answerD.textEdited.connect(self._disableList)
+        self.form.answerE.textEdited.connect(self._disableList)
+        self.form.difficultySpinner.valueChanged.connect(self._disableList)
+        self.form.correctAnswerCombo.activated.connect(self._disableList)
+
+    def reject(self):
+        if self.listEnabled:
+            super(SetEditor, self).reject()
+        else:
+            d = QDialog(self)
+
+            txt = QLabel("Do you want to save your changes to the current question?")
+            txtBox = QHBoxLayout()
+            txtBox.addWidget(txt)
+
+            a = QPushButton("Save")
+            a.clicked.connect(self.onExitSave)
+            b = QPushButton("Don't Save")
+            b.clicked.connect(self.onExitDiscard)
+            c = QPushButton("Cancel")
+            c.clicked.connect(d.close)
+            bBox = QHBoxLayout()
+            bBox.addWidget(a)
+            bBox.addWidget(b)
+            bBox.addWidget(c)
+
+            vBox = QVBoxLayout()
+            vBox.addLayout(txtBox)
+            vBox.addLayout(bBox)
+            d.setLayout(vBox)
+            d.show()
+            self.rejectDialog = d
+    def onExitSave(self):
+        if self._saveQuestion():
+            super(SetEditor, self).reject()
+        else:
+            self.rejectDialog.close()
+    def onExitDiscard(self):
+        super(SetEditor, self).reject()
 
     def populateSets(self):
         self.l = getAllSets()
@@ -105,8 +152,8 @@ class SetEditor(QDialog):
         #TODO: consider if maybe this should store the Question object in future
         self.currentQid = q.getQid()
         self.form.questionBox.setPlainText(q.getQuestion())
-        self.form.questionBox.textChanged.connect(self.updateListQuestion)
 
+        self._clearQuestionInterface()
         a = q.getAnswersList()
         for i in range(len(a)):
             self.ansChoices[i].setText(a[i])
@@ -137,7 +184,6 @@ class SetEditor(QDialog):
         self.currentQid = None
         self._clearQuestionInterface()
         self._disableList()
-        self.form.cancelButton.setEnabled(True)
         nqText = self._findNqText()
         self.form.questionList.addItem(nqText)
         newRow = self.form.questionList.count() - 1
@@ -145,49 +191,31 @@ class SetEditor(QDialog):
         self.form.questionBox.setPlainText(nqText)
         self.form.questionBox.setFocus()
         self.form.questionBox.selectAll()
-        self.form.questionBox.textChanged.connect(self.updateListQuestion)
 
-    def onCancelNew(self):
+    def onDiscard(self):
         self._enableList()
-        cRow = self.form.questionList.currentRow()
-        self.form.questionList.takeItem(cRow)
+        if self.currentQid:
+            # editing; restore to state of db
+            self.onQuestionChange()
+        else:
+            # new; delete entry entirely
+            cRow = self.form.questionList.currentRow()
+            self.form.questionList.takeItem(cRow)
 
     def updateListQuestion(self):
-        """Called when editing the question, to keep the question's entry in the
+        """Called when user edits the question, to keep the question's entry in the
         list in sync."""
 
         txt = unicode(self.form.questionBox.toPlainText())
         self.form.questionList.currentItem().setData(0, txt)
+        if self.currentQid and self.qm.byId(self.currentQid).getQuestion() != txt:
+            # user has edited the text of a question that is in the db, as
+            # opposed to just the program changing the contents of the question
+            # side or a new question
+            self._disableList()
 
     def onQuestionFocusOut(self):
-        """Determine if the text has changed or if it's just an unrelated focus
-        out event, then save if necessary."""
-
-        def dupechk(against):
-            """
-            Check if a question named 'against' would create a duplicate
-            question. Display error if necessary.
-            
-            Return True if it is a dupe, False if okay.
-            """
-            if db.questions.getByName(against):
-                utils.errorBox("You already have a question by that name! " \
-                               "Please choose a new name.", "Duplicate")
-                self.form.questionBox.setFocus() # don't tab to next entry
-
-        if not self.currentQid:
-            # question that is not in db is currently displayed
-            # confirm we don't have a duplicate
-            if dupechk(unicode(self.form.questionBox.toPlainText())):
-                return
-        else:
-            # question exists in db
-            oldQ = self.qm.byId(self.currentQid).getQuestion()
-            newQ = unicode(self.form.questionBox.toPlainText())
-            if oldQ != newQ:
-                if dupechk(newQ):
-                    return
-                self._saveQuestion()
+        pass
 
     def onSaveQuestion(self):
         "Called when clicking the 'save changes' button."
@@ -198,6 +226,9 @@ class SetEditor(QDialog):
         self.form.newButton.setFocus()
 
     def _saveQuestion(self):
+        """Save the current question to the database. Return True if
+        successful, False if an error, and display the appropriate error."""
+
         def saveError(msg):
             deferror = "The question you provided is invalid: %s." % msg
             utils.errorBox(deferror, "Save Error")
@@ -218,7 +249,7 @@ class SetEditor(QDialog):
         # validate: at least 2 choices
         if len(answersList) < 2:
             saveError("you must enter at least 2 answer choices")
-            return
+            return False
 
         # validate: no gaps in answer choices
         reachedEnd = False
@@ -226,20 +257,20 @@ class SetEditor(QDialog):
             if i.text() and reachedEnd:
                 saveError("you may not leave answer choices blank unless " \
                           "they are at the end")
-                return
+                return False
             elif not i.text():
                 reachedEnd = True
 
         # validate: correct answer chosen
         if correctAnswer == '':
             saveError("you must choose a correct answer")
-            return
+            return False
 
         # validate: selected answer exists
         if ansDict[correctAnswer] == '':
             saveError("you must provide an answer choice for the answer that " \
                       "you have selected as correct")
-            return
+            return False
 
         if self.currentQid is not None:
             # update the existing one
@@ -255,10 +286,11 @@ class SetEditor(QDialog):
                 # this shouldn't happen unless we screwed up
                 utils.errorBox("Oops! The database returned the following " \
                         "error:\n\n %s" % qfe, "Save Error")
-                return
+                return False
 
-        self.form.cancelButton.setEnabled(False)
+        self.qm.update()
         self._enableList()
+        return True
 
     def onDelete(self):
         r = utils.confirmDeleteBox("question", "")
@@ -322,26 +354,36 @@ class SetEditor(QDialog):
             nn = name + " 2"
             while nn in compare:
                 num = int(nn.split(' ')[-1])
-                nn = "New Question %i" % (num + 1)
+                nn = name + str(num+1)
         return nn
 
     def _disableList(self):
-        self._changeListStatus('disabled')
+        if self.listEnabled:
+            self._changeListStatus('disabled')
     def _enableList(self):
-        self._changeListStatus('enabled')
+        if not self.listEnabled:
+            self._changeListStatus('enabled')
     def _changeListStatus(self, which):
         sf = self.form
         elements = [
                     sf.questionList, sf.newButton,
                     sf.deleteButton, sf.importButton,
                     sf.moveUpButton, sf.moveDownButton,
-                    sf.exportButton, sf.jumpCombo
+                    sf.exportButton, sf.jumpCombo,
                    ]
+        reverseElements = [sf.cancelButton, sf.saveButton]
 
-        for i in elements:
-            if which == 'enabled':
+        if which == 'enabled':
+            self.listEnabled = True
+            for i in elements:
                 i.setEnabled(True)
-            elif which == 'disabled':
+            for i in reverseElements:
                 i.setEnabled(False)
-            else:
-                assert False, "Invalid argument to _changeListStatus!"
+        elif which == 'disabled':
+            self.listEnabled = False
+            for i in elements:
+                i.setEnabled(False)
+            for i in reverseElements:
+                i.setEnabled(True)
+        else:
+            assert False, "Invalid argument to _changeListStatus!"

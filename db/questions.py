@@ -180,6 +180,7 @@ class Question(object):
         oCA = '\t'.join(['ANS:', self._ca])
         return oQ, oA, oCA
 
+
 class QuestionManager(object):
     """Stores a list of questions that are in a given set and searches through
     them as needed."""

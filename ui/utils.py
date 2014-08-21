@@ -18,6 +18,14 @@ def errorBox(text, title=None):
         msgBox.setWindowTitle(title)
     msgBox.exec_()
 
+def questionBox(text, title=None):
+    msgBox = QMessageBox()
+    msgBox.setText(text)
+    msgBox.setIcon(QMessageBox.Question)
+    if title:
+        msgBox.setWindowTitle(title)
+    return msgBox.exec_()
+
 def confirmDeleteBox(item, additional):
     msgBox = QMessageBox()
     s = "Are you sure you want to delete this %s? %s" % (item, additional)
