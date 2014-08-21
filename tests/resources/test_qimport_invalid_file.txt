@@ -1,2 +1,2 @@
-What species am I a member of?,human,dwarf,elf,troll,,C
-What color is my hair?,blond,black,brown,gray,green,c
+What species am I a member of?;human;dwarf;elf;troll;;C
+What color is my hair?;abcde;fghijklmno;pqrst;uvwxy;c

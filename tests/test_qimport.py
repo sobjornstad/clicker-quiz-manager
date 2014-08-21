@@ -23,10 +23,11 @@ class ImportTests(utils.DbTestCase):
         assert q1.getSet() == ourSt
 
     def testImproperImport(self):
+        # import with the wrong number of fields and an invalid answer choice
         ourSt = db.sets.Set("Maud's Set", 1)
         fname = 'tests/resources/test_qimport_invalid_file.txt'
         importer = db.qimport.Importer(fname, ourSt)
-        importer.txtImport()
+        errs = importer.txtImport()
 
 
 if __name__ == "__main__":
