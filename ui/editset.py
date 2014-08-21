@@ -142,12 +142,26 @@ class SetEditor(QDialog):
         self.form.correctAnswerCombo.removeItem(i)
 
     def onQuestionChange(self):
+        """
+        Updates the question side of the dialog when:
+        - a different item is selected from the question list
+        - changes are discarded
+
+        Also resets self.currentQid to the id of the new question.
+        """
+
         q = self.qm.byName(
             unicode(self.form.questionList.currentItem().text()))
         if not q:
-            # the question isn't in the db yet, so it's an empty question
-            # and will be handled by onNew
-            return
+            if not self.currentQid:
+                # the question isn't in the db yet, so it's an empty question
+                # and will be handled by onNew
+                return
+            else:
+                # the question has been modified and we're wanting to restore
+                # it; change to the old db entry
+                q = self.qm.byId(self.currentQid)
+
         #TODO: consider if maybe this should store the Question object in future
         self.currentQid = q.getQid()
         self.form.questionBox.setPlainText(q.getQuestion())
