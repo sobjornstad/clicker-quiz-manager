@@ -180,7 +180,9 @@ class SetEditor(QDialog):
         Don't touch question, as we'll need to set that to the new or existing
         question value anyway."""
 
+        old = self.form.difficultySpinner.blockSignals(True)
         self.form.difficultySpinner.setValue(1)
+        self.form.difficultySpinner.blockSignals(old)
         for i in self.ansChoices:
             i.setText("")
         self.populateCorrectAnswer(True)
