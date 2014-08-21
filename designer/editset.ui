@@ -67,42 +67,42 @@ QGroupBox::title {
           <item row="0" column="0">
            <widget class="QPushButton" name="newButton">
             <property name="text">
-             <string>New</string>
+             <string>&amp;New</string>
             </property>
            </widget>
           </item>
           <item row="0" column="1">
            <widget class="QPushButton" name="deleteButton">
             <property name="text">
-             <string>Delete</string>
+             <string>&amp;Delete</string>
             </property>
            </widget>
           </item>
           <item row="0" column="2">
            <widget class="QPushButton" name="importButton">
             <property name="text">
-             <string>Import</string>
+             <string>&amp;Import</string>
             </property>
            </widget>
           </item>
           <item row="1" column="0">
            <widget class="QPushButton" name="moveUpButton">
             <property name="text">
-             <string>Move Up</string>
+             <string>Move &amp;Up</string>
             </property>
            </widget>
           </item>
           <item row="1" column="1">
            <widget class="QPushButton" name="moveDownButton">
             <property name="text">
-             <string>Move Down</string>
+             <string>Move &amp;Down</string>
             </property>
            </widget>
           </item>
           <item row="1" column="2">
            <widget class="QPushButton" name="exportButton">
             <property name="text">
-             <string>Export</string>
+             <string>&amp;Export</string>
             </property>
            </widget>
           </item>
@@ -318,7 +318,7 @@ QGroupBox::title {
         <rect>
          <x>51</x>
          <y>490</y>
-         <width>250</width>
+         <width>261</width>
          <height>29</height>
         </rect>
        </property>
@@ -326,14 +326,14 @@ QGroupBox::title {
         <item>
          <widget class="QPushButton" name="saveButton">
           <property name="text">
-           <string>Save Changes</string>
+           <string>&amp;Save Changes</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="cancelButton">
           <property name="text">
-           <string>Discard Changes</string>
+           <string>&amp;Discard Changes</string>
           </property>
          </widget>
         </item>
@@ -392,7 +392,7 @@ QGroupBox::title {
     <item>
      <widget class="QPushButton" name="closeButton">
       <property name="text">
-       <string>Close</string>
+       <string>&amp;Close</string>
       </property>
      </widget>
     </item>
@@ -400,6 +400,13 @@ QGroupBox::title {
   </widget>
  </widget>
  <tabstops>
+  <tabstop>questionList</tabstop>
+  <tabstop>newButton</tabstop>
+  <tabstop>deleteButton</tabstop>
+  <tabstop>importButton</tabstop>
+  <tabstop>moveUpButton</tabstop>
+  <tabstop>moveDownButton</tabstop>
+  <tabstop>exportButton</tabstop>
   <tabstop>questionBox</tabstop>
   <tabstop>difficultySpinner</tabstop>
   <tabstop>answerA</tabstop>
@@ -408,13 +415,8 @@ QGroupBox::title {
   <tabstop>answerD</tabstop>
   <tabstop>answerE</tabstop>
   <tabstop>correctAnswerCombo</tabstop>
-  <tabstop>questionList</tabstop>
-  <tabstop>newButton</tabstop>
-  <tabstop>moveUpButton</tabstop>
-  <tabstop>deleteButton</tabstop>
-  <tabstop>moveDownButton</tabstop>
-  <tabstop>importButton</tabstop>
-  <tabstop>exportButton</tabstop>
+  <tabstop>saveButton</tabstop>
+  <tabstop>cancelButton</tabstop>
   <tabstop>jumpCombo</tabstop>
   <tabstop>closeButton</tabstop>
  </tabstops>
