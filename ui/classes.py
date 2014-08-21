@@ -25,6 +25,7 @@ class ClassesWindow(QDialog):
 
     def fillList(self):
         "Fill classes window with classes stored in the db."
+        self.form.listWidget.clear()
         self.cl = db.classes.getAllClasses()
         for c in self.cl:
             self.form.listWidget.addItem(c.getName())
@@ -42,7 +43,7 @@ class ClassesWindow(QDialog):
                     "Duplicate Entry")
         else:
             newClass = db.classes.Class(text) # create db entry
-            self.form.listWidget.addItem(newClass.getName()) # add to list
+            self.fillList() # reread from db so it is sorted alphabetically
 
     def rename(self):
         # get new name and confirm change

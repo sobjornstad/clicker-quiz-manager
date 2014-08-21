@@ -67,9 +67,9 @@ def getClassByName(name):
         return Class(name, cid)
 
 def getAllClasses():
-    """Return a list of all classes in the database."""
+    """Return a list of all classes in the database, in alphabetical order."""
 
-    d.cursor.execute('SELECT cid, name FROM classes')
+    d.cursor.execute('SELECT cid, name FROM classes ORDER BY name')
     return [getClassByCid(i[0]) for i in d.cursor.fetchall()]
 
 def deleteClass(name):
