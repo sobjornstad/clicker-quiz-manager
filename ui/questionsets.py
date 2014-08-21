@@ -1,5 +1,6 @@
 from PyQt4 import QtGui, QtCore
-from PyQt4.QtGui import QDialog, QMessageBox, QInputDialog
+from PyQt4.QtGui import QDialog, QMessageBox, QInputDialog, QShortcut, \
+     QKeySequence
 from forms.questionsets import Ui_Dialog
 
 import utils
@@ -20,6 +21,9 @@ class QuestionSetsDialog(QDialog):
         self.form.upButton.clicked.connect(self.moveUp)
         self.form.downButton.clicked.connect(self.moveDown)
         self.form.closeButton.clicked.connect(self.accept)
+
+        qlShortcut = QShortcut(QKeySequence("Alt+L"), self.form.setList)
+        qlShortcut.connect(qlShortcut, QtCore.SIGNAL("activated()"), lambda: self.form.setList.setFocus())
 
         self.fillList()
 

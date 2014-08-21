@@ -2,7 +2,8 @@
 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QDialog, QMessageBox, QInputDialog, QPlainTextEdit, \
-     QComboBox, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
+     QComboBox, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QShortcut,   \
+     QKeySequence
 from forms.editset import Ui_Dialog
 
 import utils
@@ -42,6 +43,8 @@ class SetEditor(QDialog):
         self.form.correctAnswerCombo.activated.connect(self.onCorrectAnswerChoice)
         self.form.jumpCombo.activated.connect(self.onJumpToSet)
         self.form.questionList.itemSelectionChanged.connect(self.onQuestionChange)
+        qlShortcut = QShortcut(QKeySequence("Alt+L"), self.form.questionList)
+        qlShortcut.connect(qlShortcut, QtCore.SIGNAL("activated()"), lambda: self.form.questionList.setFocus())
 
         self.form.newButton.clicked.connect(self.onNew)
         self.form.deleteButton.clicked.connect(self.onDelete)

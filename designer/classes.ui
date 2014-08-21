@@ -24,35 +24,39 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QListWidget" name="listWidget"/>
+     <widget class="QListWidget" name="listWidget">
+      <property name="toolTip">
+       <string>Press Alt-L to focus the list</string>
+      </property>
+     </widget>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QPushButton" name="addButton">
         <property name="text">
-         <string>Add</string>
+         <string>&amp;Add</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="renameButton">
         <property name="text">
-         <string>Rename</string>
+         <string>&amp;Rename</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="deleteButton">
         <property name="text">
-         <string>Delete</string>
+         <string>&amp;Delete</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="closeButton">
         <property name="text">
-         <string>Close</string>
+         <string>&amp;Close</string>
         </property>
        </widget>
       </item>

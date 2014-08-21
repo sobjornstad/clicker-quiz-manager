@@ -23,28 +23,28 @@
       <x>40</x>
       <y>110</y>
       <width>160</width>
-      <height>91</height>
+      <height>95</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QPushButton" name="classesButton">
        <property name="text">
-        <string>Classes</string>
+        <string>&amp;Classes</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="setsButton">
        <property name="text">
-        <string>Sets</string>
+        <string>&amp;Sets</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="historyButton">
        <property name="text">
-        <string>History</string>
+        <string>&amp;History</string>
        </property>
       </widget>
      </item>
@@ -56,21 +56,21 @@
       <x>210</x>
       <y>110</y>
       <width>160</width>
-      <height>61</height>
+      <height>62</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
       <widget class="QPushButton" name="quizButton">
        <property name="text">
-        <string>Generate Quiz</string>
+        <string>&amp;Generate Quiz</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="quitButton">
        <property name="text">
-        <string>Quit</string>
+        <string>&amp;Quit</string>
        </property>
       </widget>
      </item>

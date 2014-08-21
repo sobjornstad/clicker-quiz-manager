@@ -60,6 +60,9 @@ QGroupBox::title {
             <height>0</height>
            </size>
           </property>
+          <property name="toolTip">
+           <string>Press Alt-L to focus the list</string>
+          </property>
          </widget>
         </item>
         <item>
@@ -74,7 +77,7 @@ QGroupBox::title {
           <item row="0" column="1">
            <widget class="QPushButton" name="deleteButton">
             <property name="text">
-             <string>&amp;Delete</string>
+             <string>D&amp;elete</string>
             </property>
            </widget>
           </item>
@@ -102,7 +105,7 @@ QGroupBox::title {
           <item row="1" column="2">
            <widget class="QPushButton" name="exportButton">
             <property name="text">
-             <string>&amp;Export</string>
+             <string>E&amp;xport</string>
             </property>
            </widget>
           </item>
@@ -307,7 +310,10 @@ QGroupBox::title {
         <item row="0" column="0" alignment="Qt::AlignTop">
          <widget class="QLabel" name="label">
           <property name="text">
-           <string>Question</string>
+           <string>&amp;Question</string>
+          </property>
+          <property name="buddy">
+           <cstring>questionBox</cstring>
           </property>
          </widget>
         </item>
@@ -328,12 +334,18 @@ QGroupBox::title {
           <property name="text">
            <string>&amp;Save Changes</string>
           </property>
+          <property name="default">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="cancelButton">
           <property name="text">
            <string>&amp;Discard Changes</string>
+          </property>
+          <property name="default">
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -346,9 +358,9 @@ QGroupBox::title {
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>30</x>
+     <x>20</x>
      <y>570</y>
-     <width>981</width>
+     <width>991</width>
      <height>31</height>
     </rect>
    </property>
@@ -356,7 +368,10 @@ QGroupBox::title {
     <item>
      <widget class="QLabel" name="label_9">
       <property name="text">
-       <string>Set:</string>
+       <string>&amp;Jump to set:</string>
+      </property>
+      <property name="buddy">
+       <cstring>jumpCombo</cstring>
       </property>
      </widget>
     </item>

@@ -1,5 +1,6 @@
 from PyQt4 import QtGui, QtCore
-from PyQt4.QtGui import QDialog, QInputDialog, QMessageBox
+from PyQt4.QtGui import QDialog, QInputDialog, QMessageBox, QShortcut, \
+     QKeySequence
 from PyQt4.QtCore import QObject
 from forms.classes import Ui_dialog
 
@@ -18,6 +19,9 @@ class ClassesWindow(QDialog):
         self.form.addButton.clicked.connect(self.add)
         self.form.deleteButton.clicked.connect(self.delete)
         self.form.renameButton.clicked.connect(self.rename)
+
+        qlShortcut = QShortcut(QKeySequence("Alt+L"), self.form.listWidget)
+        qlShortcut.connect(qlShortcut, QtCore.SIGNAL("activated()"), lambda: self.form.listWidget.setFocus())
 
     def fillList(self):
         "Fill classes window with classes stored in the db."
