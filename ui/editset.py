@@ -3,7 +3,7 @@
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QDialog, QMessageBox, QInputDialog, QPlainTextEdit, \
      QComboBox, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QShortcut,   \
-     QKeySequence
+     QKeySequence, QSpinBox
 from forms.editset import Ui_Dialog
 
 import utils
@@ -99,6 +99,7 @@ class SetEditor(QDialog):
             self.rejectDialog.close()
     def onExitDiscard(self):
         super(SetEditor, self).reject()
+        self.rejectDialog.close()
 
     def populateSets(self):
         self.l = getAllSets()
