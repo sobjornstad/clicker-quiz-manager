@@ -192,7 +192,6 @@ class SetEditor(QDialog):
         self.form.questionBox.selectAll()
 
     def onDiscard(self):
-        self._enableList()
         if self.currentQid:
             # editing; restore to state of db
             self.onQuestionChange()
@@ -200,6 +199,7 @@ class SetEditor(QDialog):
             # new; delete entry entirely
             cRow = self.form.questionList.currentRow()
             self.form.questionList.takeItem(cRow)
+        self._enableList()
 
     def updateListQuestion(self):
         """Called when user edits the question, to keep the question's entry in the
