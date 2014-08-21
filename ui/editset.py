@@ -27,7 +27,38 @@ class SetEditor(QDialog):
         self._disableList()
         self._enableList()
 
+        # fill with content
         self.populateSets()
+        self.setupQuestions()
+
+        # connect buttons
+        self.form.newButton.clicked.connect(self.onNew)
+        self.form.deleteButton.clicked.connect(self.onDelete)
+        self.form.importButton.clicked.connect(self.onImport)
+        self.form.exportButton.clicked.connect(self.onExport)
+        self.form.moveDownButton.clicked.connect(self.onMoveDown)
+        self.form.moveUpButton.clicked.connect(self.onMoveUp)
+        self.form.saveButton.clicked.connect(self.onSaveQuestion)
+        self.form.cancelButton.clicked.connect(self.onDiscard)
+        self.form.closeButton.clicked.connect(self.reject)
+
+        # connect changed events and shortcuts
+        self.form.correctAnswerCombo.activated.connect(self.onCorrectAnswerChoice)
+        self.form.jumpCombo.activated.connect(self.onJumpToSet)
+        self.form.questionList.itemSelectionChanged.connect(self.onQuestionChange)
+        qlShortcut = QShortcut(QKeySequence("Alt+L"), self.form.questionList)
+        qlShortcut.connect(qlShortcut, QtCore.SIGNAL("activated()"), lambda: self.form.questionList.setFocus())
+
+        self.form.questionBox.textChanged.connect(self.updateListQuestion)
+        self.form.answerA.textEdited.connect(self._disableList)
+        self.form.answerB.textEdited.connect(self._disableList)
+        self.form.answerC.textEdited.connect(self._disableList)
+        self.form.answerD.textEdited.connect(self._disableList)
+        self.form.answerE.textEdited.connect(self._disableList)
+        self.form.difficultySpinner.valueChanged.connect(self._disableList)
+        self.form.correctAnswerCombo.activated.connect(self._disableList)
+
+    def setupQuestions(self):
         self.qm = db.questions.QuestionManager(self._currentSet())
         self.populateQuestions()
         # select first question, or create new one if there are none
@@ -39,31 +70,6 @@ class SetEditor(QDialog):
             self.onNew()
             # we don't want to be able to cancel the only question that exists
             self.form.cancelButton.setEnabled(False)
-
-        self.form.correctAnswerCombo.activated.connect(self.onCorrectAnswerChoice)
-        self.form.jumpCombo.activated.connect(self.onJumpToSet)
-        self.form.questionList.itemSelectionChanged.connect(self.onQuestionChange)
-        qlShortcut = QShortcut(QKeySequence("Alt+L"), self.form.questionList)
-        qlShortcut.connect(qlShortcut, QtCore.SIGNAL("activated()"), lambda: self.form.questionList.setFocus())
-
-        self.form.newButton.clicked.connect(self.onNew)
-        self.form.deleteButton.clicked.connect(self.onDelete)
-        self.form.importButton.clicked.connect(self.onImport)
-        self.form.exportButton.clicked.connect(self.onExport)
-        self.form.moveDownButton.clicked.connect(self.onMoveDown)
-        self.form.moveUpButton.clicked.connect(self.onMoveUp)
-        self.form.saveButton.clicked.connect(self.onSaveQuestion)
-        self.form.cancelButton.clicked.connect(self.onDiscard)
-        self.form.closeButton.clicked.connect(self.reject)
-
-        self.form.questionBox.textChanged.connect(self.updateListQuestion)
-        self.form.answerA.textEdited.connect(self._disableList)
-        self.form.answerB.textEdited.connect(self._disableList)
-        self.form.answerC.textEdited.connect(self._disableList)
-        self.form.answerD.textEdited.connect(self._disableList)
-        self.form.answerE.textEdited.connect(self._disableList)
-        self.form.difficultySpinner.valueChanged.connect(self._disableList)
-        self.form.correctAnswerCombo.activated.connect(self._disableList)
 
     def reject(self):
         if self.listEnabled:
@@ -345,7 +351,10 @@ class SetEditor(QDialog):
         self._move('up')
 
     def onJumpToSet(self):
-        utils.informationBox("This feature is not implemented yet.", "Sorry!")
+        self.form.questionList.clear()
+        self.setupQuestions()
+        # user might want to move down several with the arrow keys
+        self.form.jumpCombo.setFocus()
 
 
     ### UTILITIES ###
