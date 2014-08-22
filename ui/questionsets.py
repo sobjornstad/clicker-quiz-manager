@@ -5,6 +5,7 @@ from forms.questionsets import Ui_Dialog
 
 import utils
 import db.sets
+from db.questions import getBySet as getQuestionsBySet
 
 class QuestionSetsDialog(QDialog):
     def __init__(self, mw):
@@ -59,15 +60,18 @@ class QuestionSetsDialog(QDialog):
         se.exec_()
 
     def delete(self):
+        cRow = self.form.setList.currentRow()
+        st = db.sets.findSet(num=cRow)
+        numQuestions = len(getQuestionsBySet(st))
         r = utils.confirmDeleteBox("set",
-                "Any questions associated with it will be deleted.")
+                "The %i question%s in it will be deleted." %
+                ( numQuestions, '' if numQuestions == 1 else 's'))
         if r != QMessageBox.Yes:
             return
 
-        val = self.form.setList.currentRow()
-        db.sets.findSet(num=val).delete()
-        self.form.setList.takeItem(val)
+        st.delete()
         db.sets.shiftNums() # fill in gap in ordering
+        self.form.setList.takeItem(cRow)
 
     def rename(self):
         # get new name and confirm change

@@ -51,6 +51,7 @@ class Set(object):
             d.connection.commit()
 
     def delete(self):
+        d.cursor.execute('DELETE FROM questions WHERE sid=?', (self._sid,))
         d.cursor.execute('DELETE FROM sets WHERE sid=?', (self._sid,))
         d.connection.commit()
         # we shouldn't use this instance again of course, but the class does
