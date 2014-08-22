@@ -67,9 +67,15 @@ class SetEditor(QDialog):
             self.onQuestionChange()
             self.form.questionList.setFocus()
         else:
-            self.onNew()
-            # we don't want to be able to cancel the only question that exists
-            self.form.cancelButton.setEnabled(False)
+            self.forceNewQuestion()
+
+    def forceNewQuestion(self):
+        """Used to set up the question editor when there are no existing
+        questions and we need to make one before we can do anything else."""
+
+        self.onNew()
+        # we don't want to be able to cancel the only question that exists
+        self.form.cancelButton.setEnabled(False)
 
     def populateSets(self):
         self.l = getAllSets()
@@ -156,8 +162,13 @@ class SetEditor(QDialog):
         Also resets self.currentQid to the id of the new question.
         """
 
-        q = self.qm.byName(
-            unicode(self.form.questionList.currentItem().text()))
+        try:
+            q = self.qm.byName(
+                unicode(self.form.questionList.currentItem().text()))
+        except AttributeError:
+            # no questions are left; this is handled in onDelete
+            return
+
         if not q:
             if not self.currentQid:
                 # the question isn't in the db yet, so it's an empty question
@@ -338,6 +349,8 @@ class SetEditor(QDialog):
         q = self.qm.byOrd(cRow)
         self.qm.rmQuestion(q)
         self.form.questionList.takeItem(cRow)
+        if not self.form.questionList.count():
+            self.forceNewQuestion()
 
     def onImport(self):
         import db.qimport
