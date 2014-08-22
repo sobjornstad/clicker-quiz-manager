@@ -233,6 +233,7 @@ class QuestionManager(object):
         self.q.remove(qu)
         qu.delete()
         shiftOrds(st)
+        self.update()
 
 
 def getById(qid):
