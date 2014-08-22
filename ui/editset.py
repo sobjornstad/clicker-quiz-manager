@@ -3,7 +3,7 @@
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QDialog, QMessageBox, QInputDialog, QPlainTextEdit, \
      QComboBox, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QShortcut,   \
-     QKeySequence, QSpinBox
+     QKeySequence, QSpinBox, QFileDialog
 from forms.editset import Ui_Dialog
 
 import utils
@@ -141,11 +141,11 @@ class SetEditor(QDialog):
         self.rejectDialog.close()
 
     def onCorrectAnswerChoice(self):
-    """Remove the blank item from the list once the combo box is activated
-    for the first time. See the docstring for populateCorrectAnswer()."""
+        """Remove the blank item from the list once the combo box is activated
+        for the first time. See the docstring for populateCorrectAnswer()."""
 
-    i = self.form.correctAnswerCombo.findText("")
-    self.form.correctAnswerCombo.removeItem(i)
+        i = self.form.correctAnswerCombo.findText("")
+        self.form.correctAnswerCombo.removeItem(i)
 
     def onQuestionChange(self):
         """
@@ -340,7 +340,22 @@ class SetEditor(QDialog):
         self.form.questionList.takeItem(cRow)
 
     def onImport(self):
-        utils.informationBox("This feature is not implemented yet.", "Sorry!")
+        import db.qimport
+        f = QFileDialog.getOpenFileName()
+        if not f:
+            return
+        importer = db.qimport.Importer(f, self._currentSet())
+        errors = importer.txtImport()
+        if errors:
+            utils.errorBox("Import returned the following errors:\n%s\n\nAny " \
+                           "lines that were valid have been imported." \
+                           % errors, "Import Results")
+        else:
+            utils.informationBox("Import completed successfully.",
+                    "Import Results")
+
+        self.form.questionList.clear()
+        self.setupQuestions()
 
     def onExport(self):
         utils.informationBox("This feature is not implemented yet.", "Sorry!")

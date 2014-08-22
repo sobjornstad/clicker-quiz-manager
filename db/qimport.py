@@ -22,7 +22,14 @@ class Importer(object):
         list of errors in the import."""
 
         with open(self.f, 'rb') as csvfile:
-            dialect = csv.Sniffer().sniff(csvfile.read(1024))
+            try:
+                dialect = csv.Sniffer().sniff(csvfile.read(1024))
+            except Exception as e:
+                if "Could not determine delimiter" in e:
+                    return "Could not determine the delimiter used in this " \
+                           "file. Please use tab, comma, or semicolon."
+                else:
+                    raise e
             if dialect.delimiter not in ('\t', ',', ';'):
                 return "Invalid delimiter detected. Please use tab, comma, " \
                        "or semicolon."
@@ -42,12 +49,15 @@ class Importer(object):
         except Exception as e:
             self.errors.append((row[0], e))
 
-        # make ca lowercase; not doing yet to help test errors
-
+        # munge a little
+        ca = ca.lower()
         ansList = [i.strip() for i in [a,b,c,d,e] if i]
+
         try:
             self.ql.append(questions.Question(
                 question, ansList, ca, self.st, self.getOrd()))
+        except questions.DuplicateError:
+            self.errors.append((question, "This question is a duplicate."))
         except questions.QuestionFormatError as e:
             self.errors.append((question, e))
 
