@@ -2,6 +2,8 @@ import database as d
 import questions
 import sets
 
+#TODO: Factor needs to become an attribute of a *set* somehow (this might even need another *table* to fix). For now it's okay since we don't intend to change it. This needs to be done because otherwise some questions of a set might end up eligible while others don't.
+
 class QuizItem(object):
     DEFAULT_PRIORITY = 1000
     DEFAULT_FACTOR = 2000
@@ -68,16 +70,32 @@ class QuizItem(object):
 
 class Quiz(object):
     def __init__(self, classToUse):
-        self.st = []
-        pass
+        self.newSets = []
+        self.newQ = []
+        self.revQ = []
+        self.cls = classToUse
+        self.useNewNum = None
+        self.useRevNum = None
 
     def addNewSet(self, st):
-        self.st.append(st)
+        if st not in self.newSets:
+            self.newSets.append(st)
+    def resetNewSets(self):
+        self.newSets = []
 
     def setNewQuestions(self, num):
-        pass
+        self.useNewNum = num
     def setRevQuestions(self, num):
-        pass
+        self.useRevNum = num
+
+    def finishSetup(self):
+        """
+        Fill the Quiz with possible questions, after choosing the sets and
+        number of questions we want. This can always be called again if
+        desired.
+        """
+        self._fillNewItems()
+        self._fillRevItems()
 
     def getNewAvail(self):
         num = 1
@@ -93,12 +111,57 @@ class Quiz(object):
     def rewriteSchedule(self):
         pass
 
+    def _fillNewItems(self):
+        """
+        Fill the new question list with items of the appropriate sets (which
+        have previously been added with addNewSet()). This does not do any
+        checking to see if the set is actually new; the code using this class
+        needs to figure out which sets are new (using the findNewSets()
+        function in this module) and not allow others to be added as new sets.
+        """
+
+        self.newQ = [] # reset
+        for st in self.newSets:
+            ql = questions.getBySet(st)
+            for q in ql:
+                self.newQ.append(QuizItem(q, self.cls))
+
+    def _fillRevItems(self):
+        # pull in all items that might be eligible based on their class
+        cid = self.cls.getCid()
+        d.cursor.execute('SELECT qid FROM history WHERE cid=?', (cid,))
+        ql = [QuizItem(questions.getById(i[0]), self.cls)
+              for i in d.cursor.fetchall()]
+
+        # reset the list, then add ones that are due
+        self.revQ = []
+        curSet = getSetsUsed(self.cls)
+        for i in ql:
+            if itemDue(i, curSet):
+                self.revQ.append(i)
+            else:
+                assert False, i.getNextSet()
+
     def _randNew(self, num):
         pass
     def _randRev(self, num):
         pass
 
-    def _fillNewItems(self):
-        pass
-    def _fillRevItems(self):
-        pass
+def findNewSets(cls):
+    pass
+
+def getSetsUsed(cls):
+    cid = cls.getCid()
+    d.cursor.execute('SELECT setsUsed FROM classes WHERE cid=?', (cid,))
+    return d.cursor.fetchall()[0][0]
+
+def itemDue(item, curSet):
+    """Determine if an item is currently due for review."""
+    return True if (item.getNextSet() <= curSet) else False
+
+#         d.cursor.execute('''
+#                    SELECT qid FROM history
+#                    WHERE cid=:cid
+#                    AND qid IN (SELECT qid FROM questions WHERE sid=:sid)''',
+#                    {'cid': self.cls.getCid(), 'sid': i.getSid()})
+
