@@ -27,8 +27,8 @@ class Class(object):
                     (self._name, self._cid))
         else:
             # new set, not in db
-            d.cursor.execute('INSERT INTO classes (name) VALUES (?)',
-                    (self._name,))
+            d.cursor.execute('INSERT INTO classes (name,setsUsed) VALUES (?,?)',
+                    (self._name, 0))
             self._cid = d.cursor.lastrowid
 
         # at some point we will want to eliminate this for performance reasons;
