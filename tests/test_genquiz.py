@@ -71,6 +71,11 @@ class QuizTests(utils.DbTestCase):
         assert len(quiz.newQ) == 1, quiz.newQ
         assert len(quiz.revQ) == 1, quiz.revQ
 
+        # feedback from object itself on what's available
+        assert quiz.getNewAvail() == 1
+        assert quiz.getRevDue() == 1
+
+
 
 
 

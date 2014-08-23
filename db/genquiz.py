@@ -98,11 +98,20 @@ class Quiz(object):
         self._fillRevItems()
 
     def getNewAvail(self):
-        num = 1
-        return num
+        """
+        Determine how many new questions are available for use, or None if we
+        haven't decided on our settings yet.
+        """
+        if self.newQ:
+            return len(self.newQ)
+        else:
+            return None
     def getRevDue(self):
-        num = 1
-        return num
+        "Same as getNewAvail for review cards."
+        if self.revQ:
+            return len(self.revQ)
+        else:
+            return None
 
     def genQuiz(self):
         pass
