@@ -120,11 +120,11 @@ class SetEditor(QDialog):
             txtBox = QHBoxLayout()
             txtBox.addWidget(txt)
 
-            a = QPushButton("Save")
+            a = QPushButton("&Save")
             a.clicked.connect(self.onExitSave)
-            b = QPushButton("Don't Save")
+            b = QPushButton("&Don't Save")
             b.clicked.connect(self.onExitDiscard)
-            c = QPushButton("Cancel")
+            c = QPushButton("&Cancel")
             c.clicked.connect(d.close)
             bBox = QHBoxLayout()
             bBox.addWidget(a)
@@ -138,13 +138,12 @@ class SetEditor(QDialog):
             d.show()
             self.rejectDialog = d
     def onExitSave(self):
+        self.rejectDialog.close()
         if self._saveQuestion():
             super(SetEditor, self).reject()
-        else:
-            self.rejectDialog.close()
     def onExitDiscard(self):
-        super(SetEditor, self).reject()
         self.rejectDialog.close()
+        super(SetEditor, self).reject()
 
     def onCorrectAnswerChoice(self):
         """Remove the blank item from the list once the combo box is activated
