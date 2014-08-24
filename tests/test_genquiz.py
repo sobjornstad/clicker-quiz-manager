@@ -40,6 +40,8 @@ class QuizTests(utils.DbTestCase):
         st = db.sets.Set("Test Set", 1)
         q = db.questions.Question("What is the answer?",
                 ["foo", "bar", "baz", "42"], "d", st, 1)
+        q4 = db.questions.Question("What is the answer ?",
+                ["foo", "bar", "baz", "42"], "d", st, 4)
         st2 = db.sets.Set("Test Set", 1)
         q2 = db.questions.Question("What is the answer to this?",
                 ["foo", "bar", "baz", "42"], "c", st2, 2)
@@ -52,19 +54,20 @@ class QuizTests(utils.DbTestCase):
         quiz.addNewSet(st)
         quiz.addNewSet(st2)
         assert quiz.newSets == [st, st2]
-        quiz.setNewQuestions(2)
-        assert quiz.useNewNum == 2
-        quiz.setRevQuestions(1)
-        assert quiz.useRevNum == 1
+        quiz.setNewQuestions(1)
+        assert quiz.useNewNum == 1
+        quiz.setRevQuestions(2)
+        assert quiz.useRevNum == 2
         assert not quiz.isSetUp(False)
 
         # fill new items
         quiz._fillNewItems()
-        assert len(quiz.newQ) == 3
+        assert len(quiz.newQ) == 4
 
-        # change the set1 one into a review item, move ourselves ahead a bit in
+        # change the set1 ones into review items, move ourselves ahead a bit in
         # our review history, reload, and test new/rev load
         quiz.newQ[0].reschedule(3)
+        quiz.newQ[1].reschedule(2)
         d.cursor.execute('UPDATE classes SET setsUsed=? WHERE cid=?',
                 (7,cls.getCid()))
         d.connection.commit()
@@ -73,20 +76,20 @@ class QuizTests(utils.DbTestCase):
         quiz.finishSetup()
         assert quiz.isSetUp(False)
         assert len(quiz.newQ) == 2, quiz.newQ
-        assert len(quiz.revQ) == 1, quiz.revQ
+        assert len(quiz.revQ) == 2, quiz.revQ
 
         # feedback from object itself on what's available
         assert quiz.getNewAvail() == 2
-        assert quiz.getRevDue() == 1
+        assert quiz.getRevDue() == 2
 
         # fill with random questions
-        quiz._randNew(1)
-        quiz._randRev(1)
-        assert len(quiz.newL) == 2, len(quiz.newL)
+        quiz._randNew()
+        quiz._randRev()
+        assert len(quiz.newL) == 1, len(quiz.newL)
         assert quiz.newL[0].getQuestion() == q2 or \
                 quiz.newL[0].getQuestion() == q3
-        assert len(quiz.revL) == 1
-        assert quiz.revL[0].getQuestion() == q
+        assert len(quiz.revL) == 2
+        assert quiz.revL[0].getQuestion() == q or quiz.revL[0].getQuestion == q4
         assert quiz.isSetUp()
 
     def testFindSets(self):

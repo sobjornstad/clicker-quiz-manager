@@ -171,7 +171,7 @@ class Quiz(object):
             if itemDue(i, curSet):
                 self.revQ.append(i)
 
-    def _randNew(self, num):
+    def _randNew(self):
         """
         Select new questions randomly from the sets that have been added to the
         Quiz, with the proviso that there must be at least one question from
@@ -184,7 +184,7 @@ class Quiz(object):
             assert False, "Options not set up! This should be checked in caller!"
         self.newL = randomDraw(self.newQ, self.newSets, self.useNewNum)
 
-    def _randRev(self, num):
+    def _randRev(self):
         """
         Select review questions randomly from QuizItems that are due (in revQ),
         with the proviso that there must be at least one question from each set
@@ -228,9 +228,8 @@ def randomDraw(l, allSets, num):
         if num > len(l):
             assert False, "More new questions requested than available!"
         L = random.sample(l, num)
-        sts = [i.getQuestion().getSet() for i in l]
-        intersect = [i for i in sts if i in allSets]
-        if intersect == sts:
+        setsUsed = [i.getQuestion().getSet() for i in L]
+        if setsUsed == allSets:
             break
         elif len(allSets) > num:
             # not enough room for all sets; would force infinite loop
