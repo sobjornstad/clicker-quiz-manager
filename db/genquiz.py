@@ -2,6 +2,8 @@ import database as d
 import questions
 import sets
 
+import random
+
 #TODO: Factor needs to become an attribute of a *set* somehow (this might even need another *table* to fix). For now it's okay since we don't intend to change it. This needs to be done because otherwise some questions of a set might end up eligible while others don't.
 
 class QuizItem(object):
@@ -9,6 +11,7 @@ class QuizItem(object):
     DEFAULT_FACTOR = 2000
 
     def __init__(self, q, cls):
+        self.q = q
         qid = q.getQid()
         cid = cls.getCid()
 
@@ -54,6 +57,8 @@ class QuizItem(object):
             assert False, "Invalid card type in QuizItem!"
         d.connection.commit()
 
+    def getQuestion(self):
+        return self.q
     def getLastSet(self):
         return self.lastSet / 1000
     def getNextSet(self):
@@ -71,8 +76,10 @@ class QuizItem(object):
 class Quiz(object):
     def __init__(self, classToUse):
         self.newSets = []
-        self.newQ = []
-        self.revQ = []
+        self.newQ = [] # / for possible
+        self.revQ = [] # \ questions
+        self.newL = [] # / for selected
+        self.revL = [] # \ questions
         self.cls = classToUse
         self.useNewNum = None
         self.useRevNum = None
@@ -96,6 +103,21 @@ class Quiz(object):
         """
         self._fillNewItems()
         self._fillRevItems()
+
+    def isSetUp(self, forGen=True):
+        """
+        Provides two different checks for confirming the object is properly set
+        up. With forGen=True (default), makes sure random questions have been
+        selected and the final set have been decided on. If False, confirms that
+        we're *ready* to pull the random questions.
+        """
+
+        if not (self.newQ and self.revQ and self.useNewNum and self.useRevNum
+                and self.newSets):
+            return False
+        if forGen and not (self.newL and self.revL):
+            return False
+        return True
 
     def getNewAvail(self):
         """
@@ -148,16 +170,45 @@ class Quiz(object):
         for i in ql:
             if itemDue(i, curSet):
                 self.revQ.append(i)
-            else:
-                assert False, i.getNextSet()
 
     def _randNew(self, num):
-        pass
+        """
+        Select new questions randomly from the sets that have been added to the
+        Quiz, with the proviso that there must be at least one question from
+        each set in the final draw.
+
+        The result will be placed in self.newL. No return.
+        """
+
+        if not self.isSetUp(False):
+            assert False, "Options not set up! This should be checked in caller!"
+        self.newL = randomDraw(self.newQ, self.newSets, self.useNewNum)
+
     def _randRev(self, num):
-        pass
+        """
+        Select review questions randomly from QuizItems that are due (in revQ),
+        with the proviso that there must be at least one question from each set
+        in the final draw.
+
+        The result will be placed in self.revL. No return.
+        """
+        if not self.isSetUp(False):
+            assert False, "Options not set up! This should be checked in caller!"
+
+        allRevSets = [i.getQuestion().getSet() for i in self.revQ]
+        self.revL = randomDraw(self.revQ, allRevSets, self.useRevNum)
 
 def findNewSets(cls):
-    pass
+    "Return a list of all sets that are *not* in review."
+    cid = cls.getCid()
+    d.cursor.execute('''SELECT sid FROM questions
+                        WHERE qid in (SELECT qid FROM history
+                                      WHERE cid=?)''', (cid,))
+
+    revs = [sets.findSet(sid=sid[0]) for sid in d.cursor.fetchall()]
+    alls = sets.getAllSets()
+    news = [i for i in alls if i not in revs]
+    return news
 
 def getSetsUsed(cls):
     cid = cls.getCid()
@@ -167,6 +218,25 @@ def getSetsUsed(cls):
 def itemDue(item, curSet):
     """Determine if an item is currently due for review."""
     return True if (item.getNextSet() <= curSet) else False
+
+def randomDraw(l, allSets, num):
+    """
+    Draw *num* QuizItems from *l*, requiring at least one from each set in
+    *allSets*. Return a list of the drawing.
+    """
+    while True:
+        if num > len(l):
+            assert False, "More new questions requested than available!"
+        L = random.sample(l, num)
+        sts = [i.getQuestion().getSet() for i in l]
+        intersect = [i for i in sts if i in allSets]
+        if intersect == sts:
+            break
+        elif len(allSets) > num:
+            # not enough room for all sets; would force infinite loop
+            break
+
+    return L
 
 #         d.cursor.execute('''
 #                    SELECT qid FROM history
