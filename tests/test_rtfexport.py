@@ -11,7 +11,8 @@ class RtfExportTests(utils.DbTestCase):
         against_fname = 'tests/resources/test_format_against.rtf'
         st = Set("Test Set", 2)
         questions = [Question("Hello?", ["foo", "bar", "baz", "quux"], "c", st, 1)]
-        render(questions, fname)
+        obj = genRtfFile(questions)
+        render(obj, file(fname, 'wb'))
         try:
             f = open(fname)
         except IOError:

@@ -58,7 +58,7 @@ class QuizTests(utils.DbTestCase):
         assert quiz.useNewNum == 1
         quiz.setRevQuestions(2)
         assert quiz.useRevNum == 2
-        assert not quiz.isSetUp(False)
+        assert not quiz.isSetUp()
 
         # fill new items
         quiz._fillNewItems()
@@ -74,7 +74,7 @@ class QuizTests(utils.DbTestCase):
         quiz.resetNewSets()
         quiz.addNewSet(st2)
         quiz.finishSetup()
-        assert quiz.isSetUp(False)
+        assert quiz.isSetUp()
         assert len(quiz.newQ) == 2, quiz.newQ
         assert len(quiz.revQ) == 2, quiz.revQ
 
@@ -89,8 +89,15 @@ class QuizTests(utils.DbTestCase):
         assert quiz.newL[0].getQuestion() == q2 or \
                 quiz.newL[0].getQuestion() == q3
         assert len(quiz.revL) == 2
-        assert quiz.revL[0].getQuestion() == q or quiz.revL[0].getQuestion == q4
-        assert quiz.isSetUp()
+        assert quiz.revL[0].getQuestion() == q or quiz.revL[0].getQuestion() == q4
+        assert quiz.isSetUp(True)
+
+        # generate
+        qPrev = quiz.generate()
+        quiz.makeRtfFile("tmp.rtf")
+        from os import remove
+        remove("tmp.rtf")
+        # rendering is tested in test_rtfexport.py
 
     def testFindSets(self):
         st1 = db.sets.Set("Test Set 1", 1)

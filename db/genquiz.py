@@ -1,5 +1,6 @@
 import database as d
 import questions
+import rtfexport
 import sets
 
 import random
@@ -83,6 +84,7 @@ class Quiz(object):
         self.cls = classToUse
         self.useNewNum = None
         self.useRevNum = None
+        self.rtfObj = None
 
     def addNewSet(self, st):
         if st not in self.newSets:
@@ -104,12 +106,12 @@ class Quiz(object):
         self._fillNewItems()
         self._fillRevItems()
 
-    def isSetUp(self, forGen=True):
+    def isSetUp(self, forGen=False):
         """
         Provides two different checks for confirming the object is properly set
-        up. With forGen=True (default), makes sure random questions have been
-        selected and the final set have been decided on. If False, confirms that
-        we're *ready* to pull the random questions.
+        up. With forGen=True, makes sure random questions have been selected
+        and the final set have been decided on. If False (default), confirms
+        that we're *ready* to pull the random questions.
         """
 
         if not (self.newQ and self.revQ and self.useNewNum and self.useRevNum
@@ -135,9 +137,41 @@ class Quiz(object):
         else:
             return None
 
-    def genQuiz(self):
-        pass
-        # return the string to save
+    def generate(self):
+        """
+        After everything has been set up, run to select final questions and
+        output the results. Does *not* reschedule anything in case the user
+        doesn't like the set that was chosen.
+
+        It is the caller's responsibility to make sure that the quiz isSetUp.
+
+        Returns a plaintext preview string. Sets self.rtfObj to the RTF object
+        to be output.
+        """
+
+        # choose questions
+        if not self.isSetUp():
+            assert False, "Tried to generate quiz before setting it up!"
+        self._randNew()
+        self._randRev()
+
+        # Run through questions, randomize order, and get content. Review and
+        # new questions are mixed to promote better learning -- it has been
+        # shown that people learn better when different types of questions are
+        # mixed.
+        allQuestions = self.newL + self.revQ
+        random.shuffle(allQuestions)
+        ql = [i.getQuestion() for i in allQuestions]
+
+        qPrev = rtfexport.genPreview(ql)
+        self.rtfObj = rtfexport.genRtfFile(ql)
+        return qPrev
+
+    def makeRtfFile(self, filename):
+        if not self.isSetUp() and self.rtfObj:
+            assert False, "Need to call generate() first!"
+        with open(filename, 'wb') as f:
+            rtfexport.render(self.rtfObj, f)
 
     def rewriteSchedule(self):
         pass
@@ -180,7 +214,7 @@ class Quiz(object):
         The result will be placed in self.newL. No return.
         """
 
-        if not self.isSetUp(False):
+        if not self.isSetUp():
             assert False, "Options not set up! This should be checked in caller!"
         self.newL = randomDraw(self.newQ, self.newSets, self.useNewNum)
 
@@ -192,7 +226,7 @@ class Quiz(object):
 
         The result will be placed in self.revL. No return.
         """
-        if not self.isSetUp(False):
+        if not self.isSetUp():
             assert False, "Options not set up! This should be checked in caller!"
 
         allRevSets = [i.getQuestion().getSet() for i in self.revQ]
