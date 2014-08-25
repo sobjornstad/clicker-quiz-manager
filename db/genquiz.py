@@ -61,7 +61,7 @@ class QuizItem(object):
     def getQuestion(self):
         return self.q
     def getLastSet(self):
-        return self.lastSet / 1000
+        return self.lastSet
     def getNextSet(self):
         return (self.lastSet * self.factor / 1000)
     def getPriority(self):
@@ -168,13 +168,25 @@ class Quiz(object):
         return qPrev
 
     def makeRtfFile(self, filename):
+        """
+        Write the generated questions out to an RTF file. Requires the filename,
+        presumably obtained from the user via a file browse dialog.
+        """
         if not self.isSetUp() and self.rtfObj:
             assert False, "Need to call generate() first!"
         with open(filename, 'wb') as f:
             rtfexport.render(self.rtfObj, f)
 
     def rewriteSchedule(self):
-        pass
+        """
+        Once the user has decided to use a set of cards, update cards' schedules
+        to match the fact that they've been reviewed.
+        """
+        curSet = getSetsUsed(self.cls)
+        for i in (self.newL + self.revL):
+            i.reschedule(curSet)
+        incrementSetsUsed(self.cls)
+
 
     def _fillNewItems(self):
         """
@@ -248,6 +260,12 @@ def getSetsUsed(cls):
     cid = cls.getCid()
     d.cursor.execute('SELECT setsUsed FROM classes WHERE cid=?', (cid,))
     return d.cursor.fetchall()[0][0]
+def incrementSetsUsed(cls):
+    cid = cls.getCid()
+    curVal = getSetsUsed(cls)
+    d.cursor.execute('UPDATE classes SET setsUsed=? WHERE cid=?',
+            (curVal+1, cid))
+    d.connection.commit()
 
 def itemDue(item, curSet):
     """Determine if an item is currently due for review."""

@@ -99,6 +99,12 @@ class QuizTests(utils.DbTestCase):
         remove("tmp.rtf")
         # rendering is tested in test_rtfexport.py
 
+        # reschedule
+        oldSetsUsed = getSetsUsed(cls)
+        quiz.rewriteSchedule()
+        assert oldSetsUsed + 1 == getSetsUsed(cls)
+        assert quiz.revL[1].getLastSet() == getSetsUsed(cls) -1
+
     def testFindSets(self):
         st1 = db.sets.Set("Test Set 1", 1)
         st2 = db.sets.Set("Test Set 2", 2)
