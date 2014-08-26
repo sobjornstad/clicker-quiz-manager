@@ -72,7 +72,7 @@
        </widget>
       </item>
       <item row="4" column="2">
-       <widget class="QSpinBox" name="newQuestions"/>
+       <widget class="QSpinBox" name="newSpin"/>
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="classLabel">
@@ -88,7 +88,7 @@
        <widget class="QComboBox" name="classCombo"/>
       </item>
       <item row="5" column="2">
-       <widget class="QSpinBox" name="revQuestions">
+       <widget class="QSpinBox" name="r">
         <property name="minimumSize">
          <size>
           <width>68</width>
@@ -155,7 +155,7 @@
  </widget>
  <tabstops>
   <tabstop>classCombo</tabstop>
-  <tabstop>newQuestions</tabstop>
+  <tabstop>newSpin</tabstop>
   <tabstop>okButton</tabstop>
   <tabstop>cancelButton</tabstop>
   <tabstop>setsButton</tabstop>

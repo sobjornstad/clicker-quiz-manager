@@ -122,19 +122,19 @@ class Quiz(object):
 
     def getNewAvail(self):
         """
-        Determine how many new questions are available for use, or None if we
-        haven't decided on our settings yet.
+        Determine how many new questions are available for use. This will
+        wrongly return 0 if we haven't run finishSetup() yet, so do that first.
         """
         if self.newQ:
             return len(self.newQ)
         else:
-            return None
+            return 0
     def getRevDue(self):
         "Same as getNewAvail for review cards."
         if self.revQ:
             return len(self.revQ)
         else:
-            return None
+            return 0
 
     def generate(self):
         """
