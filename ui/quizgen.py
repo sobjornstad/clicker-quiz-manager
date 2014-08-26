@@ -89,11 +89,14 @@ class QuizWindow(QDialog):
             return
 
         prevText = self.quiz.generate()
-        topText = "This quiz contains %i new questions and %i reviews.\n"
-        topText += "New questions are from %s %s."
-        sns, n = sq.getSetNames()
-        topText = topText % (sq.useNewNum, sq.useRevNum,
-                'the following sets:' if n != 1 else 'the set', sns)
+        if not (sq.useNewNum or sq.useRevNum):
+            topText = "This quiz is blank. Please add some questions and try again."
+        else:
+            topText = "This quiz contains %i new questions and %i reviews.\n"
+            topText += "New questions are from %s %s."
+            sns, n = sq.getSetNames()
+            topText = topText % (sq.useNewNum, sq.useRevNum,
+                    'the following sets:' if n != 1 else 'the set', sns)
 
         prevText = '\n\n'.join([topText, prevText])
         d = PreviewDialog(self)
@@ -123,6 +126,8 @@ class PreviewDialog(QDialog):
 
     def setText(self, txt):
         self.form.prevText.setPlainText(txt)
+        if "quiz is blank" in txt:
+            self.form.okButton.setEnabled(False)
 
     def accept(self):
         QDialog.accept(self)
