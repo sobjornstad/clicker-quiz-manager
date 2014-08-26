@@ -45,7 +45,7 @@ class QuizWindow(QDialog):
 
     def updateDueValues(self, news, revs):
         self.form.newDisplay.setText("(%i available)" % (news))
-        self.form.reviewDisplay.setText("(%i sets due)" % (revs))
+        self.form.reviewDisplay.setText("(%i available)" % (revs))
 
     def setDefaultSpinValues(self):
         for i in [self.form.revSpin, self.form.newSpin]:
