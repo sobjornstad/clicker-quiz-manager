@@ -47,20 +47,26 @@
          </size>
         </property>
         <property name="text">
-         <string>New questions</string>
+         <string>&amp;New questions</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>newSpin</cstring>
         </property>
        </widget>
       </item>
       <item row="2" column="0" alignment="Qt::AlignTop">
        <widget class="QLabel" name="setLabel">
         <property name="text">
-         <string>New Sets</string>
+         <string>New &amp;Sets</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>setList</cstring>
         </property>
        </widget>
       </item>
@@ -77,10 +83,13 @@
       <item row="0" column="0">
        <widget class="QLabel" name="classLabel">
         <property name="text">
-         <string>Class</string>
+         <string>&amp;Class</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>classCombo</cstring>
         </property>
        </widget>
       </item>
@@ -116,10 +125,13 @@
       <item row="5" column="0" colspan="2">
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>Review questions</string>
+         <string>&amp;Review questions</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>revSpin</cstring>
         </property>
        </widget>
       </item>
@@ -130,21 +142,21 @@
       <item>
        <widget class="QPushButton" name="genButton">
         <property name="text">
-         <string>Generate</string>
+         <string>&amp;Generate</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="cancelButton">
         <property name="text">
-         <string>Cancel</string>
+         <string>Cance&amp;l</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="setsButton">
         <property name="text">
-         <string>Sets...</string>
+         <string>S&amp;ets...</string>
         </property>
        </widget>
       </item>
