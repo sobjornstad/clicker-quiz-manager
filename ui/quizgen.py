@@ -115,7 +115,7 @@ class PreviewDialog(QDialog):
         self.form.cancelButton.clicked.connect(self.reject)
 
     def setText(self, txt):
-        self.form.prevText = txt
+        self.form.prevText.setPlainText(txt)
 
     def accept(self):
         QDialog.accept(self)
