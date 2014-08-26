@@ -135,6 +135,7 @@ class SetEditor(QDialog):
             vBox.addLayout(txtBox)
             vBox.addLayout(bBox)
             d.setLayout(vBox)
+            d.setWindowTitle("Save question?")
             d.show()
             self.rejectDialog = d
     def onExitSave(self):
