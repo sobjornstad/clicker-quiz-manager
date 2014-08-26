@@ -1,5 +1,5 @@
 from PyQt4 import QtGui, QtCore
-from PyQt4.QtGui import QDialog, QMessageBox
+from PyQt4.QtGui import QDialog, QMessageBox, QFileDialog
 from PyQt4.QtCore import QObject
 from forms.quizgen import Ui_Dialog
 import forms.qprev
@@ -103,8 +103,13 @@ class QuizWindow(QDialog):
         d.setText(prevText)
         d.exec_()
 
-    def accept(self):
-        QDialog.accept(self)
+        if self.quizFilename:
+            sq.makeRtfFile(self.quizFilename)
+            sq.rewriteSchedule()
+            utils.informationBox("The quiz was exported successfully. "
+                                 "Sets have been rescheduled.",
+                                 "Quiz generated")
+            QDialog.accept(self)
 
     def reject(self):
         QDialog.reject(self)
@@ -115,6 +120,12 @@ class QuizWindow(QDialog):
         qsw.exec_()
 
 class PreviewDialog(QDialog):
+    """
+    Displayed to show the user a text version of her quiz and allow her to
+    decide whether or not to use it. This should be created as a dialog from
+    the generate quiz window.
+    """
+
     def __init__(self, parent=None):
         QDialog.__init__(self)
         self.parent = parent
@@ -130,7 +141,19 @@ class PreviewDialog(QDialog):
             self.form.okButton.setEnabled(False)
 
     def accept(self):
-        QDialog.accept(self)
+        f = QFileDialog.getSaveFileName(caption="Export Quiz File",
+                filter="Rich text files (*.rtf)")
+        if not f:
+            self.parent.quizFilename = None
+            return
+        else:
+            # on linux, the extension might not be automatically appended
+            f = unicode(f)
+            if not f.endswith('.rtf'):
+                f += '.rtf'
+            self.parent.quizFilename = f
+            QDialog.accept(self)
 
     def reject(self):
+        self.parent.quizFilename = None
         QDialog.reject(self)
