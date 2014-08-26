@@ -89,6 +89,13 @@ class QuizWindow(QDialog):
             return
 
         prevText = self.quiz.generate()
+        topText = "This quiz contains %i new questions and %i reviews.\n"
+        topText += "New questions are from %s %s."
+        sns, n = sq.getSetNames()
+        topText = topText % (sq.useNewNum, sq.useRevNum,
+                'the following sets:' if n != 1 else 'the set', sns)
+
+        prevText = '\n\n'.join([topText, prevText])
         d = PreviewDialog(self)
         d.setText(prevText)
         d.exec_()

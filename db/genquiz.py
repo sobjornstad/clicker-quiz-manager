@@ -91,6 +91,14 @@ class Quiz(object):
             self.newSets.append(st)
     def resetNewSets(self):
         self.newSets = []
+    def getSetNames(self):
+        """
+        Get a comma-separated string of the sets that are currently available
+        for post-generation display to the user, along with the number of sets
+        that are represented by the string.
+        """
+        sns = [i.getName() for i in self.newSets]
+        return (', '.join(sns)), len(sns)
 
     def setNewQuestions(self, num):
         self.useNewNum = num
