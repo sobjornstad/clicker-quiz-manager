@@ -88,7 +88,7 @@
        <widget class="QComboBox" name="classCombo"/>
       </item>
       <item row="5" column="2">
-       <widget class="QSpinBox" name="r">
+       <widget class="QSpinBox" name="revSpin">
         <property name="minimumSize">
          <size>
           <width>68</width>
@@ -128,9 +128,9 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
       <item>
-       <widget class="QPushButton" name="okButton">
+       <widget class="QPushButton" name="genButton">
         <property name="text">
-         <string>OK</string>
+         <string>Generate</string>
         </property>
        </widget>
       </item>
@@ -156,7 +156,7 @@
  <tabstops>
   <tabstop>classCombo</tabstop>
   <tabstop>newSpin</tabstop>
-  <tabstop>okButton</tabstop>
+  <tabstop>genButton</tabstop>
   <tabstop>cancelButton</tabstop>
   <tabstop>setsButton</tabstop>
  </tabstops>

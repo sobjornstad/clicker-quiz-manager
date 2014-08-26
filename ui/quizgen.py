@@ -2,6 +2,7 @@ from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QDialog, QMessageBox
 from PyQt4.QtCore import QObject
 from forms.quizgen import Ui_Dialog
+import forms.qprev
 
 import db.classes
 import db.genquiz
@@ -16,13 +17,13 @@ class QuizWindow(QDialog):
         self.form = Ui_Dialog()
         self.form.setupUi(self)
 
-        self.form.okButton.clicked.connect(self.accept)
+        self.form.genButton.clicked.connect(self.onGenerate)
         self.form.cancelButton.clicked.connect(self.reject)
         self.form.setsButton.clicked.connect(self.onSets)
         self.form.setList.itemSelectionChanged.connect(self.onSetChange)
         self.form.classCombo.currentIndexChanged.connect(self.onClassChange)
 
-        self.form.okButton.setEnabled(False)
+        self.form.genButton.setEnabled(False)
         self.form.newSpin.setEnabled(False)
         self.form.revSpin.setEnabled(False)
 
@@ -72,12 +73,25 @@ class QuizWindow(QDialog):
         self.form.revSpin.setMaximum(revs)
 
         # update grayed-out parts of dialog
-        toggle = [self.form.newSpin, self.form.revSpin, self.form.okButton]
+        toggle = [self.form.newSpin, self.form.revSpin, self.form.genButton]
         for i in toggle:
             if self.form.setList.selectedItems():
                 i.setEnabled(True)
             else:
                 i.setEnabled(False)
+
+    def onGenerate(self):
+        sq = self.quiz
+        sq.setNewQuestions(self.form.newSpin.value())
+        sq.setRevQuestions(self.form.revSpin.value())
+        if not self.quiz.isSetUp():
+            utils.errorBox("Quiz settings have not been made yet!")
+            return
+
+        prevText = self.quiz.generate()
+        d = PreviewDialog(self)
+        d.setText(prevText)
+        d.exec_()
 
     def accept(self):
         QDialog.accept(self)
@@ -89,3 +103,22 @@ class QuizWindow(QDialog):
         import questionsets
         qsw = questionsets.QuestionSetsDialog(self)
         qsw.exec_()
+
+class PreviewDialog(QDialog):
+    def __init__(self, parent=None):
+        QDialog.__init__(self)
+        self.parent = parent
+        self.form = forms.qprev.Ui_Dialog()
+        self.form.setupUi(self)
+
+        self.form.okButton.clicked.connect(self.accept)
+        self.form.cancelButton.clicked.connect(self.reject)
+
+    def setText(self, txt):
+        self.form.prevText = txt
+
+    def accept(self):
+        QDialog.accept(self)
+
+    def reject(self):
+        QDialog.reject(self)

@@ -113,8 +113,8 @@ class Quiz(object):
         that we're *ready* to pull the random questions.
         """
 
-        if not (self.newQ and self.revQ and self.useNewNum and self.useRevNum
-                and self.newSets):
+        if not ((self.newQ or self.revQ) and self.useNewNum is not None
+                and self.useRevNum is not None and self.newSets):
             return False
         if forGen and not (self.newL and self.revL):
             return False
@@ -279,7 +279,11 @@ def randomDraw(l, allSets, num):
         if num > len(l):
             assert False, "More new questions requested than available!"
         L = random.sample(l, num)
-        setsUsed = [i.getQuestion().getSet() for i in L]
+        setsUsed = []
+        for i in L:
+            st = i.getQuestion().getSet()
+            if st not in setsUsed:
+                setsUsed.append(st)
         if setsUsed == allSets:
             break
         elif len(allSets) > num:
