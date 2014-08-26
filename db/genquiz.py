@@ -248,7 +248,11 @@ class Quiz(object):
         if not self.isSetUp():
             assert False, "Options not set up! This should be checked in caller!"
 
-        allRevSets = [i.getQuestion().getSet() for i in self.revQ]
+        allRevSets = []
+        for i in self.revQ:
+            st = i.getQuestion().getSet()
+            if st not in allRevSets:
+                allRevSets.append(st)
         self.revL = randomDraw(self.revQ, allRevSets, self.useRevNum)
 
 def findNewSets(cls):
