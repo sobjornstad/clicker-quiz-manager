@@ -359,6 +359,10 @@ class SetEditor(QDialog):
             return
         importer = db.qimport.Importer(f, self._currentSet())
         errors = importer.txtImport()
+
+        self.form.questionList.clear()
+        self.setupQuestions()
+
         if errors:
             utils.errorBox("Import returned the following errors:\n%s\n\nAny " \
                            "lines that were valid have been imported." \
@@ -366,9 +370,6 @@ class SetEditor(QDialog):
         else:
             utils.informationBox("Import completed successfully.",
                     "Import Results")
-
-        self.form.questionList.clear()
-        self.setupQuestions()
 
     def onExport(self):
         utils.informationBox("This feature is not implemented yet.", "Sorry!")
