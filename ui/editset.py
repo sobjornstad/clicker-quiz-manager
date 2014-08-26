@@ -354,7 +354,8 @@ class SetEditor(QDialog):
 
     def onImport(self):
         import db.qimport
-        f = QFileDialog.getOpenFileName()
+        f = QFileDialog.getOpenFileName(caption="Import File",
+                filter="Text files (*.txt);;All files (*)")
         if not f:
             return
         importer = db.qimport.Importer(f, self._currentSet())
