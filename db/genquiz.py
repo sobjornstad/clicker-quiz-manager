@@ -99,9 +99,8 @@ class Quiz(object):
 
     def finishSetup(self):
         """
-        Fill the Quiz with possible questions, after choosing the sets and
-        number of questions we want. This can always be called again if
-        desired.
+        Fill the Quiz with possible questions, after choosing the sets we want.
+        This can always be called again if desired.
         """
         self._fillNewItems()
         self._fillRevItems()

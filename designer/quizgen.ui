@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
-    <height>223</height>
+    <width>394</width>
+    <height>474</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,19 +19,22 @@
      <x>40</x>
      <y>20</y>
      <width>327</width>
-     <height>194</height>
+     <height>441</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
      <layout class="QGridLayout" name="gridLayout_4">
-      <item row="4" column="2">
-       <widget class="QSpinBox" name="newQuestions"/>
-      </item>
-      <item row="4" column="3">
-       <widget class="QLabel" name="newDisplay">
-        <property name="text">
-         <string>(15 available)</string>
+      <item row="2" column="1" colspan="3">
+       <widget class="QListWidget" name="setList">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>250</height>
+         </size>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::ExtendedSelection</enum>
         </property>
        </widget>
       </item>
@@ -51,17 +54,40 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0" colspan="2">
-       <widget class="QLabel" name="label">
+      <item row="2" column="0" alignment="Qt::AlignTop">
+       <widget class="QLabel" name="setLabel">
         <property name="text">
-         <string>Review questions</string>
+         <string>New Sets</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
-      <item row="3" column="2">
+      <item row="4" column="3">
+       <widget class="QLabel" name="newDisplay">
+        <property name="text">
+         <string>(15 available)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QSpinBox" name="newQuestions"/>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="classLabel">
+        <property name="text">
+         <string>Class</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="3">
+       <widget class="QComboBox" name="classCombo"/>
+      </item>
+      <item row="5" column="2">
        <widget class="QSpinBox" name="revQuestions">
         <property name="minimumSize">
          <size>
@@ -80,33 +106,17 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="3">
+      <item row="5" column="3">
        <widget class="QLabel" name="reviewDisplay">
         <property name="text">
-         <string>(5 sets due)</string>
+         <string>(5 available)</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1" colspan="3">
-       <widget class="QComboBox" name="classCombo"/>
-      </item>
-      <item row="2" column="1" colspan="3">
-       <widget class="QComboBox" name="setCombo"/>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="classLabel">
+      <item row="5" column="0" colspan="2">
+       <widget class="QLabel" name="label">
         <property name="text">
-         <string>Class</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="setLabel">
-        <property name="text">
-         <string>New Set</string>
+         <string>Review questions</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -114,19 +124,6 @@
        </widget>
       </item>
      </layout>
-    </item>
-    <item>
-     <spacer name="verticalSpacer">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>30</height>
-       </size>
-      </property>
-     </spacer>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -145,9 +142,9 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="historyButton">
+       <widget class="QPushButton" name="setsButton">
         <property name="text">
-         <string>History</string>
+         <string>Sets...</string>
         </property>
        </widget>
       </item>
@@ -158,12 +155,10 @@
  </widget>
  <tabstops>
   <tabstop>classCombo</tabstop>
-  <tabstop>setCombo</tabstop>
-  <tabstop>revQuestions</tabstop>
   <tabstop>newQuestions</tabstop>
   <tabstop>okButton</tabstop>
   <tabstop>cancelButton</tabstop>
-  <tabstop>historyButton</tabstop>
+  <tabstop>setsButton</tabstop>
  </tabstops>
  <resources/>
  <connections/>
