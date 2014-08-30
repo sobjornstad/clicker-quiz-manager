@@ -166,7 +166,7 @@ class Quiz(object):
         # new questions are mixed to promote better learning -- it has been
         # shown that people learn better when different types of questions are
         # mixed.
-        allQuestions = self.newL + self.revQ
+        allQuestions = self.newL + self.revL
         random.shuffle(allQuestions)
         ql = [i.getQuestion() for i in allQuestions]
 
