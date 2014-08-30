@@ -1,7 +1,5 @@
 import unittest
-import os
-import sys
-sys.path.append("../")
+
 import db.database
 import db.tools.create_database
 
@@ -16,7 +14,6 @@ class DbTestCase(unittest.TestCase):
 
     def dbTearDown(self):
         db.database.connection.close()
-        #os.remove(TEST_DB_FNAME)
 
     # reimplement these if additional setup is needed
     def setUp(self):

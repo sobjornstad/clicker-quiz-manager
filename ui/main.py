@@ -1,5 +1,4 @@
 import sys
-#sys.path.append("../")
 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QApplication, QMainWindow, QFileDialog
