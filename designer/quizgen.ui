@@ -167,7 +167,9 @@
  </widget>
  <tabstops>
   <tabstop>classCombo</tabstop>
+  <tabstop>setList</tabstop>
   <tabstop>newSpin</tabstop>
+  <tabstop>revSpin</tabstop>
   <tabstop>genButton</tabstop>
   <tabstop>cancelButton</tabstop>
   <tabstop>setsButton</tabstop>
