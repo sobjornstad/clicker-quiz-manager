@@ -12,11 +12,16 @@ def genRtfFile(questions):
     qNum = 1
     for question in questions:
         q, a, ca = question.getFormattedContent(qNum)
+
         q = q.encode('rtfunicode')
+        q = q.replace('\\u9?', '\t')
         ca = ca.encode('rtfunicode')
+        ca = ca.replace('\\u9?', '\t')
+
         section.append(q)
         for ans in a:
             ans = ans.encode('rtfunicode')
+            ans = ans.replace('\\u9?', '\t')
             section.append(ans)
         section.append(ca)
         qNum += 1
