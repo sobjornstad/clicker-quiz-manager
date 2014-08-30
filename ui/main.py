@@ -2,14 +2,15 @@ import sys
 #sys.path.append("../")
 
 from PyQt4 import QtGui, QtCore
-from PyQt4.QtGui import QApplication, QMainWindow
+from PyQt4.QtGui import QApplication, QMainWindow, QFileDialog
 from forms.mw import Ui_MainWindow
 
 import db.database
 
 class MainWindow(QMainWindow):
     def __init__(self):
-        db.database.connect("quiz.db")
+        fname = unicode(getDbLocation())
+        db.database.connect(fname)
         QMainWindow.__init__(self)
         self.form = Ui_MainWindow()
         self.form.setupUi(self)
@@ -43,3 +44,8 @@ def start():
     mw = MainWindow()
     mw.show()
     app.exec_()
+
+def getDbLocation():
+    f = QFileDialog.getOpenFileName(caption="Open Database",
+            filter="Quiz Databases (*.db);;All files (*)")
+    return f
