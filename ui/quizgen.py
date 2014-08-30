@@ -1,3 +1,7 @@
+# -* coding: utf-8 *-
+# This file is part of Clicker Quiz Generator.
+# Copyright 2014 Soren Bjornstad. All rights reserved.
+
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QDialog, QMessageBox, QFileDialog
 from PyQt4.QtCore import QObject

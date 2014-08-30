@@ -1,3 +1,7 @@
+# -* coding: utf-8 *-
+# This file is part of Clicker Quiz Generator.
+# Copyright 2014 Soren Bjornstad. All rights reserved.
+
 import PyRTF as rtf
 import rtfunicode
 from questions import Question
