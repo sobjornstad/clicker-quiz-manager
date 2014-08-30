@@ -7,7 +7,7 @@ def makeDatabase(fname):
     cursor.execute('CREATE TABLE questions (qid INTEGER PRIMARY KEY, ord INTEGER, q TEXT, ca TEXT, answers TEXT, sid INTEGER)')
     cursor.execute('CREATE TABLE classes (cid INTEGER PRIMARY KEY, name TEXT, setsUsed INTEGER)')
     cursor.execute('CREATE TABLE sets (sid INTEGER PRIMARY KEY, name TEXT, num INTEGER)')
-    cursor.execute('CREATE TABLE history (hid INTEGER PRIMARY KEY, cid INTEGER, qid INTEGER, lastSet INTEGER, factor INTEGER, priority INTEGER)')
+    cursor.execute('CREATE TABLE history (hid INTEGER PRIMARY KEY, cid INTEGER, sid INTEGER, nextSet INTEGER, lastIvl INTEGER, factor INTEGER)')
     cursor.execute('CREATE TABLE conf (conf TEXT)')
     return connection
 

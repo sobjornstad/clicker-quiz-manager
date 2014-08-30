@@ -13,27 +13,35 @@ class QuizTests(utils.DbTestCase):
                 ["foo", "bar", "baz", "42"], "d", st, 1)
         item = QuizItem(q, cls)
 
-        # check default values
-        assert item.getPriority() == (QuizItem.DEFAULT_PRIORITY / 1000)
-        assert item.getLastSet() == 0
-        assert item.getNextSet() == 0 # lastSet is 0
+        # check default value
+        assert item.getNextSet() == 0
 
         # check private values
-        assert item.qid == q.getQid()
         assert item.sid == q.getSid()
         assert item.ctype == 'new'
 
         # reschedule and check next set values
-        item.reschedule(1)
+        sr = SetRescheduler()
+        item.reschedule(1, sr)
+        sr.runResched()
         assert item.getNextSet() == 2, item.getNextSet()
-        item.reschedule(3)
-        assert item.getNextSet() == 6
+        sr = SetRescheduler()
+        item.reschedule(3, sr)
+        sr.runResched()
+        assert item.getNextSet() == 5, item.getNextSet()
+        # the following is not possible in normal use, but it demonstrates how
+        # the next set depends on the lastIvl stored in history as well as the
+        # current set: it is larger even though we've gone back a curSet.
+        sr = SetRescheduler()
+        item.reschedule(2, sr)
+        sr.runResched()
+        assert item.getNextSet() == 6, item.getNextSet()
 
         # pull in from db again and make sure it works
         itemRegrabbed = QuizItem(q, cls)
         assert item.ctype == 'rev'
         assert item.getNextSet() == 6
-        assert item.qid == q.getQid()
+        assert item.sid == q.getSid()
 
     def testQuiz(self):
         cls = db.classes.Class("Test Class")
@@ -66,8 +74,10 @@ class QuizTests(utils.DbTestCase):
 
         # change the set1 ones into review items, move ourselves ahead a bit in
         # our review history, reload, and test new/rev load
-        quiz.newQ[0].reschedule(3)
-        quiz.newQ[1].reschedule(2)
+        sr = SetRescheduler()
+        quiz.newQ[0].reschedule(3, sr)
+        quiz.newQ[1].reschedule(2, sr)
+        sr.runResched()
         d.cursor.execute('UPDATE classes SET setsUsed=? WHERE cid=?',
                 (7,cls.getCid()))
         d.connection.commit()
@@ -103,7 +113,7 @@ class QuizTests(utils.DbTestCase):
         oldSetsUsed = getSetsUsed(cls)
         quiz.rewriteSchedule()
         assert oldSetsUsed + 1 == getSetsUsed(cls)
-        assert quiz.revL[1].getLastSet() == getSetsUsed(cls) -1
+        # more resched is tested with QuizItem
 
     def testFindSets(self):
         st1 = db.sets.Set("Test Set 1", 1)
@@ -121,8 +131,8 @@ class QuizTests(utils.DbTestCase):
         # fake some revs into the history table
         cid = cls.getCid()
         x = d.cursor.execute
-        x('INSERT INTO history (cid, qid) VALUES (?,?)', (cid, st2.getSid()))
-        x('INSERT INTO history (cid, qid) VALUES (?,?)', (cid, st3.getSid()))
+        x('INSERT INTO history (cid, sid) VALUES (?,?)', (cid, st2.getSid()))
+        x('INSERT INTO history (cid, sid) VALUES (?,?)', (cid, st3.getSid()))
         d.connection.commit()
 
         # now we should only have one new

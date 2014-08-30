@@ -5,73 +5,83 @@ import sets
 
 import random
 
-#TODO: Factor needs to become an attribute of a *set* somehow (this might even need another *table* to fix). For now it's okay since we don't intend to change it. This needs to be done because otherwise some questions of a set might end up eligible while others don't.
+class SetRescheduler(object):
+    def __init__(self):
+        self.sts = {}
+
+    def addSet(self, st, item):
+        sid = st.getSid()
+        if sid not in self.sts:
+            self.sts[sid] = item
+
+    def runResched(self):
+        for st in self.sts:
+            item = self.sts[st]
+            #SAMPLE CODE FOLLOWS
+            vals = {
+                    'ns': item.nextSet,
+                    'li': item.lastIvl,
+                    'factor': item.factor,
+                    'sid': item.sid,
+                    'cid': item.cid
+                   }
+
+            if item.ctype == 'rev':
+                d.cursor.execute('UPDATE history SET nextSet=:ns, factor=:factor, \
+                                  lastIvl=:li WHERE sid=:sid AND cid=:cid', \
+                                  vals)
+            elif item.ctype == 'new':
+                d.cursor.execute('INSERT INTO history \
+                                 (cid, sid, nextSet, lastIvl, factor) \
+                                 VALUES (:cid, :sid, :ns, :li, :factor)', vals)
+                item.hid = d.cursor.lastrowid
+                item.ctype = 'rev'
+            else:
+                assert False, "Invalid card type in QuizItem!"
+
+        d.connection.commit()
+
 
 class QuizItem(object):
-    DEFAULT_PRIORITY = 1000
     DEFAULT_FACTOR = 2000
 
     def __init__(self, q, cls):
         self.q = q
         qid = q.getQid()
         cid = cls.getCid()
+        st = q.getSet()
+        sid = st.getSid()
 
-        d.cursor.execute('SELECT * FROM history WHERE qid=? AND cid=?',
-                (qid, cid))
+        d.cursor.execute('SELECT * FROM history WHERE sid=? AND cid=?',
+                (sid, cid))
         try:
-            self.hid, self.cid, self.qid, self.lastSet, self.factor, \
-                    self.priority = d.cursor.fetchall()[0]
+            self.hid, self.cid, self.sid, self.nextSet, self.lastIvl, \
+                    self.factor = d.cursor.fetchall()[0]
         except IndexError:
-            self.qid = qid
+            self.sid = sid
             self.cid = cid
-            self.lastSet = 0
+            self.nextSet = 0
+            self.lastIvl = 0
             self.factor = self.DEFAULT_FACTOR
-            self.priority = self.DEFAULT_PRIORITY
             self.ctype = 'new'
         else:
             self.ctype = 'rev'
 
-        d.cursor.execute('SELECT sid FROM questions WHERE qid=?', (qid,))
-        self.sid = d.cursor.fetchall()[0][0]
-
-    def _dump(self):
-        """Writes rescheduled values to the database."""
-        vals = {
-                'ls': self.lastSet,
-                'factor': self.factor,
-                'prior': self.priority,
-                'qid': self.qid,
-                'cid': self.cid
-               }
-
-        if self.ctype == 'rev':
-            d.cursor.execute('UPDATE history SET lastSet=:ls, factor=:factor, \
-                              priority=:prior WHERE qid=:qid AND cid=:cid', \
-                              vals)
-        elif self.ctype == 'new':
-            d.cursor.execute('INSERT INTO history \
-                             (cid, qid, lastSet, factor, priority) \
-                             VALUES (:cid, :qid, :ls, :factor, :prior)', vals)
-            self.hid = d.cursor.lastrowid
-            self.ctype = 'rev'
-        else:
-            assert False, "Invalid card type in QuizItem!"
-        d.connection.commit()
+        self.st = sets.findSet(sid=self.sid)
 
     def getQuestion(self):
         return self.q
-    def getLastSet(self):
-        return self.lastSet
     def getNextSet(self):
-        return (self.lastSet * self.factor / 1000)
-    def getPriority(self):
-        return self.priority / 1000
+        return self.nextSet
 
-    def reschedule(self, curSet):
-        self.lastSet = curSet
-        # consider decreasing the priority here; since we've seen the question
-        # once, better to give other questions from the set a shot?
-        self._dump()
+    def reschedule(self, curSet, sr):
+        if self.lastIvl:
+            self.lastIvl = (self.lastIvl * self.factor / 1000)
+        else:
+            self.lastIvl = 1
+
+        self.nextSet = curSet + self.lastIvl
+        sr.addSet(self.st, self)
 
 
 class Quiz(object):
@@ -189,9 +199,11 @@ class Quiz(object):
         Once the user has decided to use a set of cards, update cards' schedules
         to match the fact that they've been reviewed.
         """
+        sr = SetRescheduler()
         curSet = getSetsUsed(self.cls)
         for i in (self.newL + self.revL):
-            i.reschedule(curSet)
+            i.reschedule(curSet, sr)
+        sr.runResched()
         incrementSetsUsed(self.cls)
 
 
@@ -213,9 +225,12 @@ class Quiz(object):
     def _fillRevItems(self):
         # pull in all items that might be eligible based on their class
         cid = self.cls.getCid()
-        d.cursor.execute('SELECT qid FROM history WHERE cid=?', (cid,))
-        ql = [QuizItem(questions.getById(i[0]), self.cls)
-              for i in d.cursor.fetchall()]
+        d.cursor.execute('SELECT sid FROM history WHERE cid=?', (cid,))
+        ql = []
+        for st in d.cursor.fetchall():
+            setQuestions = questions.getBySet(sets.findSet(sid=st[0]))
+            for question in setQuestions:
+                ql.append(QuizItem(question, self.cls))
 
         # reset the list, then add ones that are due
         self.revQ = []
@@ -258,9 +273,7 @@ class Quiz(object):
 def findNewSets(cls):
     "Return a list of all sets that are *not* in review."
     cid = cls.getCid()
-    d.cursor.execute('''SELECT sid FROM questions
-                        WHERE qid in (SELECT qid FROM history
-                                      WHERE cid=?)''', (cid,))
+    d.cursor.execute('SELECT sid FROM history WHERE cid=?', (cid,))
 
     revs = [sets.findSet(sid=sid[0]) for sid in d.cursor.fetchall()]
     alls = sets.getAllSets()
