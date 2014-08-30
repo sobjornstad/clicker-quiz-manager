@@ -7,13 +7,19 @@ from forms.mw import Ui_MainWindow
 
 import db.database
 
+APPLICATION_VERSION = "1.0.0"
+
 class MainWindow(QMainWindow):
     def __init__(self):
-        fname = unicode(getDbLocation())
-        db.database.connect(fname)
+        self.dbpath = unicode(getDbLocation())
+        db.database.connect(self.dbpath)
         QMainWindow.__init__(self)
         self.form = Ui_MainWindow()
         self.form.setupUi(self)
+
+        filename = self.dbpath.split('/')[-1]
+        self.form.dbLabel.setText("Database: " + filename)
+        self.form.verLabel.setText("Clicker Quiz Manager " + APPLICATION_VERSION)
 
         self.form.quitButton.clicked.connect(self.quit)
         self.form.classesButton.clicked.connect(self.onClasses)
