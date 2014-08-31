@@ -66,11 +66,11 @@ You should not create generalized classes like "History" or "German" – you
 would end up in trouble when you taught German for a second semester, since
 trying to reuse that class would mean that you would start with all the sets
 that you used last year treated as already introduced. Instead, you should name
-them something like "History Fall 2014." Since classes are listed throughout the
-program in alphabetical order, you will probably obtain a more useful sort by
-naming with the time first, so "Fall 2014 - History". This way history classes
-in future semesters will be grouped along with your first ones, if you choose to
-keep them around for future reference.
+them something like "History Fall 2014." Since classes are listed throughout
+the program in alphabetical order, you will probably obtain a more useful sort
+by naming with the time first, so "Fall 2014 - History". This way classes will
+be grouped by when you taught them, if you choose to keep them around for
+future reference.
 
 Any class may use any questions that you have in your database, so creating
 classes does not need to divide up your questions in any way.
@@ -183,11 +183,11 @@ each set is placed on the quiz).
 Sets that you have already introduced (that is, ones that are not new and are
 not shown anymore in the *new sets* list) are called *review sets*. In other
 words, the new sets that you choose today will become review sets tomorrow. CQM
-keeps track of when reviews sets were last seen and brings them back
+keeps track of when review sets were last seen and brings them back
 occasionally. By default it doubles the amount of time between each showing, so
 if you add a new set on your first quiz, it will be available again as a review
-set on quizzes 2, 4, 8, 16, and so on. (Similarly, the new set(s) you add on the
-second quiz will come back on quizzes 3, 5, 9, and 17.)
+set on quizzes 2, 4, 8, 16, and so on. (Similarly, the new set(s) you add on
+the second quiz will come back on quizzes 3, 5, 9, and 17.)
 
 The *available* display next to the review questions spinner shows how many
 total questions are in all of the sets which are up for review today. As with
