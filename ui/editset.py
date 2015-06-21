@@ -63,6 +63,7 @@ class SetEditor(QDialog):
     def setupQuestions(self):
         self.qm = db.questions.QuestionManager(self._currentSet())
         self.populateQuestions()
+        self._updateQuestionTotal()
         # select first question, or create new one if there are none
         if self.form.questionList.count():
             self.form.questionList.setCurrentRow(0)
@@ -340,8 +341,13 @@ class SetEditor(QDialog):
 
         self.qm.update()
         self.currentQid = self.qm.byName(question).getQid()
+        self._updateQuestionTotal()
         self._enableList()
         return retVal
+
+    def _updateQuestionTotal(self):
+        numQs = self.form.questionList.count()
+        self.form.questionTotalDisplay.setText("Questions: %i" % numQs)
 
     def onDelete(self):
         r = utils.confirmDeleteBox("question", "")
@@ -351,6 +357,7 @@ class SetEditor(QDialog):
         q = self.qm.byOrd(cRow)
         self.qm.rmQuestion(q)
         self.form.questionList.takeItem(cRow)
+        self._updateQuestionTotal()
         if not self.form.questionList.count():
             self.forceNewQuestion()
 

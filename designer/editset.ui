@@ -66,6 +66,16 @@ QGroupBox::title {
          </widget>
         </item>
         <item>
+         <widget class="QLabel" name="questionTotalDisplay">
+          <property name="text">
+           <string>Questions: 0</string>
+          </property>
+          <property name="indent">
+           <number>5</number>
+          </property>
+         </widget>
+        </item>
+        <item>
          <layout class="QGridLayout" name="gridLayout_2">
           <item row="0" column="0">
            <widget class="QPushButton" name="newButton">
@@ -328,7 +338,7 @@ QGroupBox::title {
          <x>51</x>
          <y>490</y>
          <width>261</width>
-         <height>29</height>
+         <height>30</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
