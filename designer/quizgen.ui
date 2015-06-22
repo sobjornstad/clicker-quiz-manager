@@ -26,6 +26,9 @@
            <height>250</height>
           </size>
          </property>
+         <property name="toolTip">
+          <string>Select one or more sets to introduce for the first time on this quiz (use Ctrl-click to select multiple).</string>
+         </property>
          <property name="selectionMode">
           <enum>QAbstractItemView::ExtendedSelection</enum>
          </property>
@@ -71,7 +74,11 @@
         </widget>
        </item>
        <item row="4" column="2">
-        <widget class="QSpinBox" name="newSpin"/>
+        <widget class="QSpinBox" name="newSpin">
+         <property name="toolTip">
+          <string>The number of questions that come from the New Sets.</string>
+         </property>
+        </widget>
        </item>
        <item row="0" column="0">
         <widget class="QLabel" name="classLabel">
@@ -102,6 +109,9 @@
            <width>266</width>
            <height>25</height>
           </size>
+         </property>
+         <property name="toolTip">
+          <string>The number of questions that will be randomly selected from previously introduced sets.</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -134,6 +144,9 @@
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>
         <widget class="QPushButton" name="genButton">
+         <property name="toolTip">
+          <string>Create a quiz. You will have a chance to review the contents.</string>
+         </property>
          <property name="text">
           <string>&amp;Generate</string>
          </property>
@@ -148,6 +161,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="setsButton">
+         <property name="toolTip">
+          <string>Open the sets dialog with a full list of question sets.</string>
+         </property>
          <property name="text">
           <string>S&amp;ets...</string>
          </property>

@@ -51,6 +51,9 @@ QGroupBox::title {
            <layout class="QGridLayout" name="gridLayout_2">
             <item row="0" column="0">
              <widget class="QPushButton" name="newButton">
+              <property name="toolTip">
+               <string/>
+              </property>
               <property name="text">
                <string>&amp;New</string>
               </property>
@@ -58,6 +61,9 @@ QGroupBox::title {
             </item>
             <item row="0" column="1">
              <widget class="QPushButton" name="deleteButton">
+              <property name="toolTip">
+               <string/>
+              </property>
               <property name="text">
                <string>D&amp;elete</string>
               </property>
@@ -65,6 +71,9 @@ QGroupBox::title {
             </item>
             <item row="0" column="2">
              <widget class="QPushButton" name="importButton">
+              <property name="toolTip">
+               <string/>
+              </property>
               <property name="text">
                <string>&amp;Import</string>
               </property>
@@ -72,6 +81,9 @@ QGroupBox::title {
             </item>
             <item row="1" column="0">
              <widget class="QPushButton" name="moveUpButton">
+              <property name="toolTip">
+               <string>Move selected question up in the list. You can also drag and drop questions.</string>
+              </property>
               <property name="text">
                <string>Move &amp;Up</string>
               </property>
@@ -79,6 +91,9 @@ QGroupBox::title {
             </item>
             <item row="1" column="1">
              <widget class="QPushButton" name="moveDownButton">
+              <property name="toolTip">
+               <string>Move selected question down in the list. You can also drag and drop questions.</string>
+              </property>
               <property name="text">
                <string>Move &amp;Down</string>
               </property>
@@ -86,6 +101,9 @@ QGroupBox::title {
             </item>
             <item row="1" column="2">
              <widget class="QPushButton" name="exportButton">
+              <property name="toolTip">
+               <string/>
+              </property>
               <property name="text">
                <string>E&amp;xport</string>
               </property>
@@ -122,8 +140,6 @@ QGroupBox::title {
          </layout>
         </item>
        </layout>
-       <zorder>layoutWidget</zorder>
-       <zorder>layoutWidget</zorder>
       </widget>
      </item>
      <item>
@@ -177,6 +193,9 @@ QGroupBox::title {
               <height>150</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string/>
+            </property>
             <property name="tabChangesFocus">
              <bool>true</bool>
             </property>
@@ -215,6 +234,9 @@ QGroupBox::title {
               <width>65</width>
               <height>0</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>This parameter is not yet implemented.</string>
             </property>
            </widget>
           </item>
@@ -302,7 +324,11 @@ QGroupBox::title {
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QLineEdit" name="answerA"/>
+              <widget class="QLineEdit" name="answerA">
+               <property name="toolTip">
+                <string/>
+               </property>
+              </widget>
              </item>
              <item row="1" column="0">
               <widget class="QLabel" name="label_5">
@@ -312,7 +338,11 @@ QGroupBox::title {
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QLineEdit" name="answerB"/>
+              <widget class="QLineEdit" name="answerB">
+               <property name="toolTip">
+                <string/>
+               </property>
+              </widget>
              </item>
              <item row="2" column="0">
               <widget class="QLabel" name="label_6">
@@ -322,7 +352,11 @@ QGroupBox::title {
               </widget>
              </item>
              <item row="2" column="1">
-              <widget class="QLineEdit" name="answerC"/>
+              <widget class="QLineEdit" name="answerC">
+               <property name="toolTip">
+                <string/>
+               </property>
+              </widget>
              </item>
              <item row="3" column="0">
               <widget class="QLabel" name="label_7">
@@ -332,7 +366,11 @@ QGroupBox::title {
               </widget>
              </item>
              <item row="3" column="1">
-              <widget class="QLineEdit" name="answerD"/>
+              <widget class="QLineEdit" name="answerD">
+               <property name="toolTip">
+                <string/>
+               </property>
+              </widget>
              </item>
              <item row="4" column="0">
               <widget class="QLabel" name="label_8">
@@ -342,7 +380,11 @@ QGroupBox::title {
               </widget>
              </item>
              <item row="4" column="1">
-              <widget class="QLineEdit" name="answerE"/>
+              <widget class="QLineEdit" name="answerE">
+               <property name="toolTip">
+                <string/>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>
@@ -362,14 +404,15 @@ QGroupBox::title {
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QComboBox" name="correctAnswerCombo"/>
+              <widget class="QComboBox" name="correctAnswerCombo">
+               <property name="toolTip">
+                <string/>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>
           </layout>
-          <zorder>layoutWidget</zorder>
-          <zorder>layoutWidget</zorder>
-          <zorder>layoutWidget</zorder>
          </widget>
         </item>
         <item>
@@ -421,6 +464,9 @@ QGroupBox::title {
               <height>0</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string/>
+            </property>
             <property name="text">
              <string>&amp;Save Changes</string>
             </property>
@@ -436,6 +482,9 @@ QGroupBox::title {
               <width>130</width>
               <height>0</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string/>
             </property>
             <property name="text">
              <string>&amp;Discard Changes</string>
@@ -516,6 +565,9 @@ QGroupBox::title {
           <width>300</width>
           <height>16777215</height>
          </size>
+        </property>
+        <property name="toolTip">
+         <string>Select another set of questions to edit.</string>
         </property>
        </widget>
       </item>
