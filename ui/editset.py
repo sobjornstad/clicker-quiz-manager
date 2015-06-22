@@ -50,6 +50,7 @@ class SetEditor(QDialog):
         self.form.questionList.itemSelectionChanged.connect(self.onQuestionChange)
         qlShortcut = QShortcut(QKeySequence("Alt+L"), self.form.questionList)
         qlShortcut.connect(qlShortcut, QtCore.SIGNAL("activated()"), lambda: self.form.questionList.setFocus())
+        self.form.questionList.model().rowsMoved.connect(self.onDragDrop)
 
         self.form.questionBox.textChanged.connect(self.updateListQuestion)
         self.form.answerA.textEdited.connect(self._disableList)
@@ -383,6 +384,12 @@ class SetEditor(QDialog):
 
     def onExport(self):
         utils.informationBox("This feature is not implemented yet.", "Sorry!")
+
+    def onDragDrop(self, start, end, parent, destination, row):
+        mFrom = end
+        mTo = row
+        db.questions.insertQuestion(self.qm.byOrd(mFrom), mTo)
+        self.qm.update()
 
     def onMoveDown(self):
         self._move('down')

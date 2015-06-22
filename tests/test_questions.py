@@ -151,6 +151,31 @@ class QuestionTests(utils.DbTestCase):
         assert q1.getOrder() == 2
         assert q2.getOrder() == 1
 
+    def testInsertQuestion(self):
+        st = Set("Test Set", 1)
+        q1 = Question("What is the answer?",
+                ["foo", "bar", "baz", "42"], "d", st, 0)
+        q2 = Question("What is the answer to this one?",
+                ["foo", "bar", "42", "quux"], "c", st, 1)
+        q3 = Question("And how about this one?",
+                ["foo", "bar", "42", "quux"], "c", st, 2)
+        q4 = Question("And just one more.",
+                ["foo", "bar", "42", "quux"], "c", st, 3)
+
+        # we'll need to refetch because the ords have been changed in a
+        # separate instance of the question; now the ords will be in order,
+        # so sort by order and check the order of their qids
+        q1id, q2id, q3id, q4id = \
+                q1.getQid(), q2.getQid(), q3.getQid(), q4.getQid()
+        insertQuestion(q3, 1)
+        newQs = getBySet(st)
+        newQs.sort(key=lambda question: question.getOrder())
+        assert newQs[0].getQid() == q1id
+        assert newQs[1].getQid() == q3id
+        assert newQs[2].getQid() == q2id
+        assert newQs[3].getQid() == q4id
+
+
     def testDelete(self):
         st = Set("Test Set", 1)
         q1 = Question("What is the answer?",

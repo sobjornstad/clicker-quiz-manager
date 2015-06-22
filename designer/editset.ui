@@ -63,6 +63,9 @@ QGroupBox::title {
           <property name="toolTip">
            <string>Press Alt-L to focus the list</string>
           </property>
+          <property name="dragDropMode">
+           <enum>QAbstractItemView::InternalMove</enum>
+          </property>
          </widget>
         </item>
         <item>

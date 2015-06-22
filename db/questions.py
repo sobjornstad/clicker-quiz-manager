@@ -287,6 +287,26 @@ def swapRows(q1, q2):
     q2.setOrder(r1, commit=False)
     d.connection.commit()
 
+def insertQuestion(q1, posn):
+    """
+    Move a question *q1* into position *posn*, shifting other ords as
+    appropriate. Used for drag and drop, etc.
+    """
+
+    setAtIssue = q1.getSet()
+    qs = getBySet(setAtIssue)
+
+    # shift everything after insertion point up by 1
+    for q in qs:
+        curOrd = q.getOrder()
+        if curOrd >= posn:
+            q.setOrder(curOrd + 1, commit=False)
+
+    q1.setOrder(posn) # change q1's ord
+    shiftOrds(setAtIssue) # defragment to fill the gap created by the change
+    d.connection.commit()
+
+
 def shiftOrds(st):
     """Shift all ords in a given set to fill in a gap caused by deleting a
     question. You could call it the "ord defragmenter." """
