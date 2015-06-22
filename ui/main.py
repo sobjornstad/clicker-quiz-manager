@@ -25,7 +25,7 @@ class MainWindow(QMainWindow):
         # try to open last-used database; if none or doesn't exist, ask user 
         # what file to open
         self.config = ConfigurationManager()
-        name = unicode(self.config.readConf('dbFilename').toString())
+        name = unicode(self.config.readConf('dbPath').toString())
         if (not name) or (not os.path.isfile(name)):
             name = unicode(getDbLocation())
         self._connectDb(name)
@@ -65,7 +65,7 @@ class MainWindow(QMainWindow):
 
     def quit(self):
         # save current database location to configuration
-        self.config.writeConf('dbFilename', self.dbFilename)
+        self.config.writeConf('dbPath', self.dbpath)
         db.database.close()
         sys.exit(0)
 
