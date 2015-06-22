@@ -39,7 +39,7 @@ QGroupBox::title {
 }</string>
        </property>
        <property name="title">
-        <string>Question List</string>
+        <string>Question &amp;List</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
@@ -120,7 +120,7 @@ QGroupBox::title {
              </size>
             </property>
             <property name="toolTip">
-             <string>Press Alt-L to focus the list</string>
+             <string/>
             </property>
             <property name="dragDropMode">
              <enum>QAbstractItemView::InternalMove</enum>
