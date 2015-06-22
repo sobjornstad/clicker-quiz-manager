@@ -2,7 +2,7 @@
 # This file is part of Clicker Quiz Generator.
 # Copyright 2014 Soren Bjornstad. All rights reserved.
 
-import sys
+import os, sys
 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QApplication, QMainWindow, QFileDialog
@@ -15,21 +15,37 @@ APPLICATION_VERSION = "1.0.0"
 
 class MainWindow(QMainWindow):
     def __init__(self):
-        self.dbpath = unicode(getDbLocation())
-        db.database.connect(self.dbpath)
+        # set up main window
         QMainWindow.__init__(self)
         self.form = Ui_MainWindow()
         self.form.setupUi(self)
-        self.config = ConfigurationManager()
-
-        filename = self.dbpath.split('/')[-1]
-        self.form.dbLabel.setText("Database: " + filename)
         self.form.verLabel.setText("Clicker Quiz Manager " + APPLICATION_VERSION)
+
+        # try to open last-used database; if none or doesn't exist, ask user 
+        # what file to open
+        self.config = ConfigurationManager()
+        name = unicode(self.config.readConf('dbFilename').toString())
+        if (not name) or (not os.path.isfile(name)):
+            name = unicode(getDbLocation())
+        self._connectDb(name)
+
+        self.form.actionNew.triggered.connect(self.onNewDB)
+        self.form.actionOpen.triggered.connect(self.onOpenDB)
+        self.form.actionQuit.triggered.connect(self.quit)
+        self.form.actionBackup.triggered.connect(self.onBackupDB)
+        self.form.actionManual.triggered.connect(self.onManual)
+        self.form.actionPreferences.triggered.connect(self.onPrefs)
 
         self.form.quitButton.clicked.connect(self.quit)
         self.form.classesButton.clicked.connect(self.onClasses)
         self.form.quizButton.clicked.connect(self.onQuizGen)
         self.form.setsButton.clicked.connect(self.onSets)
+
+    def _connectDb(self, name):
+        self.dbpath = name
+        db.database.connect(self.dbpath)
+        self.dbFilename = self.dbpath.split('/')[-1]
+        self.form.dbLabel.setText("Database: " + self.dbFilename)
 
     def onClasses(self):
         import classes
@@ -47,8 +63,24 @@ class MainWindow(QMainWindow):
         qsw.exec_()
 
     def quit(self):
+        # save current database location to configuration
+        self.config.writeConf('dbFilename', self.dbFilename)
         db.database.close()
         sys.exit(0)
+
+    def onNewDB(self):
+        pass
+    def onOpenDB(self):
+        db.database.close()
+        name = unicode(getDbLocation())
+        self._connectDb(name)
+
+    def onBackupDB(self):
+        pass
+    def onManual(self):
+        pass
+    def onPrefs(self):
+        pass
 
 class ConfigurationManager(object):
     def __init__(self):
@@ -77,6 +109,7 @@ def start():
     app.exec_()
 
 def getDbLocation():
+    # self.dbpath = unicode(getDbLocation())
     f = QFileDialog.getOpenFileName(caption="Open Database",
             filter="Quiz Databases (*.db);;All files (*)")
     return f
