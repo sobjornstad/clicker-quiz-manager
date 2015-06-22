@@ -5,6 +5,7 @@
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QDialog, QMessageBox
 from PyQt4.QtCore import QObject
+from forms.exception import Ui_Dialog
 
 def informationBox(text, title=None):
     msgBox = QMessageBox()
@@ -39,3 +40,33 @@ def confirmDeleteBox(item, additional):
     msgBox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
     msgBox.setDefaultButton(QMessageBox.No)
     return msgBox.exec_()
+
+class TracebackBoxWindow(QDialog):
+    def __init__(self):
+        QDialog.__init__(self)
+        self.form = Ui_Dialog()
+        self.form.setupUi(self)
+        self.form.okButton.clicked.connect(self.reject)
+
+    def setTracebackText(self, text):
+        tbtext = """
+Oops! An error occurred that CQM doesn't know how to
+deal with. It may be a harmless bug, or it may indicate
+a problem with your database or a larger bug in the
+operation you're trying to do.
+
+Try restarting the program and resuming your work; if
+problems continue, please copy and paste the following
+error information into support correspondence, along
+with information about what you were trying to do when
+the error occurred:
+        """.strip()
+
+        tbtext += '\n\n'
+        tbtext += text
+        self.form.text.setPlainText(tbtext)
+
+def tracebackBox(text):
+    tbw = TracebackBoxWindow()
+    tbw.setTracebackText(text)
+    tbw.exec_()

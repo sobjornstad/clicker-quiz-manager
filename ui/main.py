@@ -7,6 +7,7 @@ import sys
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QApplication, QMainWindow, QFileDialog
 from forms.mw import Ui_MainWindow
+import utils
 
 import db.database
 
@@ -58,3 +59,11 @@ def getDbLocation():
     f = QFileDialog.getOpenFileName(caption="Open Database",
             filter="Quiz Databases (*.db);;All files (*)")
     return f
+
+sys._excepthook = sys.excepthook
+def exception_hook(exctype, value, tb):
+    import traceback
+    tbtext = ''.join(traceback.format_exception(exctype, value, tb))
+    utils.tracebackBox(tbtext)
+    return
+sys.excepthook = exception_hook
