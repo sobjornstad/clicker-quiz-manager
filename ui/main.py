@@ -10,6 +10,7 @@ from forms.mw import Ui_MainWindow
 import utils
 
 import db.database
+import db.tools.create_database
 
 APPLICATION_VERSION = "1.0.0"
 
@@ -69,7 +70,13 @@ class MainWindow(QMainWindow):
         sys.exit(0)
 
     def onNewDB(self):
-        pass
+        fname = QFileDialog.getSaveFileName(caption="Create New Database",
+                filter="Quiz Databases (*.db);;All files (*)")
+        fname = unicode(fname)
+        connection = db.tools.create_database.makeDatabase(fname)
+        connection.close()
+        self._connectDb(fname)
+
     def onOpenDB(self):
         db.database.close()
         name = unicode(getDbLocation())
