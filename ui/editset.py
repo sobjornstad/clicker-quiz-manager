@@ -375,9 +375,9 @@ class SetEditor(QDialog):
         self.setupQuestions()
 
         if errors:
-            utils.errorBox("Import returned the following errors:\n%s\n\nAny " \
-                           "lines that were valid have been imported." \
-                           % errors, "Import Results")
+            utils.tracebackBox("Import returned the following errors:\n%s\n\nAny " \
+                               "lines that were valid have been imported." \
+                               % errors, "Import Results", False)
         else:
             utils.informationBox("Import completed successfully.",
                     "Import Results")

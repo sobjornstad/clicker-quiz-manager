@@ -41,15 +41,16 @@ def confirmDeleteBox(item, additional):
     msgBox.setDefaultButton(QMessageBox.No)
     return msgBox.exec_()
 
-class TracebackBoxWindow(QDialog):
+class ErrorBoxWindow(QDialog):
     def __init__(self):
         QDialog.__init__(self)
         self.form = Ui_Dialog()
         self.form.setupUi(self)
         self.form.okButton.clicked.connect(self.reject)
 
-    def setTracebackText(self, text):
-        tbtext = """
+    def setErrorText(self, text, includeErrorBoilerplate=True):
+        if includeErrorBoilerplate:
+            tbtext = """
 Oops! An error occurred that CQM doesn't know how to
 deal with. It may be a harmless bug, or it may indicate
 a problem with your database or a larger bug in the
@@ -60,13 +61,21 @@ problems continue, please copy and paste the following
 error information into support correspondence, along
 with information about what you were trying to do when
 the error occurred:
-        """.strip()
+            """.strip()
 
-        tbtext += '\n\n'
+            tbtext += '\n\n'
+        else:
+            tbtext = ""
+
         tbtext += text
         self.form.text.setPlainText(tbtext)
 
-def tracebackBox(text):
-    tbw = TracebackBoxWindow()
-    tbw.setTracebackText(text)
+    def setErrorTitle(self, title):
+        self.setWindowTitle(title)
+
+def tracebackBox(text, title=None, includeErrorBoilerplate=True):
+    tbw = ErrorBoxWindow()
+    tbw.setErrorText(text, includeErrorBoilerplate)
+    if title:
+        tbw.setErrorTitle(title)
     tbw.exec_()
