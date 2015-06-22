@@ -83,7 +83,26 @@ class MainWindow(QMainWindow):
         self._connectDb(name)
 
     def onBackupDB(self):
-        pass
+        copyto = QFileDialog.getSaveFileName(caption="Save Backup As",
+                filter="Quiz Databases (*.db);;All files (*)")
+        copyto = unicode(copyto)
+        db.database.close() # make sure everything's been saved & taken care of
+        import shutil
+        try:
+            shutil.copyfile(self.dbpath, copyto)
+        except shutil.Error:
+            utils.errorBox("You cannot back up a file to itself! " \
+                           "(But nice try...)", "Backup failed")
+        except IOError:
+            utils.errorBox("Backup failed. Please be sure that the " \
+                           "destination is writeable and not full and " \
+                           "that you have permission to access it.",
+                           "Backup failed")
+        else:
+            utils.informationBox("Backup successful.", "Success")
+        finally:
+            self._connectDb(self.dbpath) # reconnect
+
     def onManual(self):
         manualLoc = "docs/manual.html"
         if os.path.isfile(floc):
