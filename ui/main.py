@@ -5,7 +5,7 @@
 import os, sys
 
 from PyQt4 import QtGui, QtCore
-from PyQt4.QtGui import QApplication, QMainWindow, QFileDialog
+from PyQt4.QtGui import QApplication, QMainWindow, QFileDialog, QDesktopServices
 from forms.mw import Ui_MainWindow
 import utils
 
@@ -85,7 +85,13 @@ class MainWindow(QMainWindow):
     def onBackupDB(self):
         pass
     def onManual(self):
-        pass
+        manualLoc = "docs/manual.html"
+        if os.path.isfile(floc):
+            QDesktopServices.openUrl(QtCore.QUrl(manualLoc))
+        else:
+            utils.errorBox("Could not locate the manual! Please report this " \
+                           "error to the developer.", "File not found")
+
     def onPrefs(self):
         pass
 
