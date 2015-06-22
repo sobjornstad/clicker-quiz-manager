@@ -28,6 +28,7 @@ class ImportTests(utils.DbTestCase):
         fname = 'tests/resources/test_qimport_invalid_file.txt'
         importer = db.qimport.Importer(fname, ourSt)
         errs = importer.txtImport()
+        # ...is this supposed to check that there *were* certain errors?
 
 
 if __name__ == "__main__":
