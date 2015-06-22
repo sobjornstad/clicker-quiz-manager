@@ -73,6 +73,9 @@ class MainWindow(QMainWindow):
         fname = QFileDialog.getSaveFileName(caption="Create New Database",
                 filter="Quiz Databases (*.db);;All files (*)")
         fname = unicode(fname)
+        if not fname: # canceled
+            self._connectDb(self.dbpath)
+            return
         connection = db.tools.create_database.makeDatabase(fname)
         connection.close()
         self._connectDb(fname)
@@ -80,12 +83,17 @@ class MainWindow(QMainWindow):
     def onOpenDB(self):
         db.database.close()
         name = unicode(getDbLocation())
+        if not name:
+            self._connectDb(self.dbpath)
+            return
         self._connectDb(name)
 
     def onBackupDB(self):
         copyto = QFileDialog.getSaveFileName(caption="Save Backup As",
                 filter="Quiz Databases (*.db);;All files (*)")
         copyto = unicode(copyto)
+        if not copyto: # canceled
+            return
         db.database.close() # make sure everything's been saved & taken care of
         import shutil
         try:
