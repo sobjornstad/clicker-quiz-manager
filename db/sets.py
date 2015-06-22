@@ -52,12 +52,12 @@ class Set(object):
         # at some point we will want to eliminate this for performance reasons;
         # just leaving it here to make sure things are consistent for now
         if commit:
-            d.connection.commit()
+            d.checkAutosave()
 
     def delete(self):
         d.cursor.execute('DELETE FROM questions WHERE sid=?', (self._sid,))
         d.cursor.execute('DELETE FROM sets WHERE sid=?', (self._sid,))
-        d.connection.commit()
+        d.checkAutosave()
         # we shouldn't use this instance again of course, but the class does
         # not enforce its nonuse.
 
@@ -133,11 +133,11 @@ def shiftNums():
         if s.getNum() != curNum:
             s.setNum(curNum, commit=False)
         curNum += 1
-    d.connection.commit()
+    d.checkAutosave()
 
 def swapRows(s1, s2):
     "Swap the nums of the two sets passed."
     r1, r2 = s1.getNum(), s2.getNum()
     s1.setNum(r2, commit=False)
     s2.setNum(r1, commit=False)
-    d.connection.commit()
+    d.checkAutosave()

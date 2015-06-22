@@ -115,7 +115,7 @@ class Question(object):
         # at some point we will want to eliminate this for performance reasons;
         # just leaving it here to make sure things are consistent for now
         if commit:
-            d.connection.commit()
+            d.checkAutosave()
 
     def delete(self):
         """Delete a question from the db. Calling this alone may cause the
@@ -124,7 +124,7 @@ class Question(object):
         question manager."""
 
         d.cursor.execute('DELETE FROM questions WHERE qid=?', (self._qid,))
-        d.connection.commit()
+        d.checkAutosave()
         # we shouldn't use this instance again of course, but the class does
         # not enforce its nonuse.
 
@@ -285,7 +285,7 @@ def swapRows(q1, q2):
     r1, r2 = q1.getOrder(), q2.getOrder()
     q1.setOrder(r2, commit=False)
     q2.setOrder(r1, commit=False)
-    d.connection.commit()
+    d.checkAutosave()
 
 def insertQuestion(q1, posn):
     """
@@ -304,7 +304,7 @@ def insertQuestion(q1, posn):
 
     q1.setOrder(posn) # change q1's ord
     shiftOrds(setAtIssue) # defragment to fill the gap created by the change
-    d.connection.commit()
+    d.checkAutosave()
 
 
 def shiftOrds(st):
@@ -317,7 +317,7 @@ def shiftOrds(st):
         if q.getOrder() != curOrd:
             q.setOrder(curOrd, commit=False)
         curOrd += 1
-    d.connection.commit()
+    d.checkAutosave()
 
 def findNextOrd(st):
     """Find the next unused question ord in a set, or return 1 if there are

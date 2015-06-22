@@ -43,7 +43,7 @@ class SetRescheduler(object):
             else:
                 assert False, "Invalid card type in QuizItem!"
 
-        d.connection.commit()
+        d.checkAutosave()
 
 
 class QuizItem(object):
@@ -293,7 +293,7 @@ def incrementSetsUsed(cls):
     curVal = getSetsUsed(cls)
     d.cursor.execute('UPDATE classes SET setsUsed=? WHERE cid=?',
             (curVal+1, cid))
-    d.connection.commit()
+    d.checkAutosave()
 
 def itemDue(item, curSet):
     """Determine if an item is currently due for review."""
