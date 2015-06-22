@@ -112,8 +112,6 @@ class Question(object):
                     nq)
             self._qid = d.cursor.lastrowid
 
-        # at some point we will want to eliminate this for performance reasons;
-        # just leaving it here to make sure things are consistent for now
         if commit:
             d.checkAutosave()
 

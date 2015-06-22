@@ -35,8 +35,6 @@ class Class(object):
                     (self._name, 0))
             self._cid = d.cursor.lastrowid
 
-        # at some point we will want to eliminate this for performance reasons;
-        # just leaving it here to make sure things are consistent for now
         d.checkAutosave()
 
 def isDupe(name=None, cid=None):
@@ -82,6 +80,5 @@ def deleteClass(name):
     #TODO: When history is in place, we need to delete that
     d.cursor.execute('DELETE FROM classes WHERE cid=?', (cid,))
     d.checkAutosave()
-    #TODO: Cause the class to raise some kind of error if we try to use it
 
 #TOTEST: Dupe names, deletion

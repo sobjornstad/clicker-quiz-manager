@@ -36,7 +36,8 @@ class Set(object):
     def dump(self, commit=True):
         """
         Update the database to match the state of this object. If commit is set
-        to True (turn off for bulk operations on many sets), commit new state.
+        to True (turn off for bulk operations on many sets), check if we need
+        to commit and do so if appropriate.
         """
 
         if self._sid:
@@ -49,8 +50,6 @@ class Set(object):
                     (self._name, self._num))
             self._sid = d.cursor.lastrowid
 
-        # at some point we will want to eliminate this for performance reasons;
-        # just leaving it here to make sure things are consistent for now
         if commit:
             d.checkAutosave()
 
