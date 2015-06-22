@@ -20,6 +20,7 @@ class MainWindow(QMainWindow):
         QMainWindow.__init__(self)
         self.form = Ui_MainWindow()
         self.form.setupUi(self)
+        self.config = ConfigurationManager()
 
         filename = self.dbpath.split('/')[-1]
         self.form.dbLabel.setText("Database: " + filename)
@@ -48,6 +49,26 @@ class MainWindow(QMainWindow):
     def quit(self):
         db.database.close()
         sys.exit(0)
+
+class ConfigurationManager(object):
+    def __init__(self):
+        self.qs = QtCore.QSettings("562 Software", "CQM")
+
+    def writeConf(self, key, value):
+        "Write a *value* to the persistent config under key *key*."
+        self.qs.setValue(key, value)
+    def readConf(self, key):
+        """
+        Return a value from the persistent config stored under key *key*. In
+        order to use the value usefully, you need to call its .toInt() or
+        .toString() method (other conversions are available where appropriate --
+        see docs or do dir(returnval)).
+
+        If the key does not exist, a value of 0 or an empty string will be
+        returned, respectively; keep that in mind when designing the values.
+        """
+        return self.qs.value(key)
+
 
 def start():
     app = QApplication(sys.argv)
