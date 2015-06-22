@@ -386,6 +386,12 @@ class SetEditor(QDialog):
         utils.informationBox("This feature is not implemented yet.", "Sorry!")
 
     def onDragDrop(self, start, end, parent, destination, row):
+        """
+        Start, parent, and destination appear to only be important when dealing
+        with complex nested lists or with moving multiple things at once. As it
+        is, end gives the start row index and row the final row index.
+        """
+
         mFrom = end
         mTo = row
         db.questions.insertQuestion(self.qm.byOrd(mFrom), mTo)

@@ -72,6 +72,50 @@ class SetTests(utils.DbTestCase):
         s.delete()
         assert not db.sets.isDupe(num=1)
 
+    def testInsert(self):
+        s = db.sets.Set("First Set", 1)
+        s2 = db.sets.Set("Second Set", 2)
+        s3 = db.sets.Set("Third Set", 3)
+        s4 = db.sets.Set("Fourth Set", 4)
+
+        db.sets.insertSet(s3, 1)
+        assert s3.getNum() == 1
+
+        # since sets have changed, not using the s objects above, re-fetch
+        # the sets and check the order of sids that they should have ended
+        # up in
+        sets = db.sets.getAllSets()
+        assert sets[0].getSid() == 3
+        assert sets[1].getSid() == 1
+        assert sets[2].getSid() == 2
+        assert sets[3].getSid() == 4
+
+    def testInsert2(self):
+        # let's do another test for moving to the end 
+        # (a new function for clean db)
+        s = db.sets.Set("First Set", 1)
+        s2 = db.sets.Set("Second Set", 2)
+        s3 = db.sets.Set("Third Set", 3)
+        s4 = db.sets.Set("Fourth Set", 4)
+
+        sets = db.sets.getAllSets()
+
+        # note: an assertion on s.getNum() == 5 passes, and this seems invalid
+        # (since 5 is higher than the number of sets in existence), but
+        # actually this isn't a useful check in the first place, as shiftNums()
+        # applies the change to the db and not at all to the passed argument.
+        db.sets.insertSet(s, 5)
+
+        # since sets have changed, without using the s objects above, re-fetch
+        # the sets and check the order of sids that they should have ended up
+        # in
+        sets = db.sets.getAllSets()
+        assert sets[0].getSid() == 2
+        assert sets[1].getSid() == 3
+        assert sets[2].getSid() == 4
+        assert sets[3].getSid() == 1
+
+
     def testSwap(self):
         s = db.sets.Set("First Set", 1)
         s2 = db.sets.Set("Second Set", 2)

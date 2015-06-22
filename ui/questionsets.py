@@ -27,6 +27,7 @@ class QuestionSetsDialog(QDialog):
         self.form.downButton.clicked.connect(self.moveDown)
         self.form.closeButton.clicked.connect(self.accept)
 
+        self.form.setList.model().rowsMoved.connect(self.onDragDrop)
         qlShortcut = QShortcut(QKeySequence("Alt+L"), self.form.setList)
         qlShortcut.connect(qlShortcut, QtCore.SIGNAL("activated()"), lambda: self.form.setList.setFocus())
 
@@ -103,6 +104,12 @@ class QuestionSetsDialog(QDialog):
         rSet = db.sets.findSet(name=name)
         rSet.setName(text)
         curItem.setData(0, text)
+
+    def onDragDrop(self, start, end, parent, destination, row):
+        "Basically copied from onDragDrop function in editset.py."
+        mFrom = end
+        mTo = row
+        db.sets.insertSet(db.sets.findSet(num=mFrom), mTo)
 
     def moveUp(self):
         self.move('up')

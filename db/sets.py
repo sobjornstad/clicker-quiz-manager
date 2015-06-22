@@ -105,6 +105,25 @@ def getAllSets():
     d.cursor.execute('SELECT sid FROM sets ORDER BY num')
     return [findSet(sid=i[0]) for i in d.cursor.fetchall()]
 
+def insertSet(s1, posn):
+    """
+    Like insertQuestion() in questions.py: move set *s1* into position *posn*,
+    shifting other sets as necessary. Used for drag-and-drop reordering.
+
+    To move a value to the last position, it's necessary to adjust to one greater
+    than the largest num (e.g., if there are five sets 0-4, to 5), and this is
+    valid.
+    """
+
+    sets = getAllSets()
+    for s in sets:
+        curNum = s.getNum()
+        if curNum >= posn:
+            s.setNum(curNum + 1, commit=False)
+
+    s1.setNum(posn)
+    shiftNums()
+
 def shiftNums():
     """Shift all 'nums' to fill in a gap caused by deleting a set."""
 
