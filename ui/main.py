@@ -42,6 +42,7 @@ class MainWindow(QMainWindow):
         self.form.actionBackup.triggered.connect(self.onBackupDB)
         self.form.actionManual.triggered.connect(self.onManual)
         self.form.actionPreferences.triggered.connect(self.onPrefs)
+        self.form.actionVersion.triggered.connect(self.onVersion)
 
         self.form.quitButton.clicked.connect(self.quit)
         self.form.classesButton.clicked.connect(self.onClasses)
@@ -126,7 +127,12 @@ class MainWindow(QMainWindow):
                            "error to the developer.", "File not found")
 
     def onPrefs(self):
-        pass
+        import prefs
+        pw = prefs.PrefsDialog(self)
+        pw.exec_()
+
+    def onVersion(self):
+        utils.informationBox(APPLICATION_VERSION, "Version")
 
     def _configureDebugMode(self):
         debugMenu = self.form.menuBar.addMenu('&Debug');
@@ -170,7 +176,6 @@ class MainWindow(QMainWindow):
     def exception_hook(self, exctype, value, tb):
         import traceback
         tbtext = ''.join(traceback.format_exception(exctype, value, tb))
-        print self.isDebugMode
         utils.tracebackBox(tbtext, isDebug=self.isDebugMode)
         return
 

@@ -135,6 +135,7 @@
      <string>&amp;Help</string>
     </property>
     <addaction name="actionManual"/>
+    <addaction name="actionVersion"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -193,6 +194,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionVersion">
+   <property name="text">
+    <string>&amp;Version...</string>
    </property>
   </action>
  </widget>
