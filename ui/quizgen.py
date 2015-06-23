@@ -15,9 +15,12 @@ import db.questions
 import utils
 
 class QuizWindow(QDialog):
-    def __init__(self, mw):
+    def __init__(self, mw, selectedNewSet=None):
+        # mw is not always mw: it can also be the question dialog! I have not
+        # copied it into self to ensure that we notice this if we want to use
+        # some mw method/attribute in the future.
         QDialog.__init__(self)
-        self.mw = mw
+        self.autoselectSet = selectedNewSet
         self.form = Ui_Dialog()
         self.form.setupUi(self)
 
@@ -40,6 +43,13 @@ class QuizWindow(QDialog):
         self.sets = db.genquiz.findNewSets(self.cls)
         for s in self.sets:
             self.form.setList.addItem(s.getName())
+        # if there is a set we're trying to automatically select and it exists
+        # in the current class's list, select it
+        if self.autoselectSet:
+            s = self.form.setList.findItems(self.autoselectSet.getName(),
+                    QtCore.Qt.MatchExactly)
+            if s:
+                self.form.setList.setCurrentItem(s[0])
 
     def populateClasses(self):
         self.classes = db.classes.getAllClasses()

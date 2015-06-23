@@ -68,7 +68,7 @@ class MainWindow(QMainWindow):
         cw.exec_()
 
     def onQuizGen(self):
-        if not ensureClassExists():
+        if not utils.ensureClassExists():
             utils.errorBox("Please create at least one class first.",
                     "No Classes")
             return False
@@ -236,9 +236,3 @@ def getDbLocation():
     f = QFileDialog.getOpenFileName(caption="Open Database",
             filter="Quiz Databases (*.db);;All files (*)")
     return f
-
-def ensureClassExists():
-    import db.classes
-    classes = db.classes.getAllClasses()
-    return True if len(classes) >= 1 else False
-

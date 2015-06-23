@@ -95,3 +95,8 @@ def tracebackBox(text, title=None, includeErrorBoilerplate=True, isDebug=False):
     if title:
         tbw.setErrorTitle(title)
     tbw.exec_()
+
+def ensureClassExists():
+    import db.classes
+    classes = db.classes.getAllClasses()
+    return True if len(classes) >= 1 else False

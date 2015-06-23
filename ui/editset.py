@@ -388,7 +388,14 @@ class SetEditor(QDialog):
         utils.informationBox("This feature is not implemented yet.", "Sorry!")
 
     def onGenerate(self):
-        pass
+        if not utils.ensureClassExists():
+            utils.errorBox("Please create a class from the main window before" \
+                    " generating a quiz.", "No Classes")
+            return
+
+        import quizgen
+        qsw = quizgen.QuizWindow(self, self._currentSet())
+        qsw.exec_()
 
     def onRandomize(self):
         pass
