@@ -5,7 +5,7 @@
 import os, sys
 
 from PyQt4 import QtGui, QtCore
-from PyQt4.QtGui import QApplication, QMainWindow, QFileDialog, QDesktopServices
+from PyQt4.QtGui import QApplication, QMainWindow, QFileDialog, QDesktopServices, QAction, QInputDialog
 from forms.mw import Ui_MainWindow
 import utils
 
@@ -30,6 +30,12 @@ class MainWindow(QMainWindow):
             name = unicode(getDbLocation())
         self._connectDb(name)
 
+        # load configuration options
+        self.isDebugMode = self.config.readConf("debugMode").toBool()
+        if self.isDebugMode:
+            self._configureDebugMode()
+
+        # connect menus and buttons
         self.form.actionNew.triggered.connect(self.onNewDB)
         self.form.actionOpen.triggered.connect(self.onOpenDB)
         self.form.actionQuit.triggered.connect(self.quit)
@@ -122,6 +128,52 @@ class MainWindow(QMainWindow):
     def onPrefs(self):
         pass
 
+    def _configureDebugMode(self):
+        debugMenu = self.form.menuBar.addMenu('&Debug');
+
+        def throwError():
+            5/0
+        actionThrowError = QAction(self)
+        #actionThrowError.setObjectName("actionThrowError")
+        actionThrowError.setText("Throw Exception")
+        debugMenu.addAction(actionThrowError)
+        actionThrowError.triggered.connect(throwError)
+
+        def showConfigurations():
+            keys = self.config.allKeys()
+            strRep = ""
+            for i in keys:
+                strRep += i + ":\t" + self.config.readConf(i).toString() + '\n'
+            utils.tracebackBox(strRep, "Config Options", False)
+        actionShowConf = QAction(self)
+        actionShowConf.setText("Show Configuration...")
+        debugMenu.addAction(actionShowConf)
+        actionShowConf.triggered.connect(showConfigurations)
+
+        def writeConfiguration():
+            key, ok = QInputDialog.getText(self, "Write Config Value", "Key:")
+            if (not ok) or (not key):
+                utils.informationBox("Cancelled.")
+                return
+            value, ok = QInputDialog.getText(self, "Write Config Value", "Value:")
+            if (not ok) or (not value):
+                utils.informationBox("Cancelled.")
+                return
+            self.config.writeConf(key, value)
+        actionWriteConf = QAction(self)
+        actionWriteConf.setText("Write Configuration Value...")
+        debugMenu.addAction(actionWriteConf)
+        actionWriteConf.triggered.connect(writeConfiguration)
+
+
+
+    def exception_hook(self, exctype, value, tb):
+        import traceback
+        tbtext = ''.join(traceback.format_exception(exctype, value, tb))
+        print self.isDebugMode
+        utils.tracebackBox(tbtext, isDebug=self.isDebugMode)
+        return
+
 class ConfigurationManager(object):
     def __init__(self):
         self.qs = QtCore.QSettings("562 Software", "CQM")
@@ -141,10 +193,17 @@ class ConfigurationManager(object):
         """
         return self.qs.value(key)
 
+    def allKeys(self):
+        "Return Python list of all keys in existence."
+        keys = self.qs.allKeys()
+        return [str(i) for i in keys]
+
 
 def start():
     app = QApplication(sys.argv)
     mw = MainWindow()
+    sys._excepthook = sys.excepthook
+    sys.excepthook = mw.exception_hook
     mw.show()
     app.exec_()
 
@@ -153,11 +212,3 @@ def getDbLocation():
     f = QFileDialog.getOpenFileName(caption="Open Database",
             filter="Quiz Databases (*.db);;All files (*)")
     return f
-
-sys._excepthook = sys.excepthook
-def exception_hook(exctype, value, tb):
-    import traceback
-    tbtext = ''.join(traceback.format_exception(exctype, value, tb))
-    utils.tracebackBox(tbtext)
-    return
-sys.excepthook = exception_hook

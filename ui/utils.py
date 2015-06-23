@@ -41,16 +41,7 @@ def confirmDeleteBox(item, additional):
     msgBox.setDefaultButton(QMessageBox.No)
     return msgBox.exec_()
 
-class ErrorBoxWindow(QDialog):
-    def __init__(self):
-        QDialog.__init__(self)
-        self.form = Ui_Dialog()
-        self.form.setupUi(self)
-        self.form.okButton.clicked.connect(self.reject)
-
-    def setErrorText(self, text, includeErrorBoilerplate=True):
-        if includeErrorBoilerplate:
-            tbtext = """
+nodebugErrorText = """
 Oops! An error occurred that CQM doesn't know how to
 deal with. It may be a harmless bug, or it may indicate
 a problem with your database or a larger bug in the
@@ -61,8 +52,33 @@ problems continue, please copy and paste the following
 error information into support correspondence, along
 with information about what you were trying to do when
 the error occurred:
-            """.strip()
+""".strip()
 
+debugErrorText = """
+Oops! An error occurred that CQM doesn't know how to
+deal with. It may be a harmless bug, or it may indicate
+a problem with your database or a larger bug in the
+operation you're trying to do.
+
+Please report this error to the developer, copying and
+pasting the following error information, so that the
+bug can be corrected or an appropriate error message
+created:
+""".strip()
+
+class ErrorBoxWindow(QDialog):
+    def __init__(self):
+        QDialog.__init__(self)
+        self.form = Ui_Dialog()
+        self.form.setupUi(self)
+        self.form.okButton.clicked.connect(self.reject)
+
+    def setErrorText(self, text, includeErrorBoilerplate=True, debug=False):
+        if includeErrorBoilerplate:
+            if debug:
+                tbtext = debugErrorText
+            else:
+                tbtext = nodebugErrorText
             tbtext += '\n\n'
         else:
             tbtext = ""
@@ -73,9 +89,9 @@ the error occurred:
     def setErrorTitle(self, title):
         self.setWindowTitle(title)
 
-def tracebackBox(text, title=None, includeErrorBoilerplate=True):
+def tracebackBox(text, title=None, includeErrorBoilerplate=True, isDebug=False):
     tbw = ErrorBoxWindow()
-    tbw.setErrorText(text, includeErrorBoilerplate)
+    tbw.setErrorText(text, includeErrorBoilerplate, isDebug)
     if title:
         tbw.setErrorTitle(title)
     tbw.exec_()
