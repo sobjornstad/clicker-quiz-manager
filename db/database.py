@@ -8,12 +8,14 @@ import time
 connection = None
 cursor = None
 lastSavedTime = None
+saveInterval = 60
 
-def connect(fname):
-    global connection, cursor, lastSavedTime
+def connect(fname, autosaveInterval=60):
+    global connection, cursor, lastSavedTime, saveInterval
     connection = sqlite.connect(fname)
     cursor = connection.cursor()
     lastSavedTime = time.time()
+    saveInterval = autosaveInterval
 
 def openDbConnect(conn):
     """
@@ -37,14 +39,18 @@ def close():
     forceSave()
     connection.close()
 
-def checkAutosave(thresholdSeconds=60):
+def checkAutosave(thresholdSeconds=None):
     """
     Check when the last save (or database creation) was. If greater than
     *thresholdSeconds*, do a commit. If a commit is made, reset last save
-    timer.
+    timer. saveInterval, used unless a different value is passed, is set by a
+    user preference on start.
 
     Return: True if a commit was completed, False if not time yet.
     """
+
+    if thresholdSeconds == None:
+        thresholdSeconds = saveInterval
 
     global lastSavedTime
     now = time.time()

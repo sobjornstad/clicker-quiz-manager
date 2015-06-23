@@ -22,18 +22,25 @@ class MainWindow(QMainWindow):
         self.form.setupUi(self)
         self.form.verLabel.setText("Clicker Quiz Manager " + APPLICATION_VERSION)
 
+        # load configuration options
+        self.config = ConfigurationManager()
+        self.isDebugMode = self.config.readConf("debugMode").toBool()
+        if self.isDebugMode:
+            self._configureDebugMode()
+
+        autoMins = self.config.readConf("saveInterval").toInt()[0]
+        if autoMins == 0:
+            self.config.writeConf("saveInterval", 1)
+            autoMins = 1
+        self.autosaveInterval = autoMins * 60
+        # value will be dealt with in _connectDb()
+
         # try to open last-used database; if none or doesn't exist, ask user 
         # what file to open
-        self.config = ConfigurationManager()
         name = unicode(self.config.readConf('dbPath').toString())
         if (not name) or (not os.path.isfile(name)):
             name = unicode(getDbLocation())
         self._connectDb(name)
-
-        # load configuration options
-        self.isDebugMode = self.config.readConf("debugMode").toBool()
-        if self.isDebugMode:
-            self._configureDebugMode()
 
         # connect menus and buttons
         self.form.actionNew.triggered.connect(self.onNewDB)
@@ -51,7 +58,7 @@ class MainWindow(QMainWindow):
 
     def _connectDb(self, name):
         self.dbpath = name
-        db.database.connect(self.dbpath)
+        db.database.connect(self.dbpath, autosaveInterval=self.autosaveInterval)
         self.dbFilename = self.dbpath.split('/')[-1]
         self.form.dbLabel.setText("Database: " + self.dbFilename)
 
