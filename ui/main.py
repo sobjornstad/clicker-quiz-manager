@@ -68,6 +68,10 @@ class MainWindow(QMainWindow):
         cw.exec_()
 
     def onQuizGen(self):
+        if not ensureClassExists():
+            utils.errorBox("Please create at least one class first.",
+                    "No Classes")
+            return False
         import quizgen
         qw = quizgen.QuizWindow(self)
         qw.exec_()
@@ -80,6 +84,7 @@ class MainWindow(QMainWindow):
     def quit(self):
         # save current database location to configuration
         self.config.writeConf('dbPath', self.dbpath)
+        self.config.sync()
         db.database.close()
         sys.exit(0)
 
@@ -90,6 +95,9 @@ class MainWindow(QMainWindow):
         if not fname: # canceled
             self._connectDb(self.dbpath)
             return
+        # on linux, ext is not necessarily appended
+        if not fname.endswith('.db'):
+            fname += '.db'
         connection = db.tools.create_database.makeDatabase(fname)
         connection.close()
         self._connectDb(fname)
@@ -108,6 +116,9 @@ class MainWindow(QMainWindow):
         copyto = unicode(copyto)
         if not copyto: # canceled
             return
+        # on linux, ext is not necessarily appended
+        if not copyto.endswith('.db'):
+            copyto += '.db'
         db.database.close() # make sure everything's been saved & taken care of
         import shutil
         try:
@@ -178,17 +189,18 @@ class MainWindow(QMainWindow):
         debugMenu.addAction(actionWriteConf)
         actionWriteConf.triggered.connect(writeConfiguration)
 
-
-
     def exception_hook(self, exctype, value, tb):
         import traceback
         tbtext = ''.join(traceback.format_exception(exctype, value, tb))
         utils.tracebackBox(tbtext, isDebug=self.isDebugMode)
         return
 
+
 class ConfigurationManager(object):
     def __init__(self):
         self.qs = QtCore.QSettings("562 Software", "CQM")
+    def sync(self):
+        self.qs.sync()
 
     def writeConf(self, key, value):
         "Write a *value* to the persistent config under key *key*."
@@ -224,3 +236,9 @@ def getDbLocation():
     f = QFileDialog.getOpenFileName(caption="Open Database",
             filter="Quiz Databases (*.db);;All files (*)")
     return f
+
+def ensureClassExists():
+    import db.classes
+    classes = db.classes.getAllClasses()
+    return True if len(classes) >= 1 else False
+
