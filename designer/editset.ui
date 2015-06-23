@@ -49,16 +49,6 @@ QGroupBox::title {
           </property>
           <item row="2" column="0">
            <layout class="QGridLayout" name="gridLayout_2">
-            <item row="0" column="0">
-             <widget class="QPushButton" name="newButton">
-              <property name="toolTip">
-               <string/>
-              </property>
-              <property name="text">
-               <string>&amp;New</string>
-              </property>
-             </widget>
-            </item>
             <item row="0" column="1">
              <widget class="QPushButton" name="deleteButton">
               <property name="toolTip">
@@ -69,23 +59,23 @@ QGroupBox::title {
               </property>
              </widget>
             </item>
-            <item row="0" column="2">
+            <item row="1" column="3">
+             <widget class="QPushButton" name="exportButton">
+              <property name="toolTip">
+               <string/>
+              </property>
+              <property name="text">
+               <string>E&amp;xport</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3">
              <widget class="QPushButton" name="importButton">
               <property name="toolTip">
                <string/>
               </property>
               <property name="text">
                <string>&amp;Import</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QPushButton" name="moveUpButton">
-              <property name="toolTip">
-               <string>Move selected question up in the list. You can also drag and drop questions.</string>
-              </property>
-              <property name="text">
-               <string>Move &amp;Up</string>
               </property>
              </widget>
             </item>
@@ -99,13 +89,59 @@ QGroupBox::title {
               </property>
              </widget>
             </item>
-            <item row="1" column="2">
-             <widget class="QPushButton" name="exportButton">
+            <item row="1" column="0">
+             <widget class="QPushButton" name="moveUpButton">
+              <property name="toolTip">
+               <string>Move selected question up in the list. You can also drag and drop questions.</string>
+              </property>
+              <property name="text">
+               <string>Move &amp;Up</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QPushButton" name="newButton">
               <property name="toolTip">
                <string/>
               </property>
               <property name="text">
-               <string>E&amp;xport</string>
+               <string>&amp;New</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="4">
+             <widget class="QPushButton" name="randomizeButton">
+              <property name="toolTip">
+               <string>Randomize the order of the answer choices for all questions in the list.</string>
+              </property>
+              <property name="text">
+               <string>&amp;Randomize Answers</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2" rowspan="2">
+             <widget class="Line" name="line">
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Sunken</enum>
+              </property>
+              <property name="lineWidth">
+               <number>1</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="4">
+             <widget class="QPushButton" name="genQuizButton">
+              <property name="toolTip">
+               <string>Create a quiz with this set as the new set.</string>
+              </property>
+              <property name="text">
+               <string>&amp;Generate Quiz</string>
               </property>
              </widget>
             </item>
@@ -587,7 +623,7 @@ QGroupBox::title {
       <item>
        <widget class="QPushButton" name="closeButton">
         <property name="text">
-         <string>C&amp;lose</string>
+         <string>Cl&amp;ose</string>
         </property>
        </widget>
       </item>

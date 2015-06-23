@@ -38,6 +38,8 @@ class SetEditor(QDialog):
         self.form.deleteButton.clicked.connect(self.onDelete)
         self.form.importButton.clicked.connect(self.onImport)
         self.form.exportButton.clicked.connect(self.onExport)
+        self.form.genQuizButton.clicked.connect(self.onGenerate)
+        self.form.randomizeButton.clicked.connect(self.onRandomize)
         self.form.moveDownButton.clicked.connect(self.onMoveDown)
         self.form.moveUpButton.clicked.connect(self.onMoveUp)
         self.form.saveButton.clicked.connect(self.onSaveQuestion)
@@ -385,6 +387,12 @@ class SetEditor(QDialog):
     def onExport(self):
         utils.informationBox("This feature is not implemented yet.", "Sorry!")
 
+    def onGenerate(self):
+        pass
+
+    def onRandomize(self):
+        pass
+
     def onDragDrop(self, start, end, parent, destination, row):
         """
         Start, parent, and destination appear to only be important when dealing
@@ -462,6 +470,7 @@ class SetEditor(QDialog):
                     sf.deleteButton, sf.importButton,
                     sf.moveUpButton, sf.moveDownButton,
                     sf.exportButton, sf.jumpCombo,
+                    sf.randomizeButton, sf.genQuizButton,
                    ]
         reverseElements = [sf.cancelButton, sf.saveButton]
 
