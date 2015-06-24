@@ -42,8 +42,6 @@ class Question(object):
         self._order = order
         if not qid:
             # if we already have the qid, it's in the db already
-            if self.isDupe():
-                raise DuplicateError
             self.dump()
 
     def __eq__(self, other):
@@ -76,17 +74,38 @@ class Question(object):
 
     ### SETTING AND MODIFYING ###
     def setQuestion(self, q):
+        oldQ = self._q
         self._q = q
-        self.dump()
+        try:
+            self.dump()
+        except:
+            # panic, roll back self to match db state
+            self._q = oldQ
+            raise
     def setAnswersList(self, al):
+        oldA = self._a
         self._a = al
-        self.dump()
+        try:
+            self.dump()
+        except:
+            self._a = oldA
+            raise
     def setCorrectAnswer(self, ca):
+        oldCa = self._ca
         self._ca = ca
-        self.dump()
+        try:
+            self.dump()
+        except:
+            self._ca = oldCa
+            raise
     def setOrder(self, o, commit=True):
+        oldOrd = self._order
         self._order = o
-        self.dump(commit)
+        try:
+            self.dump(commit)
+        except:
+            self._order = oldOrd
+            raise
     # not allowed: set change (TODO), qid change
 
     def dump(self, commit=True):
@@ -179,6 +198,10 @@ class Question(object):
                        " an answer choice was not a string.")
                return False
 
+        # question not a dupe
+        if self.isDupe():
+            raise DuplicateError
+
         # 2-5 answers
         if not 2 <= len(self._a) <= 5:
             raise QuestionFormatError("You must have 2-5 answers.")
@@ -230,11 +253,13 @@ class Question(object):
         return True
 
     def isDupe(self):
-        """Make sure provided question name isn't a duplicate of another
-        question that already exists."""
+        """
+        Make sure provided question name isn't a duplicate of another
+        question that already exists. Exclude, of course, the current question.
+        """
 
         q = getByName(self._q)
-        if q and (self._sid == q.getSid()):
+        if q and (self._sid == q.getSid()) and q.getQid() != self._qid:
             return True
         else:
             return False

@@ -300,8 +300,8 @@ class SetEditor(QDialog):
             elif "The question must have some text" in err:
                 msg = "Please enter some text in the question field."
             elif "different choices cannot have the same text" in err:
-                msg = "This question is identical to one you have already " \
-                      "entered. Please use a different question text."
+                msg = "You may not use the same text for two different " \
+                      "answers."
 
             if msg:
                 utils.errorBox(msg, "Invalid question")
