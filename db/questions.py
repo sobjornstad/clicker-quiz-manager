@@ -44,8 +44,7 @@ class Question(object):
             # if we already have the qid, it's in the db already
             if self.isDupe():
                 raise DuplicateError
-            if self.prevalidate():
-                self.dump()
+            self.dump()
 
     def __eq__(self, other):
         return (self._qid == other._qid and
@@ -91,6 +90,11 @@ class Question(object):
     # not allowed: set change (TODO), qid change
 
     def dump(self, commit=True):
+        # before saving, make sure self is valid and throw an error if not
+        # obviously, any code that could potentially introduce an invalid
+        # question should handle QuestionFormatError.
+        self.prevalidate()
+
         # 'new question'
         nq = {
               'question': self._q,
@@ -154,7 +158,14 @@ class Question(object):
 
     ### ERROR CHECKING ###
     def prevalidate(self):
-        "Make sure provided question input is valid."
+        """
+        Make sure provided question input is valid.
+
+        WARNING: If changing the text of QuestionFormatErrors, you must also
+        change it in ui/editset.py's _saveQuestion()/handleError(), which
+        checks the text returned to decide what error to display.
+        """
+
         # correct types
         if not isinstance(self._q, basestring) or \
            not isinstance(self._a, list) or \
@@ -171,6 +182,43 @@ class Question(object):
         # 2-5 answers
         if not 2 <= len(self._a) <= 5:
             raise QuestionFormatError("You must have 2-5 answers.")
+            return False
+
+        # no blank answers (if left blank in GUI, they won't turn up here at
+        # all, so that needs to be validated on that side)
+        for i in self._a:
+            if not i.strip():
+                raise QuestionFormatError("Answer choices may not be blank.")
+                return False
+
+        # a correct answer is chosen
+        if self._ca == '':
+            raise QuestionFormatError("A correct answer must be specified.")
+            return False
+
+        # selected correct answer exists
+        try:
+            idx = self._qLetters.index(self._ca)
+        except ValueError:
+            raise QuestionFormatError("The correct answer specified must be " \
+                    "a, b, c, d, or e.")
+            return False
+        else:
+            if idx > len(self._a) - 1:
+                raise QuestionFormatError("The correct answer specified must be " \
+                        "an answer choice.")
+                return False
+
+        # question contains some text
+        if not self._q.strip():
+            raise QuestionFormatError("The question must have some text.")
+
+        # no duplicate answers
+        # http://stackoverflow.com/questions/1541797/
+        # in-python-how-to-check-if-there-are-any-duplicates-in-list
+        if len(self._a) != len(set(self._a)):
+            raise QuestionFormatError("Answer choices must be unique: two " \
+                    "different choices cannot have the same text.")
             return False
 
         # correct answer must be a lc MC letter

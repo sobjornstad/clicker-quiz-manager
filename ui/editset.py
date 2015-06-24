@@ -273,8 +273,45 @@ class SetEditor(QDialog):
         """
 
         def saveError(msg):
-            deferror = "The question is invalid: %s." % msg
-            utils.errorBox(deferror, "Save Error")
+            utils.errorBox(msg, "Invalid question")
+        def handleError(err):
+            """
+            Rewrite error messages returned by the db layer to the more
+            specific context here, as appropriate. Not all errors are checked
+            for, as some of them can only come up in this context due to a
+            programming error.
+
+            Returns true if error handled, False if we passed the db's error
+            on to the user.
+            """
+
+            msg = ''
+            err = str(err)
+            if "must have 2-5 answers" in err:
+                msg = "You must enter at least two answer choices."
+            elif "may not be blank" in err:
+                msg = "You may not leave answer choices blank unless they " \
+                      "are at the end."
+            elif "correct answer must be specified" in err:
+                msg = "You must choose a correct answer."
+            elif "specified must be an answer choice" in err:
+                msg = "The answer you have selected as correct does not have " \
+                      "any text."
+            elif "The question must have some text" in err:
+                msg = "Please enter some text in the question field."
+            elif "different choices cannot have the same text" in err:
+                msg = "This question is identical to one you have already " \
+                      "entered. Please use a different question text."
+
+            if msg:
+                utils.errorBox(msg, "Invalid question")
+                return True
+            else:
+                # this shouldn't happen unless we screwed up
+                utils.errorBox("Oops! The database returned the following " \
+                        "error:\n\n%s" % qfe, "Save Error")
+                return False
+
 
         sf = self.form
         ansDict = {'a': unicode(self.ansChoices[0].text()),
@@ -289,58 +326,38 @@ class SetEditor(QDialog):
         st = self._currentSet()
         order = sf.questionList.row(sf.questionList.findItems(question, QtCore.Qt.MatchExactly)[0])
 
-        # validate: at least 2 choices
-        if len(answersList) < 2:
-            saveError("you must enter at least 2 answer choices")
-            return False
-
-        # validate: no gaps in answer choices
+         # Make sure there are no gaps in answer choices; this can't be
+         # detected on the db side because we skip over all blanks when filling
+         # the answer list.
         reachedEnd = False
         for i in self.ansChoices:
             if i.text() and reachedEnd:
-                saveError("you may not leave answer choices blank unless " \
-                          "they are at the end")
+                saveError("You may not leave answer choices blank unless " \
+                          "they are at the end.")
                 return False
             elif not i.text():
                 reachedEnd = True
 
-        # validate: correct answer chosen
-        if correctAnswer == '':
-            saveError("you must choose a correct answer")
-            return False
-
-        # validate: selected answer exists
-        if ansDict[correctAnswer] == '':
-            saveError("you must provide an answer choice for the answer that " \
-                      "you have selected as correct")
-            return False
-
-        # validate: question has some text in it
-        if not question.strip():
-            saveError("the question must have some text")
-            return False
-
-        if self.currentQid is not None:
-            # update the existing question
-            nq = self.qm.byId(self.currentQid)
-            nq.setQuestion(question)
-            nq.setAnswersList(answersList)
-            nq.setCorrectAnswer(correctAnswer)
-            retVal = 1
-            # order and set can't have changed from this operation
-        else:
-            # create a new one
-            try:
+        try:
+            if self.currentQid is not None:
+                # update the existing question
+                nq = self.qm.byId(self.currentQid)
+                nq.prevalidate()
+                nq.setQuestion(question)
+                nq.setAnswersList(answersList)
+                nq.setCorrectAnswer(correctAnswer)
+                retVal = 1
+                # order and set can't have changed from this operation
+            else:
+                # create a new one
                 nq = Question(question, answersList, correctAnswer, st, order)
-            except DuplicateError:
-                saveError("you already have a question with the same name")
-                return False
-            except QuestionFormatError as qfe:
-                # this shouldn't happen unless we screwed up
-                utils.errorBox("Oops! The database returned the following " \
-                        "error:\n\n %s" % qfe, "Save Error")
-                return False
-            retVal = 2
+                retVal = 2
+        except DuplicateError:
+            saveError("You already have a question with that name.")
+            return False
+        except QuestionFormatError as qfe:
+            handleError(qfe)
+            return False
 
         self.qm.update()
         self.currentQid = self.qm.byName(question).getQid()

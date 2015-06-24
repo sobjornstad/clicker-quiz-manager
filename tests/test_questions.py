@@ -112,6 +112,25 @@ class QuestionTests(utils.DbTestCase):
         except Exception as e:
             assert False, e
 
+    def testInvalidQuestions(self):
+        st = Set("Test Set", 1)
+        with self.assertRaises(QuestionFormatError):
+            q = Question("What is the answer?", ["foo", "bar", "foo", "42"],
+                    "d", st, 1)
+        with self.assertRaises(QuestionFormatError):
+            q = Question("What is the answer?", ["foo"],
+                    "a", st, 1)
+        with self.assertRaises(QuestionFormatError):
+            q = Question("What is the answer?", ["foo", "bar", "baz", "42"],
+                    "e", st, 1)
+        with self.assertRaises(QuestionFormatError):
+            q = Question("What is the answer?", ["foo", "bar", "baz", "42"],
+                    "&", st, 1)
+        with self.assertRaises(QuestionFormatError):
+            q = Question("What is the answer?", ["foo", "bar", "", "42"],
+                    "d", st, 1)
+
+
     def testQuestionManager(self):
         st = Set("Test Set", 1)
         q1 = Question("What is the answer?",
