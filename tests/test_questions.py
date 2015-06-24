@@ -221,7 +221,23 @@ class QuestionTests(utils.DbTestCase):
         o = findNextOrd(st)
         assert o == 4, "Wrong next ord, expected 4, got %i" % o
 
+    def testRandomize(self):
+        st = Set("Foo set", 1)
+        q = Question("What is 2 + 2?",
+                ["1", "2", "3", "4"], "d", st, 1)
 
+        # check that order changes and correct answer stays the same. since it
+        # could randomly not change the choice, run it a few times; for 0.25
+        # chance of not doing anything, chance of passing incorrectly < 1^-12.
+        hasChangedOrder = False
+        origOrder = q._a[:]
+        for i in range(20):
+            q.randomizeChoices()
+            indices = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4}
+            assert q._a.index("4") == indices[q.getCorrectAnswer()]
+            if q._a != origOrder:
+                hasChangedOrder = True
+        assert hasChangedOrder
 
 
 if __name__ == "__main__":

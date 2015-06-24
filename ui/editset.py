@@ -398,7 +398,10 @@ class SetEditor(QDialog):
         qsw.exec_()
 
     def onRandomize(self):
-        pass
+        for q in self.qm:
+            q.randomizeChoices()
+        self.qm.update()
+        self._reloadQuestions()
 
     def onDragDrop(self, start, end, parent, destination, row):
         """
@@ -439,13 +442,16 @@ class SetEditor(QDialog):
         ql.setCurrentRow(cRow-1 if direction == 'up' else cRow+1)
 
     def onJumpToSet(self):
-        self.form.questionList.clear()
-        self.setupQuestions()
+        self._reloadQuestions()
         # user might want to move down several with the arrow keys
         self.form.jumpCombo.setFocus()
 
 
     ### UTILITIES ###
+    def _reloadQuestions(self):
+        self.form.questionList.clear()
+        self.setupQuestions()
+
     def _currentSet(self):
         return db.sets.findSet(name= unicode(self.form.jumpCombo.currentText()))
 

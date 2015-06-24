@@ -2,7 +2,7 @@
 # This file is part of Clicker Quiz Generator.
 # Copyright 2014 Soren Bjornstad. All rights reserved.
 
-
+import random
 import json
 import database as d
 import sets
@@ -125,6 +125,31 @@ class Question(object):
         d.checkAutosave()
         # we shouldn't use this instance again of course, but the class does
         # not enforce its nonuse.
+
+    def randomizeChoices(self):
+        """
+        Mix up the order of the answer choices in this question, maintaining
+        the correct answer.
+        """
+        #TODO: This will fail if two answer choices are identical; we should
+        # add that to our validation checks.
+
+        # find and save value of correct answer
+        indices = {}
+        num = 0
+        for i in self._qLetters:
+            indices[i] = num
+            num += 1
+        # http://stackoverflow.com/questions/483666/
+        # python-reverse-inverse-a-mapping
+        reverseIndices = dict((v, k) for k, v in indices.iteritems())
+        correctAnswer = self._a[indices[self._ca]]
+
+        # shuffle; recover & reset correct answer
+        random.shuffle(self._a)
+        idx = self._a.index(correctAnswer)
+        self._ca = reverseIndices[idx]
+        self.dump()
 
 
     ### ERROR CHECKING ###
