@@ -232,7 +232,17 @@ class SetEditor(QDialog):
 
     def onDiscard(self):
         if self.currentQid:
-            # editing; restore to state of db
+            # We were editing; restore to state of db.
+
+            # self.onQuestionChange() will screw up if we have happened to edit
+            # the question to the exact name of an existing question, so we
+            # need to temporarily change the name to something else if this is
+            # the case.
+            qtexts = [self.form.questionList.item(i).text()
+                    for i in range(self.form.questionList.count())]
+            if qtexts.count(unicode(self.form.questionBox.toPlainText())) != 1:
+                temporaryName = self._makeNameUnique("del", qtexts)
+                self.form.questionBox.setPlainText(temporaryName)
             self.onQuestionChange()
         else:
             # new; delete entry entirely
