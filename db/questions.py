@@ -265,20 +265,6 @@ class Question(object):
             return False
 
 
-    ### OUTPUT TO FILE ###
-    def getFormattedContent(self, questionNum):
-        """Return question data formatted for ExamView rtf file format. The
-        number to place in front of the question is provided by caller, since
-        this is determined at quiz generation time."""
-
-        oQ = '.\t'.join([str(questionNum), self._q])
-        curLetter = 0
-        oA = []
-        for ans in self._a:
-            oA.append('.\t'.join([str(self._qLetters[curLetter]), ans]))
-            curLetter += 1
-        oCA = '\t'.join(['ANS:', self._ca])
-        return oQ, oA, oCA
 
 
 class QuestionManager(object):
