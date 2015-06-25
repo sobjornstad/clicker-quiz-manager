@@ -353,7 +353,7 @@ class SetEditor(QDialog):
                 nq = Question(question, answersList, correctAnswer, st, order)
                 retVal = 2
         except DuplicateError:
-            saveError("You already have a question with that name.")
+            saveError("You already have a question with that text.")
             return False
         except QuestionFormatError as qfe:
             handleError(qfe)
