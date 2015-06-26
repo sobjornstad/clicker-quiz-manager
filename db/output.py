@@ -2,10 +2,17 @@
 # This file is part of Clicker Quiz Generator.
 # Copyright 2014 Soren Bjornstad. All rights reserved.
 
+import os
+import re
+import tempfile
+import shutil
+import subprocess
+import sys
+
 import PyRTF as rtf
 import rtfunicode
+
 from questions import Question
-import re
 
 ### RTF for TurningPoint ###
 def getRTFFormattedContent(ques, questionNum):
@@ -74,9 +81,66 @@ def genPreview(questions):
 DEFAULT_LATEX_HEADER = 'db/resources/latex_header_default.tex'
 DEFAULT_LATEX_FOOTER = 'db/resources/latex_footer_default.tex'
 
+class LatexError(Exception):
+    def __init__(self, emsg):
+        self.emsg = emsg
+    def __str__(self):
+        return repr(self.emsg)
+class UnopenableError(Exception):
+    def __init__(self):
+        self.emsg = "Could not open the file automatically."
+    def __str__(self):
+        return repr(self.emsg)
+
+def autoOpen(path):
+    """
+    Open a given path with the system's automatic-filetype-detection program.
+    """
+
+    if sys.platform.startswith('linux'):
+        subprocess.call(["xdg-open", path])
+    elif sys.platform == "darwin":
+        os.system("open %s" % path)
+    elif sys.platform == "win32":
+        os.startfile(path)
+    else:
+        raise UnopenableError
+
+
 def makePaperQuiz(questions, headerPath=DEFAULT_LATEX_HEADER,
-        footerPath=DEFAULT_LATEX_FOOTER):
+        footerPath=DEFAULT_LATEX_FOOTER, latexCommand='xelatex', doOpen=True):
     latex = prepareLaTeXString(questions, headerPath, footerPath)
+
+    tdir = tempfile.mkdtemp()
+    oldcwd = os.getcwd()
+    os.chdir(tdir)
+
+    fnamebase = "quiz"
+    tfile = os.path.join(tdir, '.'.join([fnamebase, 'tex']))
+    with open(tfile, 'wb') as f:
+        f.write(latex)
+    try:
+        subprocess.check_output([latexCommand, '-halt-on-error', tfile])
+    except subprocess.CalledProcessError as e:
+        raise LatexError("LaTeX Error %i:\n\n%s" % (e.returncode, e.output))
+    except OSError as e:
+        raise LatexError("LaTeX Error: unable to find LaTeX executable")
+    else:
+        if doOpen:
+            autoOpen(os.path.join(tdir, '.'.join([fnamebase, 'pdf'])))
+    finally:
+        os.chdir(oldcwd)
+
+    # ignore errors: it's not worth being a bother when we're just leaving a
+    # temporary file lying around
+    # TODO: COMMENTED OUT because it's deleting the file before the pdf viewer
+    # gets to it! Ideally we would have some framework that could zap it when
+    # the program closed. I think Anki handles this by having a global temp
+    # folder for the whole program that can be accessed -- we could do this in
+    # database.py.
+
+    # shutil.rmtree(tdir, ignore_errors=True)
+
 
 def munge_latex(s):
     "Escape characters reserved by LaTeX."

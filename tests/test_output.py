@@ -31,15 +31,7 @@ class OutputTests(utils.DbTestCase):
             os.remove(fname)
 
     def testLaTeXRender(self):
-        # create some questions to render
-        st = Set("Test Set", 1)
-        q1 = Question("Hello?", ["foo", "bar", "baz", "quux"], "c", st, 1)
-        q2 = Question("'Goodbye' is a [...].",
-                ["word", "tar", "taz", "tuux"], "a", st, 1)
-        q3 = Question("Auf wiedersehen? // Goodbye?",
-                ["me", "you", "they", "I"], "b", st, 1)
-        qs = [q1, q2, q3]
-
+        qs = makeLaTeXTestQuestions()
         # make sure that the rendered string is right
         latex = prepareLaTeXString(qs, DEFAULT_LATEX_HEADER, DEFAULT_LATEX_FOOTER)
         fname = 'testfile.tex'
@@ -79,3 +71,23 @@ This \{is\} some text, which costs \$4 \& 50 cents, which is \#1 in annoyance fo
 
         #with open ('/home/soren/output', 'wb') as f:
         #    f.write(goodstr)
+
+    def testLaTeXRender(self):
+        qs = makeLaTeXTestQuestions()
+        makePaperQuiz(qs, doOpen=False)
+        with self.assertRaises(LatexError) as ex:
+            makePaperQuiz(qs, latexCommand='flibbertygibbertyaoeu', doOpen=False)
+        with self.assertRaises(LatexError) as ex:
+            makePaperQuiz(qs, doOpen=False,
+                    headerPath='tests/resources/latex_header_invalid.tex')
+
+def makeLaTeXTestQuestions():
+    # create some questions to render
+    st = Set("Test Set", 1)
+    q1 = Question("Hello?", ["foo", "bar", "baz", "quux"], "c", st, 1)
+    q2 = Question("'Goodbye' is a [...].",
+            ["word", "tar", "taz", "tuux"], "a", st, 1)
+    q3 = Question("Auf wiedersehen? // Goodbye?",
+            ["me", "you", "they", "I"], "b", st, 1)
+    qs = [q1, q2, q3]
+    return qs
