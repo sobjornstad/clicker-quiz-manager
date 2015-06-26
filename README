@@ -1,20 +1,30 @@
+RUNNING
+-------
+
 To run the Clicker Quiz Manager, double-click on the 'runcqm' file. If you're
 running Windows, you can first rename it to 'runcqm.py' so that the Python
 interpreter will run it for you.
 
-Before first run, you need to create a database file; you can do this by
-running 'create_database.py' in the db/tools directory, then moving the file
-whereever you like. On running the program, you'll be asked to select a
-database file.
+On first run, you need to cancel the database selection, then choose File ->
+New Database. I'm going to fix this up at some point.
 
 For more information on using Clicker Quiz Manager, look at the user manual in
 the docs/ directory.
 
-Dependencies:
+
+DEPENDENCIES
+------------
+
 - Python 2.7
 - PyQt 4
 - sqlite3
 - PyRTF (in the thirdparty/ directory)
 - rtfunicode (in the thirdparty/ directory)
 
-- pyuic4 (for development, to run ./build_ui.sh)
+Additionally, to use the printed quiz function, you need to have LaTeX
+installed, with a few packages which I will add a list of here later. In the
+meantime, you can find out which ones they are by looking in the default header
+in db/resources.
+
+For development:
+- pyuic4 (to rebuild modified Qt Designer files)
