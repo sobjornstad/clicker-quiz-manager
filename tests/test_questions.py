@@ -1,5 +1,6 @@
 from db.questions import *
 from db.sets import Set
+import db.output
 import utils
 
 class QuestionTests(utils.DbTestCase):
@@ -47,14 +48,14 @@ class QuestionTests(utils.DbTestCase):
         q2 = getById(qid)
         assert q == q2
 
-    def testOutput(self):
+    def testRTFOutput(self):
         st = Set("Test Set", 3)
         q = Question("Hello?", ["foo", "bar", "baz", "quux"], "c", st, 1)
         q2 = Question("Goodbye?", ["1", "2", "3", "4"], "d", st, 2)
         questions = [q, q2]
 
         # answers
-        q, a, ca = questions[0].getFormattedContent(1)
+        q, a, ca = db.output.getRTFFormattedContent(questions[0], 1)
         for ans in a:
             self.failUnless(".\t" in ans)
             let = ans.split('.\t')[0]
@@ -62,7 +63,7 @@ class QuestionTests(utils.DbTestCase):
                     "Answer letter missing or incorrect on answer %r" % ans
 
         # correct answer
-        q, a, ca = questions[0].getFormattedContent(2)
+        q, a, ca = db.output.getRTFFormattedContent(questions[0], 2)
 
         self.assertTrue('\t' in ca), "Missing tab"
         ans, let = ca.split('\t')
@@ -70,7 +71,7 @@ class QuestionTests(utils.DbTestCase):
         self.assertTrue(let in Question._qLetters)
 
         # question number
-        q, a, ca = questions[0].getFormattedContent(3)
+        q, a, ca = db.output.getRTFFormattedContent(questions[0], 3)
 
         self.assertTrue(".\t" in q), "Missing tab"
         num = q.split('.')[0]
