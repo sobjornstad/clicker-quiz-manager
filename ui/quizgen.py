@@ -50,6 +50,7 @@ class QuizWindow(QDialog):
                     QtCore.Qt.MatchExactly)
             if s:
                 self.form.setList.setCurrentItem(s[0])
+                self.onSetChange()
 
     def populateClasses(self):
         self.classes = db.classes.getAllClasses()
