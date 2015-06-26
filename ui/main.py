@@ -12,7 +12,7 @@ import utils
 import db.database
 import db.tools.create_database
 
-APPLICATION_VERSION = "1.0.0"
+APPLICATION_VERSION = "1.0.1"
 
 class MainWindow(QMainWindow):
     def __init__(self):

@@ -1,0 +1,42 @@
+Changes in 1.0.1
+----------------
+
+- Show the total number of questions you've added so far when editing
+  questions in a set, at the bottom of the list.
+
+- You can now drag and drop items in the question and set lists to reorder
+  them, rather than repeatedly clicking "Move Up" and "Move Down".
+
+- Dialog boxes can now be resized correctly.
+
+- Major under-the-hood performance improvements related to autosave.
+  Everything should run much quicker now, at the cost that if the program
+  completely crashes, you'll lose a minute or two of work. You can adjust the
+  autosave frequency (1-5 minutes) in the preferences dialog.
+
+- If the program encounters an unexpected error, display a warning and try
+  to keep going rather than freaking out and crashing completely.
+
+- You can now switch databases with File -> Open, and the last-used
+  database is saved in the Registry so you don't have to select it when you
+  start the program. Also, you can now create a new database from the File
+  menu.
+
+- You can now easily run a backup from the Tools menu.
+
+- You can now randomize all answer choices for the current set in the
+  question dialog, so you don't have to worry about evenly distributing the
+  correct answer among all the possibilities so you don't end up with too
+  many answer choices of 'a'.
+
+- You can now start generating a quiz from the question dialog.
+
+- Wrote backend code for creating a paper version of a quiz. In 1.0.1, this
+  code is still inaccessible from the normal user interface, though.
+
+- New markup for questions: ---> To insert a blank that's always of
+  consistent length, write "[...]". ---> To write a foreign-language phrase
+  and then an English phrase and have them rendered on separate lines with
+  the second in italics, write "//" between them.
+
+- Various small interface appearance improvements and bugfixes.
