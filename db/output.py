@@ -14,9 +14,9 @@ import rtfunicode
 
 from questions import Question
 
-### RTF for TurningPoint ###
 OCCLUSION_OUTPUT = '_' * 8
 
+### RTF for TurningPoint ###
 def getRTFFormattedContent(ques, questionNum):
     "Return question data formatted for ExamView rtf file format."
 
@@ -67,14 +67,27 @@ def render(rtfObj, f):
 
 def genPreview(questions):
     """Create a plaintext preview string of the rtf file."""
+    indices = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4}
+    letters = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e'}
+
     prev = []
     qNum = 1
     for question in questions:
-        q, a, ca = getRTFFormattedContent(question, qNum)
+        q = '. '.join([str(qNum), question.getQuestion()])
+        q = q.replace('[...]', OCCLUSION_OUTPUT)
+        a = question.getAnswersList()
+        ca = question.getCorrectAnswer()
         st = question.getSet().getName()
+
         prev.append("%s (%s)" % (q, st))
+
+        letterNum = 0
         for ans in a:
-            prev.append(ans)
+            prev.append("\t%s. %s" % (letters[letterNum], ans))
+            letterNum += 1
+
+        correctAnswerText = a[indices[question.getCorrectAnswer()]]
+        ca = "Answer: (%s) %s" % (ca, correctAnswerText)
         prev.append(ca + '\n')
         qNum += 1
     return '\n'.join(prev)

@@ -31,8 +31,36 @@ class OutputTests(utils.DbTestCase):
             import os
             os.remove(fname)
 
+    def testPreviewRender(self):
+        checkstr = """
+1. Hello? (Test Set)
+	a. foo
+	b. bar
+	c. baz
+	d. quux
+Answer: (c) baz
+
+2. 'Goodbye' is a ________. (Test Set)
+	a. word
+	b. tar
+	c. taz
+	d. tuux
+Answer: (a) word
+
+3. Auf wiedersehen? // Goodbye? (Test Set)
+	a. me
+	b. you
+	c. they
+	d. I
+Answer: (b) you
+""".strip()
+
+        qs = makeTestQuestions()
+        txt = genPreview(qs).strip()
+        assert txt == checkstr
+
     def testLaTeXRender(self):
-        qs = makeLaTeXTestQuestions()
+        qs = makeTestQuestions()
         # make sure that the rendered string is right
         latex = prepareLaTeXString(qs, DEFAULT_LATEX_HEADER, DEFAULT_LATEX_FOOTER)
         fname = 'testfile.tex'
@@ -74,7 +102,7 @@ This \{is\} some text, which costs \$4 \& 50 cents, which is \#1 in annoyance fo
         #    f.write(goodstr)
 
     def testLaTeXRender(self):
-        qs = makeLaTeXTestQuestions()
+        qs = makeTestQuestions()
         makePaperQuiz(qs, doOpen=False)
         with self.assertRaises(LatexError) as ex:
             makePaperQuiz(qs, latexCommand='flibbertygibbertyaoeu', doOpen=False)
@@ -82,7 +110,7 @@ This \{is\} some text, which costs \$4 \& 50 cents, which is \#1 in annoyance fo
             makePaperQuiz(qs, doOpen=False,
                     headerPath='tests/resources/latex_header_invalid.tex')
 
-def makeLaTeXTestQuestions():
+def makeTestQuestions():
     # create some questions to render
     st = Set("Test Set", 1)
     q1 = Question("Hello?", ["foo", "bar", "baz", "quux"], "c", st, 1)
