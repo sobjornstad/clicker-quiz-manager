@@ -1,0 +1,89 @@
+%%% NOTE: must be compiled with XeTeX!
+% (pdflatex will give wrong spacing & bad ligatures)
+
+\documentclass[12pt]{article}
+\usepackage[left=1in, right=1in, top=0.5in, bottom=0.5in]{geometry}
+\usepackage{setspace}
+\usepackage{titlesec}
+
+\usepackage{microtype}
+\usepackage[lining]{ebgaramond}
+% fix a bug in this font
+\usepackage{ifluatex,ifxetex}
+\ifluatex\else\ifxetex\else
+  \normalfont
+  \makeatletter
+  \input{TS1EBGaramond-LF.fd}
+  \input{TS1EBGaramond-OsF.fd}
+  \makeatother
+\fi\fi
+
+\newcommand{\largeinterpunct}{{\footnotesize$\bullet$}}
+\newcommand{\ten}{\hspace*{0pt}\llap{1}0}
+
+\setlength\parindent{0pt}
+\newlength\afterquestionskip
+\setlength\afterquestionskip{0.4in}
+\newlength\blanklength
+\setlength\blanklength{5em}
+\newlength\afternumskip
+\setlength\afternumskip{1em}
+\newlength\hangwithnumwidth
+
+% this is a ridiculous hack, but for some reason it's necessary: I'm getting exactly one space extra after \quad when compiling with XeTeX.
+\newlength\aspace
+\settowidth\aspace{ }
+
+\newcommand{\nextq}{\vspace*{\afterquestionskip}}
+\newcommand{\singlequestion}[2]{%
+  \settowidth\hangwithnumwidth{#1.}%
+  \addtolength\hangwithnumwidth{\afternumskip}%
+  \hangindent=\hangwithnumwidth%
+  \hspace{-\aspace}#1.\quad#2\vfill%
+}
+\newcommand{\doublequestion}[3]{%
+  \settowidth\hangwithnumwidth{#1.}%
+  \addtolength\hangwithnumwidth{\afternumskip}%
+  \hangindent=\hangwithnumwidth%
+  \hspace{-\aspace}#1.\quad#2\\%
+  \hspace{\hangwithnumwidth}\emph{#3}\vfill%
+}
+\newcommand{\blank}{\makebox[2.5in]{\hrulefill}}
+
+\newcommand{\header}[2]{
+  \centerline{\oldstylenums{\textbf{#1\enspace\largeinterpunct\enspace#2}}}
+  \vspace{0.03in}
+  \hrule
+  \vspace{0.015in}
+  \hrule height 2pt
+
+  \vspace{0.15in}
+}
+
+\pagestyle{empty}
+\frenchspacing
+\raggedright
+
+\begin{document}
+\header{German 101}{Quiz 1}
+
+{
+  \obeylines
+  \parskip=6pt
+  \makebox[\textwidth]{Name:\enspace\hrulefill}
+  \makebox[\textwidth]{Honor Code:\enspace\hrulefill}
+  \makebox[\textwidth]{\hrulefill}
+}
+
+\vspace{0.35in}
+
+
+
+\singlequestion{1}{Hello?}
+
+\singlequestion{2}{'Goodbye' is a \blank.}
+
+\doublequestion{3}{Auf wiedersehen?}{Goodbye?}
+
+
+\end{document}

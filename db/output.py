@@ -6,7 +6,7 @@ import PyRTF as rtf
 import rtfunicode
 from questions import Question
 
-### OUTPUT TO FILE ###
+### RTF for TurningPoint ###
 def getRTFFormattedContent(ques, questionNum):
     "Return question data formatted for ExamView rtf file format."
 
@@ -45,6 +45,15 @@ def genRtfFile(questions):
 
     return doc
 
+
+def render(rtfObj, f):
+    DR = rtf.Renderer()
+    DR.Write(rtfObj, f)
+
+
+### TEXT PREVIEW ###
+# (Relies on the RTF functions above, as it's nearly the same format.)
+
 def genPreview(questions):
     """Create a plaintext preview string of the rtf file."""
     prev = []
@@ -59,6 +68,40 @@ def genPreview(questions):
         qNum += 1
     return '\n'.join(prev)
 
-def render(rtfObj, f):
-    DR = rtf.Renderer()
-    DR.Write(rtfObj, f)
+
+### LaTeX OUTPUT ###
+DEFAULT_LATEX_HEADER = 'db/resources/latex_header_default.tex'
+DEFAULT_LATEX_FOOTER = 'db/resources/latex_footer_default.tex'
+
+def makePaperQuiz(questions, headerPath=DEFAULT_LATEX_HEADER,
+        footerPath=DEFAULT_LATEX_FOOTER):
+    latex = prepareLaTeXString(questions, headerPath, footerPath)
+
+
+def prepareLaTeXString(questions, headerPath, footerPath):
+    text = []
+    qNum = 1
+    for ques in questions:
+        q = ques.getQuestion()
+        quesIsMultiPart = False
+
+        q = q.replace('[...]', '\\blank')
+        qparts = q.split('//')
+        if len(qparts) > 1:
+            topline, botline = qparts
+            topline, botline = topline.strip(), botline.strip()
+            quesIsMultiPart = True
+
+        if quesIsMultiPart:
+            txt = '\\doublequestion{%i}{%s}{%s}' % (qNum, topline, botline)
+        else:
+            txt = '\\singlequestion{%i}{%s}' % (qNum, q)
+
+        text.append(txt)
+        qNum += 1
+
+    with open(headerPath) as f:
+        header = f.read()
+    with open(footerPath) as f:
+        footer = f.read()
+    return header + '\n\n' + '\n\n'.join(text) + '\n\n' + footer
