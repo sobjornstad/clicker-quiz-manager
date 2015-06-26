@@ -4,7 +4,7 @@
 
 import database as d
 import questions
-import rtfexport
+import output
 import sets
 
 import random
@@ -184,8 +184,8 @@ class Quiz(object):
         random.shuffle(allQuestions)
         ql = [i.getQuestion() for i in allQuestions]
 
-        qPrev = rtfexport.genPreview(ql)
-        self.rtfObj = rtfexport.genRtfFile(ql)
+        qPrev = output.genPreview(ql)
+        self.rtfObj = output.genRtfFile(ql)
         return qPrev
 
     def makeRtfFile(self, filename):
@@ -196,7 +196,7 @@ class Quiz(object):
         if not self.isSetUp() and self.rtfObj:
             assert False, "Need to call generate() first!"
         with open(filename, 'wb') as f:
-            rtfexport.render(self.rtfObj, f)
+            output.render(self.rtfObj, f)
 
     def rewriteSchedule(self):
         """
