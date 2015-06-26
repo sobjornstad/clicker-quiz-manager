@@ -14,7 +14,8 @@ class OutputTests(utils.DbTestCase):
         fname = 'testfile.rtf'
         against_fname = 'tests/resources/test_format_against.rtf'
         st = Set("Test Set", 2)
-        questions = [Question("Hello?", ["foo", "bar", "baz", "quux"], "c", st, 1)]
+        questions = [Question("Hello [...]?", ["foo", "bar", "baz", "quux"],
+            "c", st, 1)]
         obj = genRtfFile(questions)
         render(obj, file(fname, 'wb'))
         try:

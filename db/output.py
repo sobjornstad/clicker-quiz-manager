@@ -15,10 +15,13 @@ import rtfunicode
 from questions import Question
 
 ### RTF for TurningPoint ###
+OCCLUSION_OUTPUT = '_' * 8
+
 def getRTFFormattedContent(ques, questionNum):
     "Return question data formatted for ExamView rtf file format."
 
     oQ = '.\t'.join([str(questionNum), ques.getQuestion()])
+    oQ = oQ.replace('[...]', OCCLUSION_OUTPUT)
     curLetter = 0
     oA = []
     for ans in ques.getAnswersList():
