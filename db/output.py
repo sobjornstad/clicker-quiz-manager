@@ -5,6 +5,7 @@
 import PyRTF as rtf
 import rtfunicode
 from questions import Question
+import re
 
 ### RTF for TurningPoint ###
 def getRTFFormattedContent(ques, questionNum):
@@ -77,6 +78,31 @@ def makePaperQuiz(questions, headerPath=DEFAULT_LATEX_HEADER,
         footerPath=DEFAULT_LATEX_FOOTER):
     latex = prepareLaTeXString(questions, headerPath, footerPath)
 
+def munge_latex(s):
+    "Escape characters reserved by LaTeX."
+
+    # This escapes all special chars listed as catcodes in /The TeXbook/, p.37.
+    # note that spacing is not guaranteed with things like the tilde and caret.
+    # However, those are not very likely to come up; we just don't want the
+    # whole thing to crash if it does.
+    s = s.replace('\\', '\\textbackslash ')
+    s = s.replace('{', '\\{')
+    s = s.replace('}', '\\}')
+    s = s.replace('$', '\\$')
+    s = s.replace('&', '\\&')
+    s = s.replace('#', '\\#')
+    s = s.replace('^', '\\textasciicircum ')
+    s = s.replace('_', '\\textunderscore ')
+    s = s.replace('~', '\\textasciitilde ')
+    s = s.replace('%', '\\%')
+
+    # Take care of straight quotation marks (single & double).
+    # Note that it's not possible to handle single quotation marks correctly,
+    # as there's no way to tell if it's an apostrophe or opening single quote.
+    # If you want it right with singles, you need to use curlies in the question.
+    s = re.sub('"(.*?)"', "``\\1''", s)
+
+    return s
 
 def prepareLaTeXString(questions, headerPath, footerPath):
     text = []

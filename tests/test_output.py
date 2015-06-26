@@ -1,3 +1,7 @@
+# -* coding: utf-8 *-
+# This file is part of Clicker Quiz Generator.
+# Copyright 2015 Soren Bjornstad. All rights reserved.
+
 import filecmp
 
 import utils
@@ -60,3 +64,18 @@ class OutputTests(utils.DbTestCase):
             f.close()
             import os
             os.remove(fname)
+
+    def testLaTeXMunge(self):
+        badstr = r"""
+This {is} some text, which costs $4 & 50 cents, which is #1 in annoyance for people trying to use \ write it in LaTeX who don't ‘know’ much ~ it. That's because it's 100% "impossible" to parse unless “you” do_it_correctly, paying attention to ^ everything.
+""".strip()
+
+        checkstr = r"""
+This \{is\} some text, which costs \$4 \& 50 cents, which is \#1 in annoyance for people trying to use \textbackslash  write it in LaTeX who don't ‘know’ much \textasciitilde  it. That's because it's 100\% ``impossible'' to parse unless “you” do\textunderscore it\textunderscore correctly, paying attention to \textasciicircum  everything.
+""".strip()
+
+        goodstr = munge_latex(badstr)
+        assert goodstr == checkstr
+
+        #with open ('/home/soren/output', 'wb') as f:
+        #    f.write(goodstr)
