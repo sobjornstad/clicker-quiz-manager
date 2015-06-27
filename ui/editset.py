@@ -52,6 +52,8 @@ class SetEditor(QDialog):
         self.form.questionList.itemSelectionChanged.connect(self.onQuestionChange)
         qlShortcut = QShortcut(QKeySequence("Alt+L"), self.form.questionList)
         qlShortcut.connect(qlShortcut, QtCore.SIGNAL("activated()"), lambda: self.form.questionList.setFocus())
+        saveShortcut = QShortcut(QKeySequence("Ctrl+S"), self.form.saveButton)
+        saveShortcut.connect(saveShortcut, QtCore.SIGNAL("activated()"), self.onSaveQuestion)
         self.form.questionList.model().rowsMoved.connect(self.onDragDrop)
 
         self.form.questionBox.textChanged.connect(self.updateListQuestion)
