@@ -35,8 +35,8 @@ class QuizWindow(QDialog):
         self.form.revSpin.setEnabled(False)
 
         self.setDefaultSpinValues()
-        self.populateClasses()
         self.updateDueValues(0, 0)
+        self.populateClasses()
 
     def populateSets(self):
         self.form.setList.clear()
