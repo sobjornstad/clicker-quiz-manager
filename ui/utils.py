@@ -23,6 +23,14 @@ def errorBox(text, title=None):
         msgBox.setWindowTitle(title)
     msgBox.exec_()
 
+def warningBox(text, title=None):
+    msgBox = QMessageBox()
+    msgBox.setText(text)
+    msgBox.setIcon(QMessageBox.Warning)
+    if title:
+        msgBox.setWindowTitle(title)
+    msgBox.exec_()
+
 def questionBox(text, title=None):
     msgBox = QMessageBox()
     msgBox.setText(text)

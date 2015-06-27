@@ -120,6 +120,9 @@ class SetEditor(QDialog):
             self.form.correctAnswerCombo.addItem(ans, 0)
 
     def reject(self):
+        if not self._ensureNotMostA():
+            self.tooManyAsMessage()
+
         if self.listEnabled:
             super(SetEditor, self).reject()
         else:
@@ -430,6 +433,9 @@ class SetEditor(QDialog):
                     " generating a quiz.", "No Classes")
             return
 
+        if not self._ensureNotMostA():
+            self.tooManyAsMessage()
+
         import quizgen
         qsw = quizgen.QuizWindow(self, self._currentSet())
         qsw.exec_()
@@ -538,3 +544,27 @@ class SetEditor(QDialog):
                 i.setEnabled(True)
         else:
             assert False, "Invalid argument to _changeListStatus!"
+
+    def _ensureNotMostA(self):
+        """
+        If there are an unusual number of 'A' choices for questions in the
+        current set, perhaps the user forgot to randomize the questions and
+        should be warned.
+        """
+
+        ATally = 0
+        totalQs = self.form.questionList.count()
+        for q in db.questions.getBySet(self._currentSet()):
+            if q.getCorrectAnswer() == 'a':
+                ATally += 1
+
+        ratio = float(ATally) / totalQs
+        if (ratio >= 0.5 and totalQs > 5) or (ratio >= 0.75 and totalQs > 1):
+            return False
+        else:
+            return True
+
+    def tooManyAsMessage(self):
+        utils.warningBox("An unusual percentage of your correct " \
+                "answers are A. Maybe you forgot to randomize the answers?",
+                "Heads up!")
