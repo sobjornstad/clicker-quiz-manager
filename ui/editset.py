@@ -353,8 +353,15 @@ class SetEditor(QDialog):
         try:
             if self.currentQid is not None:
                 # update the existing question
+
                 nq = self.qm.byId(self.currentQid)
                 nq.prevalidate()
+                # strip whitespace from question. If we don't update the text
+                # box as well, the dialog goes haywire if it gets changed and
+                # we try to look at a different question.
+                question = question.strip()
+                self.form.questionBox.setPlainText(question)
+
                 nq.setQuestion(question)
                 nq.setAnswersList(answersList)
                 nq.setCorrectAnswer(correctAnswer)
