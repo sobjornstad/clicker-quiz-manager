@@ -138,7 +138,7 @@ class MainWindow(QMainWindow):
 
     def onManual(self):
         manualLoc = "docs/manual.html"
-        if os.path.isfile(floc):
+        if os.path.isfile(manualLoc):
             QDesktopServices.openUrl(QtCore.QUrl(manualLoc))
         else:
             utils.errorBox("Could not locate the manual! Please report this " \
