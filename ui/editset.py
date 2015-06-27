@@ -108,12 +108,13 @@ class SetEditor(QDialog):
         selected, but we appear to have run into Qt bugs there:
         http://goo.gl/mQ1b83.
 
-        If isNewQuestion, a blank option will be added to the top of the list,
-        to be removed once an option is selected.
+        If isNewQuestion and configuration option /autoAnsA/ not set, a blank
+        option will be added to the top of the list, to be removed once an
+        option is selected.
         """
 
         self.form.correctAnswerCombo.clear()
-        if isNewQuestion:
+        if isNewQuestion and not self.sl.mw.autoAnsA:
             self.form.correctAnswerCombo.addItem("", 0) # no choice selected yet
         for ans in [i.upper() for i in Question._qLetters]:
             self.form.correctAnswerCombo.addItem(ans, 0)

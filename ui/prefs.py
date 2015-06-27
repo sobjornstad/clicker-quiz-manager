@@ -26,10 +26,12 @@ class PrefsDialog(QDialog):
         conf = self.mw.config
 
         self.options['debugMode'] = conf.readConf('debugMode').toBool()
+        self.options['autoAnsA'] = conf.readConf('autoAnsA').toBool()
         self.options['saveInterval'] = conf.readConf('saveInterval').toInt()[0]
 
         # note: don't use setCheckState(), that makes a tri-state box!
         self.form.debugMode.setChecked(self.options['debugMode'])
+        self.form.autoAnsA.setChecked(self.options['autoAnsA'])
         self.form.saveInterval.setValue(self.options['saveInterval'])
 
     def dumpPrefsState(self):
@@ -44,6 +46,11 @@ class PrefsDialog(QDialog):
         if newSaveInterval != self.options['saveInterval']:
             self.markRestartRequired()
             conf.writeConf('saveInterval', newSaveInterval)
+
+        newAutoAnsA = self.form.autoAnsA.isChecked()
+        if newAutoAnsA != self.options['autoAnsA']:
+            self.markRestartRequired() # not really, if this were coded properly
+            conf.writeConf('autoAnsA', newAutoAnsA)
 
         self.accept()
         if self.restartSuggested:

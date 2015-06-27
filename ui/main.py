@@ -24,16 +24,7 @@ class MainWindow(QMainWindow):
 
         # load configuration options
         self.config = ConfigurationManager()
-        self.isDebugMode = self.config.readConf("debugMode").toBool()
-        if self.isDebugMode:
-            self._configureDebugMode()
-
-        autoMins = self.config.readConf("saveInterval").toInt()[0]
-        if autoMins == 0:
-            self.config.writeConf("saveInterval", 1)
-            autoMins = 1
-        self.autosaveInterval = autoMins * 60
-        # value will be dealt with in _connectDb()
+        self._loadConf()
 
         # try to open last-used database; if none or doesn't exist, ask user 
         # what file to open
@@ -61,6 +52,20 @@ class MainWindow(QMainWindow):
         db.database.connect(self.dbpath, autosaveInterval=self.autosaveInterval)
         self.dbFilename = self.dbpath.split('/')[-1]
         self.form.dbLabel.setText("Database: " + self.dbFilename)
+
+    def _loadConf(self):
+        self.isDebugMode = self.config.readConf("debugMode").toBool()
+        if self.isDebugMode:
+            self._configureDebugMode()
+
+        self.autoAnsA = self.config.readConf("autoAnsA").toBool()
+
+        autoMins = self.config.readConf("saveInterval").toInt()[0]
+        if autoMins == 0:
+            self.config.writeConf("saveInterval", 1)
+            autoMins = 1
+        self.autosaveInterval = autoMins * 60
+        # value will be dealt with in _connectDb()
 
     def onClasses(self):
         import classes
