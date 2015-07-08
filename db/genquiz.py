@@ -189,6 +189,7 @@ class Quiz(object):
         qPrev = output.genPreview(ql)
         return qPrev
 
+
     def outputRoutine(func):
         def wrapper(self, *args, **kwargs):
             if not self.isSetUp() and rtfObj:
@@ -213,6 +214,11 @@ class Quiz(object):
         output.makePaperQuiz(self.genQl, className, quizNum,
                 doOpen=False, doCopy=True, copyTo=filename)
 
+    @outputRoutine
+    def makeHtml(self, filename, cls, quizNum, forQuizzing=False):
+        # ditto, on header paths
+        content = output.htmlText(self.genQl, forQuizzing)
+        output.renderHtml(content, cls, quizNum, filename)
 
 
     def rewriteSchedule(self):

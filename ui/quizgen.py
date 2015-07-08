@@ -153,10 +153,11 @@ class PreviewDialog(QDialog):
         self.form = forms.qprev.Ui_Dialog()
         self.form.setupUi(self)
 
-        self.form.formatCombo.addItem("TurningPoint Quiz (RTF)")
-        self.form.formatCombo.addItem("Paper Quiz (PDF)")
-        self.form.formatCombo.addItem("Formatted HTML")
-        self.form.formatCombo.addItem("Plain Text")
+        self.form.formatCombo.addItem("TurningPoint Quiz (*.rtf)")
+        self.form.formatCombo.addItem("Paper Quiz (*.pdf)")
+        self.form.formatCombo.addItem("HTML (with answers & sets)")
+        self.form.formatCombo.addItem("HTML (no answers or sets)")
+        self.form.formatCombo.addItem("Plain Text (UTF-8)")
 
         self.form.okButton.clicked.connect(self.accept)
         self.form.cancelButton.clicked.connect(self.reject)
@@ -176,20 +177,39 @@ class PreviewDialog(QDialog):
 
     def onSave(self):
         selection = self.form.formatCombo.currentText()
-        if 'RTF' in selection:
-            fname = self.getFilename('rtf')
-            if fname:
-                self.parent.quiz.makeRtfFile(fname)
-        elif 'PDF' in selection:
-            fname = self.getFilename('pdf')
-            cls = self.parent.quiz.getClass()
-            quizNum = db.genquiz.getSetsUsed(cls) + 1
-            if fname:
-                self.parent.quiz.makePdf(fname, cls.getName(), quizNum)
-        elif 'HTML' in selection:
-            fname = self.getFilename('html')
-        elif 'Plain Text' in selection:
-            fname = self.getFilename('txt')
+        try:
+            if 'rtf' in selection:
+                fname = self.getFilename('rtf')
+                if fname:
+                    self.parent.quiz.makeRtfFile(fname)
+                else:
+                    return
+            elif 'pdf' in selection:
+                fname = self.getFilename('pdf')
+                cls = self.parent.quiz.getClass()
+                quizNum = db.genquiz.getSetsUsed(cls) + 1
+                if fname:
+                    self.parent.quiz.makePdf(fname, cls.getName(), quizNum)
+                else:
+                    return
+            elif 'HTML' in selection:
+                if 'no' in selection:
+                    fq = True
+                else:
+                    fq = False
+                fname = self.getFilename('html')
+                cls = self.parent.quiz.getClass()
+                quizNum = db.genquiz.getSetsUsed(cls) + 1
+                if fname:
+                    self.parent.quiz.makeHtml(fname, cls, quizNum, fq)
+                else:
+                    return
+            elif 'Plain Text' in selection:
+                fname = self.getFilename('txt')
+        except:
+            raise # included so that setSaved() runs only if success
+        else:
+            self.setSaved()
 
     def getFilename(self, filetype):
         ft = PreviewDialog.ftdict[filetype]
@@ -205,7 +225,6 @@ class PreviewDialog(QDialog):
                 f += '.pdf'
             elif filetype == 'html' and not f.endswith('.html'):
                 f += '.html'
-            self.setSaved()
             return f
 
     def accept(self):

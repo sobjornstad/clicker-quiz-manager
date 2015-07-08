@@ -115,7 +115,7 @@ def htmlText(questions, forQuizzing=False):
             topline, botline = topline.strip(), botline.strip()
             quesIsMultiPart = True
 
-        if forQuizzing:
+        if not forQuizzing:
             if quesIsMultiPart:
                 topline = "%s (%s)" % (topline, st)
             else:
@@ -139,7 +139,7 @@ def htmlText(questions, forQuizzing=False):
             letterNum += 1
         prev.append('</div>')
 
-        if forQuizzing:
+        if not forQuizzing:
             correctAnswerText = a[indices[question.getCorrectAnswer()]]
             ca = '<div class="answer">Answer: <span class="answertext">' \
                     '(%s) %s</span></div>' % (ca, correctAnswerText)
