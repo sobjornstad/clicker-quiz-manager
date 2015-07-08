@@ -203,6 +203,7 @@ def prepareLaTeXString(questions, cls, quizNum, headerPath, footerPath):
             topline, botline = topline.strip(), botline.strip()
             quesIsMultiPart = True
 
+        # TODO: Handle using the \ten escape sequence here
         if quesIsMultiPart:
             txt = '\\doublequestion{%i}{%s}{%s}' % (qNum, topline, botline)
         else:

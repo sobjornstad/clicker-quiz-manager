@@ -8,6 +8,7 @@ import utils
 from db.questions import Question
 from db.sets import Set
 from db.output import *
+from db.classes import Class
 
 class OutputTests(utils.DbTestCase):
     def testRTFRender(self):
@@ -103,11 +104,14 @@ This \{is\} some text, which costs \$4 \& 50 cents, which is \#1 in annoyance fo
 
     def testLaTeXRender(self):
         qs = makeTestQuestions()
-        makePaperQuiz(qs, doOpen=False)
+        cls = Class("German 101")
+        quizNum = 1
+        makePaperQuiz(qs, cls, quizNum, doOpen=False)
         with self.assertRaises(LatexError) as ex:
-            makePaperQuiz(qs, latexCommand='flibbertygibbertyaoeu', doOpen=False)
+            makePaperQuiz(qs, cls, quizNum,
+                    latexCommand='flibbertygibbertyaoeu', doOpen=False)
         with self.assertRaises(LatexError) as ex:
-            makePaperQuiz(qs, doOpen=False,
+            makePaperQuiz(qs, cls, quizNum, doOpen=False,
                     headerPath='tests/resources/latex_header_invalid.tex')
 
 def makeTestQuestions():
