@@ -120,12 +120,8 @@ class QuizWindow(QDialog):
         d.setText(prevText)
         d.exec_()
 
-        if self.quizFilename:
-            sq.makeRtfFile(self.quizFilename)
-            sq.rewriteSchedule()
-            utils.informationBox("The quiz was exported successfully. "
-                                 "Sets have been rescheduled.",
-                                 "Quiz generated")
+        #### eek
+        if self.previewResult:
             QDialog.accept(self)
 
     def reject(self):
@@ -136,6 +132,7 @@ class QuizWindow(QDialog):
         qsw = questionsets.QuestionSetsDialog(self)
         qsw.exec_()
 
+
 class PreviewDialog(QDialog):
     """
     Displayed to show the user a text version of her quiz and allow her to
@@ -143,34 +140,92 @@ class PreviewDialog(QDialog):
     the generate quiz window.
     """
 
+    ftdict = {
+              'rtf': 'Rich text files (*.rtf)',
+              'pdf': 'PDF files (*.pdf)',
+              'html': 'HTML files (*.html)',
+              'txt': 'Text files (*)',
+             }
+
     def __init__(self, parent=None):
         QDialog.__init__(self)
         self.parent = parent
         self.form = forms.qprev.Ui_Dialog()
         self.form.setupUi(self)
 
+        self.form.formatCombo.addItem("TurningPoint Quiz (RTF)")
+        self.form.formatCombo.addItem("Paper Quiz (PDF)")
+        self.form.formatCombo.addItem("Formatted HTML")
+        self.form.formatCombo.addItem("Plain Text")
+
         self.form.okButton.clicked.connect(self.accept)
         self.form.cancelButton.clicked.connect(self.reject)
+        self.form.saveButton.clicked.connect(self.onSave)
+        self.hasSaved = False
+
+    def setSaved(self):
+        self.hasSaved = True
+        self.form.okButton.setEnabled(True)
 
     def setText(self, txt):
         self.form.prevText.setPlainText(txt)
         if "quiz is blank" in txt:
             self.form.okButton.setEnabled(False)
+            self.form.saveButton.setEnabled(False)
+            self.form.formatCombo.setEnabled(False)
 
-    def accept(self):
-        f = QFileDialog.getSaveFileName(caption="Export Quiz File",
-                filter="Rich text files (*.rtf)")
+    def onSave(self):
+        selection = self.form.formatCombo.currentText()
+        if 'RTF' in selection:
+            fname = self.getFilename('rtf')
+            if fname:
+                self.parent.quiz.makeRtfFile(fname)
+        elif 'PDF' in selection:
+            fname = self.getFilename('pdf')
+            cls = self.parent.quiz.getClass()
+            quizNum = db.genquiz.getSetsUsed(cls) + 1
+            if fname:
+                self.parent.quiz.makePdf(fname, cls.getName(), quizNum)
+        elif 'HTML' in selection:
+            fname = self.getFilename('html')
+        elif 'Plain Text' in selection:
+            fname = self.getFilename('txt')
+
+    def getFilename(self, filetype):
+        ft = PreviewDialog.ftdict[filetype]
+        f = QFileDialog.getSaveFileName(caption="Export Quiz", filter=ft)
         if not f:
-            self.parent.quizFilename = None
-            return
+            return None
         else:
             # on linux, the extension might not be automatically appended
             f = unicode(f)
-            if not f.endswith('.rtf'):
+            if filetype == 'rtf' and not f.endswith('.rtf'):
                 f += '.rtf'
-            self.parent.quizFilename = f
+            elif filetype == 'pdf' and not f.endswith('.pdf'):
+                f += '.pdf'
+            elif filetype == 'html' and not f.endswith('.html'):
+                f += '.html'
+            self.setSaved()
+            return f
+
+    def accept(self):
+        r = utils.questionBox("Accepting will reschedule all sets in this " \
+                "quiz. Continue?", "Confirm Reschedule")
+        if r:
+            self.parent.quiz.rewriteSchedule()
+            self.parent.previewResult = True
+            utils.informationBox("The quiz was exported successfully. "
+                                 "Sets have been rescheduled.",
+                                 "Quiz generated")
             QDialog.accept(self)
 
     def reject(self):
-        self.parent.quizFilename = None
+        if self.hasSaved:
+            r = utils.questionBox("""
+If you return to the settings now, the sets used in this quiz will not be rescheduled to reflect the fact that you saved and will use this quiz. This cannot be undone. Really continue?
+                    """.strip(),
+                    "Cancel reschedule?")
+            if not r:
+                return
+        self.parent.previewResult = False
         QDialog.reject(self)

@@ -57,14 +57,13 @@ def genRtfFile(questions):
     return doc
 
 
-def render(rtfObj, f):
+def renderRTF(rtfObj, fname):
     DR = rtf.Renderer()
-    DR.Write(rtfObj, f)
+    with open(fname, 'wb') as f:
+        DR.Write(rtfObj, f)
 
 
 ### TEXT PREVIEW ###
-# (Relies on the RTF functions above, as it's nearly the same format.)
-
 def genPreview(questions):
     """Create a plaintext preview string of the rtf file."""
     indices = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4}
@@ -123,9 +122,11 @@ def autoOpen(path):
         raise UnopenableError
 
 
-def makePaperQuiz(questions, headerPath=DEFAULT_LATEX_HEADER,
-        footerPath=DEFAULT_LATEX_FOOTER, latexCommand='xelatex', doOpen=True):
-    latex = prepareLaTeXString(questions, headerPath, footerPath)
+def makePaperQuiz(questions, cls, quiznum,
+        headerPath=DEFAULT_LATEX_HEADER, footerPath=DEFAULT_LATEX_FOOTER,
+        latexCommand='xelatex',
+        doOpen=True, doCopy=False, copyTo=None):
+    latex = prepareLaTeXString(questions, cls, quiznum, headerPath, footerPath)
 
     tdir = tempfile.mkdtemp()
     oldcwd = os.getcwd()
@@ -133,6 +134,7 @@ def makePaperQuiz(questions, headerPath=DEFAULT_LATEX_HEADER,
 
     fnamebase = "quiz"
     tfile = os.path.join(tdir, '.'.join([fnamebase, 'tex']))
+    pdfFile = os.path.join(tdir, '.'.join([fnamebase, 'pdf']))
     with open(tfile, 'wb') as f:
         f.write(latex)
     try:
@@ -143,7 +145,10 @@ def makePaperQuiz(questions, headerPath=DEFAULT_LATEX_HEADER,
         raise LatexError("LaTeX Error: unable to find LaTeX executable")
     else:
         if doOpen:
-            autoOpen(os.path.join(tdir, '.'.join([fnamebase, 'pdf'])))
+            autoOpen(pdfFile)
+        if doCopy:
+            assert copyTo is not None, "No destination location given!"
+            shutil.copyfile(pdfFile, copyTo)
     finally:
         os.chdir(oldcwd)
 
@@ -162,7 +167,7 @@ def munge_latex(s):
     "Escape characters reserved by LaTeX."
 
     # This escapes all special chars listed as catcodes in /The TeXbook/, p.37.
-    # note that spacing is not guaranteed with things like the tilde and caret.
+    # Note that spacing is not guaranteed with things like the tilde and caret.
     # However, those are not very likely to come up; we just don't want the
     # whole thing to crash if it does.
     s = s.replace('\\', '\\textbackslash ')
@@ -184,7 +189,7 @@ def munge_latex(s):
 
     return s
 
-def prepareLaTeXString(questions, headerPath, footerPath):
+def prepareLaTeXString(questions, cls, quizNum, headerPath, footerPath):
     text = []
     qNum = 1
     for ques in questions:
@@ -210,4 +215,7 @@ def prepareLaTeXString(questions, headerPath, footerPath):
         header = f.read()
     with open(footerPath) as f:
         footer = f.read()
+
+    header = header.replace('%%% INSERT CLASS HEADER HERE %%%',
+            '\\header{%s}{%s}' % (cls, 'Quiz %i' % quizNum))
     return header + '\n\n' + '\n\n'.join(text) + '\n\n' + footer

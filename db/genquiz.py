@@ -113,6 +113,8 @@ class Quiz(object):
         """
         sns = [i.getName() for i in self.newSets]
         return (', '.join(sns)), len(sns)
+    def getClass(self):
+        return self.cls
 
     def setNewQuestions(self, num):
         self.useNewNum = num
@@ -180,23 +182,38 @@ class Quiz(object):
         # new questions are mixed to promote better learning -- it has been
         # shown that people learn better when different types of questions are
         # mixed.
-        allQuestions = self.newL + self.revL
-        random.shuffle(allQuestions)
-        ql = [i.getQuestion() for i in allQuestions]
+        self.allQuestions = self.newL + self.revL
+        random.shuffle(self.allQuestions)
 
+        ql = [i.getQuestion() for i in self.allQuestions]
         qPrev = output.genPreview(ql)
-        self.rtfObj = output.genRtfFile(ql)
         return qPrev
 
+    def outputRoutine(func):
+        def wrapper(self, *args, **kwargs):
+            if not self.isSetUp() and rtfObj:
+                assert False, "Need to call generate() first!"
+            self.genQl = [i.getQuestion() for i in self.allQuestions]
+            func(self, *args, **kwargs)
+        return wrapper
+
+    @outputRoutine
     def makeRtfFile(self, filename):
         """
         Write the generated questions out to an RTF file. Requires the filename,
         presumably obtained from the user via a file browse dialog.
         """
-        if not self.isSetUp() and self.rtfObj:
-            assert False, "Need to call generate() first!"
-        with open(filename, 'wb') as f:
-            output.render(self.rtfObj, f)
+        rtfObj = output.genRtfFile(self.genQl)
+        output.renderRTF(rtfObj, filename)
+
+    @outputRoutine
+    def makePdf(self, filename, className, quizNum):
+        # at some point we might want to make provisions for passing other
+        # makePaperQuiz options
+        output.makePaperQuiz(self.genQl, className, quizNum,
+                doOpen=False, doCopy=True, copyTo=filename)
+
+
 
     def rewriteSchedule(self):
         """

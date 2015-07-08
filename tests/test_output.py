@@ -17,7 +17,7 @@ class OutputTests(utils.DbTestCase):
         questions = [Question("Hello [...]?", ["foo", "bar", "baz", "quux"],
             "c", st, 1)]
         obj = genRtfFile(questions)
-        render(obj, file(fname, 'wb'))
+        renderRTF(obj, fname)
         try:
             f = open(fname)
         except IOError:
