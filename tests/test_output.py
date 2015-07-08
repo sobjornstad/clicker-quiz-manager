@@ -3,6 +3,7 @@
 # Copyright 2015 Soren Bjornstad. All rights reserved.
 
 import filecmp
+import os
 
 import utils
 from db.questions import Question
@@ -29,7 +30,6 @@ class OutputTests(utils.DbTestCase):
                     "Output different from saved correct output file"
         finally:
             f.close()
-            import os
             os.remove(fname)
 
     def testPreviewRender(self):
@@ -84,7 +84,6 @@ Answer: (b) you
                     "Output different from saved correct output file"
         finally:
             f.close()
-            import os
             os.remove(fname)
 
     def testLaTeXMunge(self):
@@ -113,6 +112,33 @@ This \{is\} some text, which costs \$4 \& 50 cents, which is \#1 in annoyance fo
         with self.assertRaises(LatexError) as ex:
             makePaperQuiz(qs, cls, quizNum, doOpen=False,
                     headerPath='tests/resources/latex_header_invalid.tex')
+
+
+    def testHTMLRender(self):
+        qs = makeTestQuestions()
+
+        with open('tests/resources/test_html_export_forquizzing.html') as f:
+            txt = f.read()
+        assert txt.strip() == htmlText(qs, forQuizzing=True).strip()
+
+        with open('tests/resources/test_html_export_notforquizzing.html') as f:
+            txt2 = f.read()
+        assert txt2.strip() == htmlText(qs, forQuizzing=False).strip()
+
+        cls = Class("German 101")
+        quizNum = 1
+        fname = "test_htmlrender"
+        against_fname = "tests/resources/test_html_complete.html"
+
+        try:
+            renderHtml(txt, cls, quizNum, fname)
+            assert filecmp.cmp(fname, against_fname), \
+                    "Output different from saved correct output file"
+        finally:
+            os.remove(fname)
+
+
+
 
 def makeTestQuestions():
     # create some questions to render

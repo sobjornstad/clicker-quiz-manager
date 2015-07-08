@@ -92,6 +92,78 @@ def genPreview(questions):
     return '\n'.join(prev)
 
 
+### HTML OUTPUT ###
+DEFAULT_HTML_HEADER = 'db/resources/html_header_default.html'
+DEFAULT_HTML_FOOTER = 'db/resources/html_footer_default.html'
+
+def htmlText(questions, forQuizzing=False):
+    indices = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4}
+    letters = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e'}
+
+    prev = []
+    for question in questions:
+        q = question.getQuestion()
+        q = q.replace('[...]', OCCLUSION_OUTPUT)
+        a = question.getAnswersList()
+        ca = question.getCorrectAnswer()
+        st = question.getSet().getName()
+
+        quesIsMultiPart = False
+        qparts = q.split('//')
+        if len(qparts) > 1:
+            topline, botline = qparts
+            topline, botline = topline.strip(), botline.strip()
+            quesIsMultiPart = True
+
+        if forQuizzing:
+            if quesIsMultiPart:
+                topline = "%s (%s)" % (topline, st)
+            else:
+                qtext = "%s (%s)" % (q, st)
+        else:
+            if quesIsMultiPart:
+                topline = topline # noop, written for clarity
+            else:
+                qtext = q
+
+        if not quesIsMultiPart:
+            prev.append('<li><div class="foreign">%s</div>' % qtext)
+        else:
+            prev.append('<li><div class="foreign">%s</div>' \
+                        '<div class="english">%s</div>' % (topline, botline))
+
+        prev.append('<div class="answers">')
+        letterNum = 0
+        for ans in a:
+            prev.append("%s. %s<br>" % (letters[letterNum], ans))
+            letterNum += 1
+        prev.append('</div>')
+
+        if forQuizzing:
+            correctAnswerText = a[indices[question.getCorrectAnswer()]]
+            ca = '<div class="answer">Answer: <span class="answertext">' \
+                    '(%s) %s</span></div>' % (ca, correctAnswerText)
+            prev.append(ca + '</li>')
+
+    return '<ol class="quiz">' + '\n'.join(prev) + '</ol>'
+
+def renderHtml(content, cls, quizNum, fname,
+        headerPath=DEFAULT_HTML_HEADER, footerPath=DEFAULT_HTML_FOOTER):
+    with open(headerPath) as f:
+        header = f.read()
+    with open(footerPath) as f:
+        footer = f.read()
+
+    className = cls.getName()
+    titleStr = '%s &ndash; Quiz %s' % (className, quizNum)
+
+    header = header.replace('%%% REPLACE WITH QUIZ TITLE %%%', titleStr)
+    header += '<h2>%s</h2>' % titleStr
+    output = header + content + footer
+    with open(fname, 'wb') as f:
+        f.write(output)
+
+
 ### LaTeX OUTPUT ###
 DEFAULT_LATEX_HEADER = 'db/resources/latex_header_default.tex'
 DEFAULT_LATEX_FOOTER = 'db/resources/latex_footer_default.tex'
