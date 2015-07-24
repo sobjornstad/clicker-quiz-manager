@@ -235,7 +235,7 @@ class PreviewDialog(QDialog):
     def accept(self):
         r = utils.questionBox("Accepting will reschedule all sets in this " \
                 "quiz. Continue?", "Confirm Reschedule")
-        if r:
+        if r == QMessageBox.Yes:
             self.parent.quiz.rewriteSchedule()
             self.parent.previewResult = True
             utils.informationBox("The quiz was exported successfully. "
@@ -249,7 +249,7 @@ class PreviewDialog(QDialog):
 If you return to the settings now, the sets used in this quiz will not be rescheduled to reflect the fact that you saved and will use this quiz. This cannot be undone. Really continue?
                     """.strip(),
                     "Cancel reschedule?")
-            if not r:
+            if r != QMessageBox.Yes:
                 return
         self.parent.previewResult = False
         QDialog.reject(self)
