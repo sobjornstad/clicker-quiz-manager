@@ -155,9 +155,10 @@ class PreviewDialog(QDialog):
 
         self.form.formatCombo.addItem("TurningPoint Quiz (*.rtf)")
         self.form.formatCombo.addItem("Paper Quiz (*.pdf)")
-        self.form.formatCombo.addItem("HTML (with answers & sets)")
-        self.form.formatCombo.addItem("HTML (no answers or sets)")
-        self.form.formatCombo.addItem("Plain Text (UTF-8)")
+        self.form.formatCombo.addItem("HTML (with answers & set names)")
+        self.form.formatCombo.addItem("HTML (no answers or set names)")
+        self.form.formatCombo.addItem("Plain Text (with answers & set names)")
+        self.form.formatCombo.addItem("Plain Text (no answers or set names)")
 
         self.form.okButton.clicked.connect(self.accept)
         self.form.cancelButton.clicked.connect(self.reject)
@@ -193,10 +194,7 @@ class PreviewDialog(QDialog):
                 else:
                     return
             elif 'HTML' in selection:
-                if 'no' in selection:
-                    fq = True
-                else:
-                    fq = False
+                fq = ('no' in selection)
                 fname = self.getFilename('html')
                 cls = self.parent.quiz.getClass()
                 quizNum = db.genquiz.getSetsUsed(cls) + 1
@@ -205,9 +203,16 @@ class PreviewDialog(QDialog):
                 else:
                     return
             elif 'Plain Text' in selection:
+                fq = ('no' in selection)
                 fname = self.getFilename('txt')
+                cls = self.parent.quiz.getClass()
+                quizNum = db.genquiz.getSetsUsed(cls) + 1
+                if fname:
+                    self.parent.quiz.makeTxt(fname, cls, quizNum, fq)
+                else:
+                    return
         except:
-            raise # included so that setSaved() runs only if success
+            raise
         else:
             self.setSaved()
 

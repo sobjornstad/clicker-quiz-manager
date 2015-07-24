@@ -63,9 +63,9 @@ def renderRTF(rtfObj, fname):
         DR.Write(rtfObj, f)
 
 
-### TEXT PREVIEW ###
-def genPreview(questions):
-    """Create a plaintext preview string of the rtf file."""
+### PLAIN TEXT ###
+def genPlainText(questions, forQuiz=False):
+    """Create a plaintext string of the rtf file (for preview or export)."""
     indices = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4}
     letters = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e'}
 
@@ -78,18 +78,33 @@ def genPreview(questions):
         ca = question.getCorrectAnswer()
         st = question.getSet().getName()
 
-        prev.append("%s (%s)" % (q, st))
+        if forQuiz:
+            prev.append("%s" % q)
+        else:
+            prev.append("%s (%s)" % (q, st))
 
         letterNum = 0
         for ans in a:
             prev.append("\t%s. %s" % (letters[letterNum], ans))
             letterNum += 1
 
-        correctAnswerText = a[indices[question.getCorrectAnswer()]]
-        ca = "Answer: (%s) %s" % (ca, correctAnswerText)
-        prev.append(ca + '\n')
+        if not forQuiz:
+            correctAnswerText = a[indices[question.getCorrectAnswer()]]
+            ca = "Answer: (%s) %s" % (ca, correctAnswerText)
+            prev.append(ca + '\n')
+        else:
+            prev.append('')
+
         qNum += 1
     return '\n'.join(prev)
+
+def renderTxt(content, cls, quizNum, filename):
+    className = cls.getName()
+    title = "%s, Quiz %i" % (className, quizNum)
+    title = title + '\n' + ('-' * len(title)) + '\n\n'
+    with open(filename, 'wb') as f:
+        f.write(title)
+        f.write(content)
 
 
 ### HTML OUTPUT ###

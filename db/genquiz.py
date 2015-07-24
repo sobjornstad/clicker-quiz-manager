@@ -186,7 +186,7 @@ class Quiz(object):
         random.shuffle(self.allQuestions)
 
         ql = [i.getQuestion() for i in self.allQuestions]
-        qPrev = output.genPreview(ql)
+        qPrev = output.genPlainText(ql)
         return qPrev
 
 
@@ -219,6 +219,11 @@ class Quiz(object):
         # ditto, on header paths
         content = output.htmlText(self.genQl, forQuizzing)
         output.renderHtml(content, cls, quizNum, filename)
+
+    @outputRoutine
+    def makeTxt(self, filename, cls, quizNum, forQuiz):
+        content = output.genPlainText(self.genQl, forQuiz)
+        output.renderTxt(content, cls, quizNum, filename)
 
 
     def rewriteSchedule(self):
