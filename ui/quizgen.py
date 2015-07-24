@@ -5,7 +5,7 @@
 from time import sleep
 
 from PyQt4 import QtGui, QtCore
-from PyQt4.QtGui import QDialog, QMessageBox, QFileDialog, QApplication
+from PyQt4.QtGui import QDialog, QMessageBox, QFileDialog, QApplication, QCursor
 from PyQt4.QtCore import QObject
 from forms.quizgen import Ui_Dialog
 import forms.qprev
@@ -193,11 +193,7 @@ class PreviewDialog(QDialog):
                 cls = self.parent.quiz.getClass()
                 quizNum = db.genquiz.getSetsUsed(cls) + 1
                 if fname:
-                    bd = utils.BusyDialog(self)
-                    bd.setModal(True)
-                    bd.show()
-                    sleep(0.25)
-                    QApplication.processEvents()
+                    QApplication.setOverrideCursor(QCursor(QtCore.Qt.WaitCursor))
                     try:
                         self.parent.quiz.makePdf(fname, cls.getName(), quizNum)
                     except LatexError as err:
@@ -212,7 +208,7 @@ An error occurred while running LaTeX to create the paper quiz. Please check the
                         ebw.setErrorText(txt, includeErrorBoilerplate=False)
                         ebw.exec_()
                     else:
-                        bd.done(0)
+                        QApplication.restoreOverrideCursor()
                 else:
                     return
             elif 'HTML' in selection:

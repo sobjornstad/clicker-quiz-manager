@@ -52,14 +52,14 @@ def confirmDeleteBox(item, additional):
     msgBox.setDefaultButton(QMessageBox.No)
     return msgBox.exec_()
 
-class BusyDialog(QDialog):
-    """
-    A dialog showing the busy/bouncing progress bar.
-    """
-    def __init__(self, parent):
-        QDialog.__init__(self)
-        self.form = forms.busy.Ui_Dialog()
-        self.form.setupUi(self)
+#class BusyDialog(QDialog):
+    #"""
+    #A dialog showing the busy/bouncing progress bar.
+    #"""
+    #def __init__(self, parent):
+        #QDialog.__init__(self)
+        #self.form = forms.busy.Ui_Dialog()
+        #self.form.setupUi(self)
 
 nodebugErrorText = """
 Oops! An error occurred that CQM doesn't know how to
