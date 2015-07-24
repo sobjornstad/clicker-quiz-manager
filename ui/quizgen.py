@@ -2,8 +2,10 @@
 # This file is part of Clicker Quiz Generator.
 # Copyright 2014 Soren Bjornstad. All rights reserved.
 
+from time import sleep
+
 from PyQt4 import QtGui, QtCore
-from PyQt4.QtGui import QDialog, QMessageBox, QFileDialog
+from PyQt4.QtGui import QDialog, QMessageBox, QFileDialog, QApplication
 from PyQt4.QtCore import QObject
 from forms.quizgen import Ui_Dialog
 import forms.qprev
@@ -13,6 +15,7 @@ import db.genquiz
 import db.sets
 import db.questions
 import utils
+from db.output import LatexError
 
 class QuizWindow(QDialog):
     def __init__(self, mw, selectedNewSet=None):
@@ -190,7 +193,26 @@ class PreviewDialog(QDialog):
                 cls = self.parent.quiz.getClass()
                 quizNum = db.genquiz.getSetsUsed(cls) + 1
                 if fname:
-                    self.parent.quiz.makePdf(fname, cls.getName(), quizNum)
+                    bd = utils.BusyDialog(self)
+                    bd.setModal(True)
+                    bd.show()
+                    sleep(0.25)
+                    QApplication.processEvents()
+                    try:
+                        self.parent.quiz.makePdf(fname, cls.getName(), quizNum)
+                    except LatexError as err:
+                        bd.done(1)
+                        txt = """
+An error occurred while running LaTeX to create the paper quiz. Please check the error and contact the developer if you are unsure how to correct it. The error text is as follows:
+
+%s
+""".strip()
+                        txt = txt % str(err)
+                        ebw = utils.ErrorBoxWindow()
+                        ebw.setErrorText(txt, includeErrorBoilerplate=False)
+                        ebw.exec_()
+                    else:
+                        bd.done(0)
                 else:
                     return
             elif 'HTML' in selection:

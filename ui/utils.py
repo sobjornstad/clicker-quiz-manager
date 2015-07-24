@@ -6,6 +6,7 @@ from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QDialog, QMessageBox
 from PyQt4.QtCore import QObject
 from forms.exception import Ui_Dialog
+import forms.busy
 
 def informationBox(text, title=None):
     msgBox = QMessageBox()
@@ -50,6 +51,15 @@ def confirmDeleteBox(item, additional):
     msgBox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
     msgBox.setDefaultButton(QMessageBox.No)
     return msgBox.exec_()
+
+class BusyDialog(QDialog):
+    """
+    A dialog showing the busy/bouncing progress bar.
+    """
+    def __init__(self, parent):
+        QDialog.__init__(self)
+        self.form = forms.busy.Ui_Dialog()
+        self.form.setupUi(self)
 
 nodebugErrorText = """
 Oops! An error occurred that CQM doesn't know how to
