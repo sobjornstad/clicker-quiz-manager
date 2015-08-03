@@ -91,6 +91,13 @@ class Student(object):
         s = '\t'.join([self._ln, self._fn, self._tpid, self._tpdev, self._email])
         return s
 
+def makesDupeStudent(ln, fn, tpid, tpdev, email, class_):
+    cid = class_.getCid()
+    q = '''SELECT stid FROM students
+           WHERE ln=? AND fn=? AND tpid=? AND tpdev=? AND email=? AND cid=?'''
+    d.cursor.execute(q, (ln, fn, tpid, tpdev, email, cid))
+    return (len(d.cursor.fetchall()) > 0)
+
 def allStudents():
     """Return a list of all students."""
     d.cursor.execute('SELECT stid FROM students')
@@ -99,3 +106,21 @@ def allStudents():
 def studentsInClass(cls):
     d.cursor.execute('SELECT stid FROM students WHERE cid=?', (cls.getCid(),))
     return [Student(stu[0]) for stu in d.cursor.fetchall()]
+
+def newDummyTextStudent(cls):
+    """
+    Return a valid Student object, not a duplicate of any existing student,
+    which contains dummy text to be filled in by the user. The student will be
+    placed in the class specified.
+    """
+
+    ln = "Doe "
+    fn = "Jane"
+    tpid = "###"
+    tpdev = "xxx"
+    email = "email@example.com"
+
+    num = 1
+    while makesDupeStudent(ln + str(num), fn, tpid, tpdev, email, cls):
+        num += 1
+    return Student.createNew(ln + str(num), fn, tpid, tpdev, email, cls)

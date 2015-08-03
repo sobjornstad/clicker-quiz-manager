@@ -26,7 +26,9 @@ class StudentTableModel(QAbstractTableModel):
     def data(self, index, role):
         if not index.isValid():
             return None
-        elif role != QtCore.Qt.DisplayRole:
+        if not (role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole):
+            # without including EditRole, the whole cell gets wiped out when
+            # an edit is begun
             return None
 
         col = index.column()
@@ -42,6 +44,30 @@ class StudentTableModel(QAbstractTableModel):
         elif col == 4:
             return robj.getEmail()
 
+    def setData(self, index, value, role):
+        colNum = index.column()
+        studentNum = index.row()
+        robj = self.l[studentNum]
+        value = unicode(value.toString())
+
+        if colNum == 0:
+            robj.setLn(value)
+        elif colNum == 1:
+            robj.setFn(value)
+        elif colNum == 2:
+            robj.setTpid(value)
+        elif colNum == 3:
+            robj.setTpdev(value)
+        elif colNum == 4:
+            robj.setEmail(value)
+
+        self.emit(QtCore.SIGNAL("dataChanged"))
+        return True
+
+    def flags(self, index):
+        q = QtCore.Qt
+        return q.ItemIsSelectable | q.ItemIsEnabled | q.ItemIsEditable
+
     def headerData(self, col, orientation, role):
         if (orientation == QtCore.Qt.Horizontal and
                 role == QtCore.Qt.DisplayRole):
@@ -53,6 +79,14 @@ class StudentTableModel(QAbstractTableModel):
         self.l = newList
         self.reset()
 
+    def addBlankStudent(self, cls):
+        self.l.append(db.students.newDummyTextStudent(cls))
+        self.reset()
+
+    def deleteStudent(self, index):
+        del self.l[index.row()]
+        # TODO: remove it from the database
+        self.reset()
 
 class StudentsDialog(QDialog):
     def __init__(self, parent):
@@ -72,12 +106,12 @@ class StudentsDialog(QDialog):
         self.reFillStudents()
         self.form.classCombo.activated.connect(self.reFillStudents)
 
-        #### TODO RECIPES:
+        #### TODO RECIPE:
         #i = self.form.jumpCombo.findText(set)
         #self.form.jumpCombo.setCurrentIndex(i)
 
         qlShortcut = QShortcut(QKeySequence("Alt+L"), self.form.tableView)
-        qlShortcut.connect(qlShortcut, QtCore.SIGNAL("activated()"), lambda: self.form.listWidget.setFocus())
+        qlShortcut.connect(qlShortcut, QtCore.SIGNAL("activated()"), lambda: self.form.tableView.setFocus())
 
     def setupClassCombo(self):
         self.form.classCombo.clear()
@@ -91,16 +125,20 @@ class StudentsDialog(QDialog):
         of the class combo.
         """
 
-        clsName = unicode(self.form.classCombo.currentText())
-        cls = db.classes.getClassByName(clsName)
+        cls = self._currentClass()
         students = db.students.studentsInClass(cls)
         self.tableModel.replaceStudentSet(students)
 
     def onAdd(self):
-        pass
+        self.tableModel.addBlankStudent(self._currentClass())
     def onDelete(self):
-        pass
+        self.tableModel.deleteStudent(self.form.tableView.currentIndex())
     def onImport(self):
         pass
     def onExport(self):
         pass
+
+    def _currentClass(self):
+        clsName = unicode(self.form.classCombo.currentText())
+        cls = db.classes.getClassByName(clsName)
+        return cls
