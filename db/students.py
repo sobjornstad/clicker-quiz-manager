@@ -3,25 +3,28 @@
 # Copyright 2015 Soren Bjornstad. All rights reserved.
 
 import database as d
+import db.classes
 
 class Student(object):
     def __init__(self, stid):
-        q = 'SELECT ln, fn, tpid, tpdev, email FROM students WHERE stid=?'
+        q = 'SELECT ln, fn, tpid, tpdev, email, cid FROM students WHERE stid=?'
         d.cursor.execute(q, (stid,))
-        self._ln, self._fn, self._tpid, self._tpdev, self._email = \
+        self._ln, self._fn, self._tpid, self._tpdev, self._email, cid = \
                 d.cursor.fetchall()[0]
+        self._class = db.classes.getClassByCid(cid)
         self._stid = stid
 
     @classmethod
-    def createNew(cls, ln, fn, tpid, tpdev, email):
-        q = '''INSERT INTO students (stid, ln, fn, tpid, tpdev, email)
-               VALUES (null, ?, ?, ?, ?, ?)'''
-        d.cursor.execute(q, (ln, fn, tpid, tpdev, email))
+    def createNew(cls, ln, fn, tpid, tpdev, email, class_):
+        q = '''INSERT INTO students (stid, ln, fn, tpid, tpdev, email, cid)
+               VALUES (null, ?, ?, ?, ?, ?, ?)'''
+        d.cursor.execute(q, (ln, fn, tpid, tpdev, email, class_.getCid()))
         return cls(d.cursor.lastrowid)
 
     def dump(self):
         q = '''UPDATE students
-               SET ln=:ln, fn=:fn, tpid=:tpid, tpdev=:tpdev, email=:email
+               SET ln=:ln, fn=:fn, tpid=:tpid, tpdev=:tpdev,
+                   email=:email, cid=:cid
                WHERE stid=:stid'''
         vals = {
                 'stid':  self._stid,
@@ -30,6 +33,7 @@ class Student(object):
                 'tpid':  self._tpid,
                 'tpdev': self._tpdev,
                 'email': self._email,
+                'cid': self._class.getCid()
                }
         d.cursor.execute(q, vals)
         d.checkAutosave()
@@ -37,7 +41,8 @@ class Student(object):
     def __eq__(self, other):
         return (self._ln == other._ln and self._fn == other._fn and
                 self._tpid == other._tpid and self._tpdev == other._tpdev and
-                self._email == other._email and self._stid == other._stid)
+                self._email == other._email and self._stid == other._stid and
+                self._class == other._class)
 
     def __ne__(self, other):
         return not self.__eq__(self, other)
@@ -54,6 +59,8 @@ class Student(object):
         return self._tpdev
     def getEmail(self):
         return self._email
+    def getClass(self):
+        return self._class
 
     def setLn(self, ln):
         if self._ln != ln:
@@ -78,7 +85,8 @@ class Student(object):
 
     def csvRepr(self):
         """
-        Return a tab-separated representation of the data of this student.
+        Return a tab-separated representation of the data of this student
+        (excluding the class, as we only export one class at a time).
         """
         s = '\t'.join([self._ln, self._fn, self._tpid, self._tpdev, self._email])
         return s
@@ -86,4 +94,8 @@ class Student(object):
 def allStudents():
     """Return a list of all students."""
     d.cursor.execute('SELECT stid FROM students')
+    return [Student(stu[0]) for stu in d.cursor.fetchall()]
+
+def studentsInClass(cls):
+    d.cursor.execute('SELECT stid FROM students WHERE cid=?', (cls.getCid(),))
     return [Student(stu[0]) for stu in d.cursor.fetchall()]

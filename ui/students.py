@@ -13,7 +13,7 @@ import db.students
 import db.classes
 
 class StudentTableModel(QAbstractTableModel):
-    def __init__(self, parent, l, *args):
+    def __init__(self, parent, l=[], *args):
         QAbstractTableModel.__init__(self, parent, *args)
         self.l = l
         self.headerdata = ["Last", "First", "TP ID", "TP Device", "Email"]
@@ -49,6 +49,10 @@ class StudentTableModel(QAbstractTableModel):
         else:
             return None
 
+    def replaceStudentSet(self, newList):
+        self.l = newList
+        self.reset()
+
 
 class StudentsDialog(QDialog):
     def __init__(self, parent):
@@ -63,12 +67,14 @@ class StudentsDialog(QDialog):
         self.form.closeButton.clicked.connect(self.reject)
 
         self.setupClassCombo()
+        self.tableModel = StudentTableModel(self)
+        self.form.tableView.setModel(self.tableModel)
+        self.reFillStudents()
+        self.form.classCombo.activated.connect(self.reFillStudents)
 
-        # NOTE: move this into function below setup momentarily
-
-        students = db.students.allStudents()
-        model = StudentTableModel(self, students)
-        self.form.tableView.setModel(model)
+        #### TODO RECIPES:
+        #i = self.form.jumpCombo.findText(set)
+        #self.form.jumpCombo.setCurrentIndex(i)
 
         qlShortcut = QShortcut(QKeySequence("Alt+L"), self.form.tableView)
         qlShortcut.connect(qlShortcut, QtCore.SIGNAL("activated()"), lambda: self.form.listWidget.setFocus())
@@ -78,14 +84,17 @@ class StudentsDialog(QDialog):
         cl = db.classes.getAllClasses()
         for c in cl:
             self.form.classCombo.addItem(c.getName())
-        self.reFillStudents()
 
     def reFillStudents(self):
         """
         Fill or clear & re-fill the students table based on the current value
         of the class combo.
         """
-        pass
+
+        clsName = unicode(self.form.classCombo.currentText())
+        cls = db.classes.getClassByName(clsName)
+        students = db.students.studentsInClass(cls)
+        self.tableModel.replaceStudentSet(students)
 
     def onAdd(self):
         pass
