@@ -86,4 +86,4 @@ class Student(object):
 def allStudents():
     """Return a list of all students."""
     d.cursor.execute('SELECT stid FROM students')
-    return [Student(stu) for stu in d.cursor.fetchall()]
+    return [Student(stu[0]) for stu in d.cursor.fetchall()]

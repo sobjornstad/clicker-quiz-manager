@@ -46,6 +46,7 @@ class MainWindow(QMainWindow):
         self.form.classesButton.clicked.connect(self.onClasses)
         self.form.quizButton.clicked.connect(self.onQuizGen)
         self.form.setsButton.clicked.connect(self.onSets)
+        self.form.studentsButton.clicked.connect(self.onStudents)
 
     def _connectDb(self, name):
         self.dbpath = name
@@ -85,6 +86,11 @@ class MainWindow(QMainWindow):
         import questionsets
         qsw = questionsets.QuestionSetsDialog(self)
         qsw.exec_()
+
+    def onStudents(self):
+        import students
+        stw = students.StudentsDialog(self)
+        stw.exec_()
 
     def quit(self):
         # save current database location to configuration
