@@ -57,7 +57,7 @@ Answer: (b) you
 """.strip()
 
         qs = makeTestQuestions()
-        txt = genPreview(qs).strip()
+        txt = genPlainText(qs).strip()
         assert txt == checkstr
 
     def testLaTeXRender(self):
@@ -131,10 +131,11 @@ This \{is\} some text, which costs \$4 \& 50 cents, which is \#1 in annoyance fo
         against_fname = "tests/resources/test_html_complete.html"
 
         try:
-            renderHtml(txt, cls, quizNum, fname)
+            renderHtml(txt2, cls, quizNum, fname)
             assert filecmp.cmp(fname, against_fname), \
                     "Output different from saved correct output file"
         finally:
+            pass
             os.remove(fname)
 
 
