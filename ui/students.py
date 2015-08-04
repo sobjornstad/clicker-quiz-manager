@@ -5,7 +5,7 @@
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QDialog, QInputDialog, QMessageBox, QShortcut, \
      QKeySequence
-from PyQt4.QtCore import QObject, QAbstractTableModel
+from PyQt4.QtCore import QObject, QAbstractTableModel, QModelIndex
 from forms.students import Ui_Dialog
 
 import utils
@@ -15,6 +15,7 @@ import db.classes
 class StudentTableModel(QAbstractTableModel):
     def __init__(self, parent, l=[], *args):
         QAbstractTableModel.__init__(self, parent, *args)
+        self.parent = parent
         self.l = l
         self.headerdata = ["Last", "First", "TP ID", "TP Device", "Email"]
 
@@ -80,13 +81,45 @@ class StudentTableModel(QAbstractTableModel):
         self.reset()
 
     def addBlankStudent(self, cls):
-        self.l.append(db.students.newDummyTextStudent(cls))
-        self.reset()
+        """
+        Create a new blank student with dummy data. Return an index that can
+        be used to select the first column of the new student.
+        """
 
-    def deleteStudent(self, index):
-        del self.l[index.row()]
-        # TODO: remove it from the database
+        # for the life of me, I cannot correctly implement insertRows, so I'm
+        # doing this instead. Since I want to select something new after an
+        # add it's ok that the selection breaks
+        self.l.append(db.students.newDummyTextStudent(cls))
+        self.beginResetModel()
         self.reset()
+        self.endResetModel()
+        return self.createIndex(len(self.l)-1, 0)
+
+    def setNextClassInsert(self, cls):
+        self.nextClassInsert = cls
+
+    def insertRows(self, row, count, parent=QModelIndex()):
+        """
+        Insert one or more new rows. This method should be accessed through
+        addBlankStudent() to avoid creating empty rows that don't show up in
+        the database.
+        """
+
+        insertion = db.students.newDummyTextStudent(self.nextClassInsert)
+        self.beginInsertRows(parent, row, row+count-1)
+        for i in range(count):
+            self.l.insert(int(row + count), insertion)
+        self.endInsertRows()
+        return True
+
+    def removeRows(self, row, count, parent=QModelIndex()):
+        for i in range(count):
+            self.l[row].delete()
+        self.beginRemoveRows(parent, row, row+count-1)
+        for i in range(count):
+            del self.l[row + i]
+        self.endRemoveRows()
+        return True
 
 class StudentsDialog(QDialog):
     def __init__(self, parent):
@@ -130,9 +163,15 @@ class StudentsDialog(QDialog):
         self.tableModel.replaceStudentSet(students)
 
     def onAdd(self):
-        self.tableModel.addBlankStudent(self._currentClass())
+        self.tableModel.setNextClassInsert(self._currentClass())
+        self.tableModel.insertRow(len(self.tableModel.l))
+        idx = self.tableModel.createIndex(len(self.tableModel.l)-1, 0)
+        self.form.tableView.setFocus()
+        self.form.tableView.setCurrentIndex(idx)
+        self.form.tableView.edit(idx)
+
     def onDelete(self):
-        self.tableModel.deleteStudent(self.form.tableView.currentIndex())
+        self.tableModel.removeRow(self.form.tableView.currentIndex().row())
     def onImport(self):
         pass
     def onExport(self):

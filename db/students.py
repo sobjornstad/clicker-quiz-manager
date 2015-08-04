@@ -38,6 +38,11 @@ class Student(object):
         d.cursor.execute(q, vals)
         d.checkAutosave()
 
+    def delete(self):
+        #TODO: remove any quiz data, etc.
+        d.cursor.execute('DELETE FROM students WHERE stid=?', (self._stid,))
+        d.checkAutosave()
+
     def __eq__(self, other):
         return (self._ln == other._ln and self._fn == other._fn and
                 self._tpid == other._tpid and self._tpdev == other._tpdev and
