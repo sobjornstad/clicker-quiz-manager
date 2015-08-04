@@ -1,20 +1,56 @@
 # -* coding: utf-8 *-
 # This file is part of Clicker Quiz Generator.
-# Copyright 2014 Soren Bjornstad. All rights reserved.
+# Copyright 2014-2015 Soren Bjornstad. All rights reserved.
 
-import database as d
+"""
+Provides the Class class (sorry, that's a little ugly) and associated functions.
+
+Functions:
+    isDupe(name=None, cid=None): Determine if new values duplicate a Class.
+    getClassByCid(cid): Get a Class given the cid.
+    getClassByName(name): Get a Class given the name (Class names are unique).
+    getAllClasses(): Get a list of all Classes in this db.
+    deleteClass(name): Delete a class from the db (doesn't touch the object).
+
+Abbreviations used in this module:
+    cid: Class ID, the primary key for classes.
+
+Class db schema:
+    cid: integer primary key
+    name: class name
+    setsUsed: a parameter used in scheduling and not accessed through this
+    module.
+"""
+
+import db.database as d
 
 class Class(object):
+    """
+    Represents one class that the user is teaching. A class contains its own
+    set of students and quiz history; a class does NOT constrain the available
+    questions.
+
+    All access to parameters should be done through the get/set methods so that
+    the database stays in sync with the object state (changes are automatically
+    written to the current transaction when a set() method is called).
+
+    Public methods:
+        getName()
+        getCid()
+        setName()
+    """
+
     def __init__(self, name, cid=None):
         self._name = name
         self._cid = cid
-        self.dump()
+        self._dump()
 
     def __eq__(self, other):
-        return self._cid == other._cid and self._name == other._name
+        return (self.getCid() == other.getCid() and
+                self.getName() == other.getName())
 
     def __ne__(self, other):
-        return not self.__eq__(self, other)
+        return not self.__eq__(other)
 
     def getName(self):
         return self._name
@@ -22,9 +58,10 @@ class Class(object):
         return self._cid
     def setName(self, name):
         self._name = name
-        self.dump()
+        self._dump()
 
-    def dump(self):
+    def _dump(self):
+        "Dump object to the db, creating a new or updating an existing entry."
         if self._cid:
             # exists already
             d.cursor.execute('UPDATE classes SET name=? WHERE cid=?',
@@ -37,7 +74,12 @@ class Class(object):
 
         d.checkAutosave()
 
+
 def isDupe(name=None, cid=None):
+    """
+    Return True if the given /name/ and /cid/ would create a duplicate if
+    inserted into the database.
+    """
     if cid and getClassByCid(cid): # guarded
         return True
     if name and getClassByName(name):
@@ -45,8 +87,10 @@ def isDupe(name=None, cid=None):
     return False
 
 def getClassByCid(cid):
-    """Return a Class from the db when given the cid. Return None if it doesn't
-    exist."""
+    """
+    Return a Class from the db when given the cid. Return None if it doesn't
+    exist.
+    """
 
     d.cursor.execute('SELECT name FROM classes WHERE cid=?', (cid,))
     try:
@@ -57,9 +101,10 @@ def getClassByCid(cid):
         return Class(name, cid)
 
 def getClassByName(name):
-    """Return the first Class from the db by a given name when given the name.
-    Return None if it doesn't exist."""
-
+    """
+    Return the first Class from the db by a given name when given the name.
+    Return None if it doesn't exist.
+    """
     d.cursor.execute('SELECT cid FROM classes WHERE name=?', (name,))
     try:
         cid = d.cursor.fetchall()[0][0]
@@ -75,10 +120,16 @@ def getAllClasses():
     return [getClassByCid(i[0]) for i in d.cursor.fetchall()]
 
 def deleteClass(name):
+    """
+    Delete a class from the database; no return.
+
+    TODO:
+    This function should also take care of deleting class history, but this is
+    not currently done because class history doesn't exist yet.
+    """
     name = str(name) # dumb QStrings
     cid = getClassByName(name).getCid()
-    #TODO: When history is in place, we need to delete that
     d.cursor.execute('DELETE FROM classes WHERE cid=?', (cid,))
     d.checkAutosave()
 
-#TOTEST: Dupe names, deletion
+#to test: Dupe names, deletion

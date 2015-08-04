@@ -1,27 +1,86 @@
 # -* coding: utf-8 *-
 # This file is part of Clicker Quiz Generator.
-# Copyright 2014 Soren Bjornstad. All rights reserved.
+# Copyright 2014-2015 Soren Bjornstad. All rights reserved.
 
-import database as d
-import questions
-import output
-import sets
+"""
+Contains code for generating and scheduling quizzes. This module is somewhat
+complicated and could probably use some refactoring.
+
+Classes:
+    SetRescheduler: Holds sets that are being put on a quiz for later
+        scheduling.
+    QuizItem: Holds a question and the code for scheduling it.
+    Quiz: Holds the content needed for quizzes (in the form of QuizItems) and
+        handles selecting questions and creating various output formats.
+
+Functions:
+    findNewSets: Return all sets that have not been used in a given class.
+    getSetsUsed: Return all sets that *have* been used in a given class.
+    incrementSetsUsed: Increment the setsUsed value for a class (a scheduling
+        parameter).
+    itemDue: Return True if a QuizItem is due for review now.
+    randomDraw: Randomly choose QuizItems from a provided list.
+
+Abbreviations used in this module:
+    st: a Set
+    sid: a set ID (primary key for sets)
+    cid: a class ID (ditto for classes)
+    hid: a history ID (ditto for history entries)
+    q: the question text of a Question
+    cls: a class (sorry, yes, this conflicts with the class method standard arg)
+    ctype: whether a QuizItem is new or review
+    ivl: interval (time between two reviews)
+    sr: an instance of the SetRescheduler
+    new/revL: a list of selected questions
+    new/revQ: a list of all questions, selected or not
+    rtfObj: instance of the RTF output's main class
+    sn: the name of a set
+
+Database schema for history table:
+    hid: integer primary key for a history entry
+    cid: foreign key for the class this entry belongs to
+    sid: foreign key for the set this entry belongs to
+    nextSet: the quiz number at which this set should next appear for review
+    lastIvl: the number of quizzes that were added to nextSet at last
+        scheduling time
+    factor: the number by which lastIvl will be multiplied on schedule
+"""
+
+import db.database as d
+import db.questions
+import db.output as output
+import db.sets as sets
 
 import random
 
 class SetRescheduler(object):
+    """
+    A container for items that will need to be rescheduled once the quiz is
+    generated.
+
+    Public methods:
+        addSet: add an item in a given set to the SetRescheduler's list
+        runResched: run the reschedule for all items in the list
+    """
     def __init__(self):
         self.sts = {}
 
     def addSet(self, st, item):
+        """
+        Add the given item to the SetRescheduler's data model. Duplicates are
+        not added.
+        """
         sid = st.getSid()
         if sid not in self.sts:
             self.sts[sid] = item
 
     def runResched(self):
+        """
+        Update the history table according to the scheduling information given
+        by the QuizItem's rescheduling method.
+        """
         for st in self.sts:
             item = self.sts[st]
-            #SAMPLE CODE FOLLOWS
             vals = {
                     'ns': item.nextSet,
                     'li': item.lastIvl,
@@ -31,9 +90,9 @@ class SetRescheduler(object):
                    }
 
             if item.ctype == 'rev':
-                d.cursor.execute('UPDATE history SET nextSet=:ns, factor=:factor, \
-                                  lastIvl=:li WHERE sid=:sid AND cid=:cid', \
-                                  vals)
+                d.cursor.execute('''UPDATE history
+                                    SET nextSet=:ns, factor=:factor, lastIvl=:li
+                                    WHERE sid=:sid AND cid=:cid''', vals)
             elif item.ctype == 'new':
                 d.cursor.execute('INSERT INTO history \
                                  (cid, sid, nextSet, lastIvl, factor) \
@@ -47,11 +106,15 @@ class SetRescheduler(object):
 
 
 class QuizItem(object):
+    """
+    Handle rescheduling of one question. Stores the question, its set, and
+    its scheduling information. Used as part of a Quiz.
+    """
+
     DEFAULT_FACTOR = 2000
 
     def __init__(self, q, cls):
         self.q = q
-        qid = q.getQid()
         cid = cls.getCid()
         st = q.getSet()
         sid = st.getSid()
@@ -79,6 +142,9 @@ class QuizItem(object):
         return self.nextSet
 
     def reschedule(self, curSet, sr):
+        """
+        Method for determining the quiz item's next interval.
+        """
         if self.lastIvl:
             self.lastIvl = (self.lastIvl * self.factor / 1000)
         else:
@@ -89,6 +155,13 @@ class QuizItem(object):
 
 
 class Quiz(object):
+    """
+    Handles selecting questions for a quiz, rescheduling them, and outputting
+    them to various formats.
+
+    TODO: documentation of important methods
+    """
+
     def __init__(self, classToUse):
         self.newSets = []
         self.newQ = [] # / for possible
@@ -99,6 +172,7 @@ class Quiz(object):
         self.useNewNum = None
         self.useRevNum = None
         self.rtfObj = None
+        self.allQuestions = None
 
     def addNewSet(self, st):
         if st not in self.newSets:
@@ -189,26 +263,34 @@ class Quiz(object):
         qPrev = output.genPlainText(ql)
         return qPrev
 
-
-    def outputRoutine(func):
+    # We're doing something a bit odd and creating a method that doesn't have
+    # self as first argument because we want to decorate a method and still
+    # have access to /self/ from within the wrapper. This does work correctly.
+    # TODO: Pick this up -- we have to disable all kinds of pylint checks to
+    # make this work, and it's clearly bizarre.
+    # pylint: disable=E1101
+    def outputRoutine(func): #pylint: disable=E0213
+        """
+        Decorate an output routine with a verification that the quiz has been
+        properly generated and a routine to fetch a list of the Questions.
+        """
         def wrapper(self, *args, **kwargs):
-            if not self.isSetUp() and rtfObj:
+            "Wrapper function for decorator."
+            if not self.isSetUp() and rtfObj: #pylint: disable=E0602
                 assert False, "Need to call generate() first!"
             self.genQl = [i.getQuestion() for i in self.allQuestions]
-            func(self, *args, **kwargs)
+            func(self, *args, **kwargs) #pylint: disable=E1102
         return wrapper
 
     @outputRoutine
     def makeRtfFile(self, filename):
-        """
-        Write the generated questions out to an RTF file. Requires the filename,
-        presumably obtained from the user via a file browse dialog.
-        """
+        """Call output routine to write to an RTF file."""
         rtfObj = output.genRtfFile(self.genQl)
         output.renderRTF(rtfObj, filename)
 
     @outputRoutine
     def makePdf(self, filename, className, quizNum):
+        """Call output routine to write to a PDF file."""
         # at some point we might want to make provisions for passing other
         # makePaperQuiz options
         output.makePaperQuiz(self.genQl, className, quizNum,
@@ -216,15 +298,27 @@ class Quiz(object):
 
     @outputRoutine
     def makeHtml(self, filename, cls, quizNum, forQuizzing=False):
+        """
+        Call output routine to write the quiz to an HTML file. If /forQuizzing/
+        is enabled, do not list set names or answers; otherwise, do.
+        """
         # ditto, on header paths
         content = output.htmlText(self.genQl, forQuizzing)
         output.renderHtml(content, cls, quizNum, filename)
 
     @outputRoutine
     def makeTxt(self, filename, cls, quizNum, forQuiz):
+        """
+        Call output routine to write to a text file. If /forQuiz/ is enabled,
+        do not list set names or answers; otherwise, do.
+
+        This function is also called to show a preview of the quiz when
+        generating. (?)
+        """
+
         content = output.genPlainText(self.genQl, forQuiz)
         output.renderTxt(content, cls, quizNum, filename)
-
+    #pylint: enable=E1101
 
     def rewriteSchedule(self):
         """
@@ -233,11 +327,10 @@ class Quiz(object):
         """
         sr = SetRescheduler()
         curSet = getSetsUsed(self.cls)
-        for i in (self.newL + self.revL):
+        for i in self.newL + self.revL:
             i.reschedule(curSet, sr)
         sr.runResched()
         incrementSetsUsed(self.cls)
-
 
     def _fillNewItems(self):
         """
@@ -250,17 +343,20 @@ class Quiz(object):
 
         self.newQ = [] # reset
         for st in self.newSets:
-            ql = questions.getBySet(st)
+            ql = db.questions.getBySet(st)
             for q in ql:
                 self.newQ.append(QuizItem(q, self.cls))
 
     def _fillRevItems(self):
+        """
+        Like _fillNewItems, but for review items.
+        """
         # pull in all items that might be eligible based on their class
         cid = self.cls.getCid()
         d.cursor.execute('SELECT sid FROM history WHERE cid=?', (cid,))
         ql = []
         for st in d.cursor.fetchall():
-            setQuestions = questions.getBySet(sets.findSet(sid=st[0]))
+            setQuestions = db.questions.getBySet(sets.findSet(sid=st[0]))
             for question in setQuestions:
                 ql.append(QuizItem(question, self.cls))
 
@@ -281,7 +377,8 @@ class Quiz(object):
         """
 
         if not self.isSetUp():
-            assert False, "Options not set up! This should be checked in caller!"
+            assert False, \
+                    "Options not set up! This should be checked in caller!"
         self.newL = randomDraw(self.newQ, self.newSets, self.useNewNum)
 
     def _randRev(self):
@@ -293,7 +390,8 @@ class Quiz(object):
         The result will be placed in self.revL. No return.
         """
         if not self.isSetUp():
-            assert False, "Options not set up! This should be checked in caller!"
+            assert False, \
+                    "Options not set up! This should be checked in caller!"
 
         allRevSets = []
         for i in self.revQ:
@@ -313,10 +411,18 @@ def findNewSets(cls):
     return news
 
 def getSetsUsed(cls):
+    """Return all sets that have been used in class /cls/."""
     cid = cls.getCid()
     d.cursor.execute('SELECT setsUsed FROM classes WHERE cid=?', (cid,))
     return d.cursor.fetchall()[0][0]
+
 def incrementSetsUsed(cls):
+    """
+    Increment setsUsed value for class /cls/. setsUsed is used in conjunction
+    with the history table's nextSet to determine when quizzes should appear
+    again.
+    """
+
     cid = cls.getCid()
     curVal = getSetsUsed(cls)
     d.cursor.execute('UPDATE classes SET setsUsed=? WHERE cid=?',
@@ -327,17 +433,17 @@ def itemDue(item, curSet):
     """Determine if an item is currently due for review."""
     return True if (item.getNextSet() <= curSet) else False
 
-def randomDraw(l, allSets, num):
+def randomDraw(quizL, allSets, num):
     """
-    Draw *num* QuizItems from *l*, requiring at least one from each set in
+    Draw *num* QuizItems from *quizL*, requiring at least one from each set in
     *allSets*. Return a list of the drawing.
     """
     while True:
-        if num > len(l):
+        if num > len(quizL):
             assert False, "More new questions requested than available!"
-        L = random.sample(l, num)
+        chosen = random.sample(quizL, num)
         setsUsed = []
-        for i in L:
+        for i in chosen:
             st = i.getQuestion().getSet()
             if st not in setsUsed:
                 setsUsed.append(st)
@@ -347,11 +453,4 @@ def randomDraw(l, allSets, num):
             # not enough room for all sets; would force infinite loop
             break
 
-    return L
-
-#         d.cursor.execute('''
-#                    SELECT qid FROM history
-#                    WHERE cid=:cid
-#                    AND qid IN (SELECT qid FROM questions WHERE sid=:sid)''',
-#                    {'cid': self.cls.getCid(), 'sid': i.getSid()})
-
+    return chosen
