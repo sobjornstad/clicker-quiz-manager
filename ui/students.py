@@ -129,6 +129,9 @@ class StudentTableModel(QAbstractTableModel):
         self.endRemoveRows()
         return True
 
+    def numItems(self):
+        return len(self.l)
+
 
 class StudentsDialog(QDialog):
     def __init__(self, parent):
@@ -149,6 +152,11 @@ class StudentsDialog(QDialog):
         self.form.tableView.setModel(self.tableModel)
         self.reFillStudents()
         self.form.classCombo.activated.connect(self.reFillStudents)
+
+        self.tableModel.rowsRemoved.connect(self._updateStudentTotal)
+        self.tableModel.rowsInserted.connect(self._updateStudentTotal)
+        self.tableModel.modelReset.connect(self._updateStudentTotal)
+        self._updateStudentTotal()
 
         qlShortcut = QShortcut(QKeySequence("Alt+L"), self.form.tableView)
         qlShortcut.connect(qlShortcut, QtCore.SIGNAL("activated()"), lambda: self.form.tableView.setFocus())
@@ -241,3 +249,8 @@ class StudentsDialog(QDialog):
         clsName = unicode(self.form.classCombo.currentText())
         cls = db.classes.getClassByName(clsName)
         return cls
+
+    def _updateStudentTotal(self):
+        numStudents = self.tableModel.numItems()
+        self.form.studentsLabel.setText("Students: %i" % numStudents)
+        #TODO: connect rowsInserted and rowsRemoved signals to this function
