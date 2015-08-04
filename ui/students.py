@@ -2,13 +2,15 @@
 # This file is part of Clicker Quiz Generator.
 # Copyright 2015 Soren Bjornstad. All rights reserved.
 
+import traceback
+
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QDialog, QInputDialog, QMessageBox, QShortcut, \
      QKeySequence, QFileDialog
 from PyQt4.QtCore import QObject, QAbstractTableModel, QModelIndex
 from ui.forms.students import Ui_Dialog
 
-import utils
+import ui.utils as utils
 import db.students
 import db.classes
 
@@ -206,10 +208,27 @@ class StudentsDialog(QDialog):
                                % errors, "Import Results", False)
         else:
             utils.informationBox("Import completed successfully.",
-                    "Import Results")
+                                 "Import Results")
 
     def onExport(self):
-        pass
+        filename = QFileDialog.getSaveFileName(
+                caption="Import Students from CSV", filter="All files (*)")
+        if not filename:
+            return
+
+        try:
+            db.students.exportCsv(db.students.studentsInClass(
+                        self._currentClass()), filename)
+        except Exception as e:
+            utils.tracebackBox("Could not write to the location specified. "
+                               "The original error is as follows:\n\n"
+                               "%s" % traceback.format_exc(),
+                               title="Export Failed",
+                               includeErrorBoilerplate=False)
+        else:
+            utils.informationBox("Export completed successfully.",
+                                 "Export Results")
+
 
     def onChangeFastEdit(self):
         self.fastEdit = self.form.fastEditBox.isChecked()

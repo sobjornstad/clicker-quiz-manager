@@ -91,10 +91,23 @@ class Student(object):
 
     def csvRepr(self):
         """
-        Return a tab-separated representation of the data of this student
+        Return a comma-separated representation of the data of this student
         (excluding the class, as we only export one class at a time).
+
+        Column order is ln, fn, tpid, tpdev, email -- where headers are added
+        in the export function, they must match this order.
         """
-        s = '\t'.join([self._ln, self._fn, self._tpid, self._tpdev, self._email])
+
+        columns = [self._ln, self._fn, self._tpid, self._tpdev, self._email]
+        # NOTE: It's impossible (as far as I can see) to escape double
+        # quotation marks in a way that TurningPoint will accept. Not using
+        # them could be a validation constraint if we later do student
+        # validation.
+        for column in range(len(columns)):
+            if ',' in columns[column]:
+                columns[column] = '"%s"' % columns[column]
+
+        s = ','.join(columns)
         return s
 
 
@@ -132,6 +145,15 @@ def newDummyTextStudent(cls):
     while makesDupeStudent(ln + str(num), fn, tpid, tpdev, email, cls):
         num += 1
     return Student.createNew(ln + str(num), fn, tpid, tpdev, email, cls)
+
+
+### EXPORTING ###
+def exportCsv(studentList, filename):
+    headers = 'Last Name,First Name,User ID, Device ID(s),Email'
+    with open(filename, 'wb') as f:
+        f.write(headers + '\r\n')
+        for stu in studentList:
+            f.write(stu.csvRepr() + '\r\n')
 
 
 ### IMPORTING ###

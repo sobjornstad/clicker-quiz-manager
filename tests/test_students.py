@@ -1,3 +1,6 @@
+import os
+import filecmp
+
 import utils
 from db.students import *
 import db.classes
@@ -33,7 +36,7 @@ class StudentTests(utils.DbTestCase):
         assert s.getClass() == cls
         assert sRefr == s # should include above, but just in case...
 
-        assert s.csvRepr() == "Bjornstad\tSoren\t1\tc56a1\tcontact@sorenbjornstad.com", "%r" % s.csvRepr()
+        assert s.csvRepr() == "Bjornstad,Soren,1,c56a1,contact@sorenbjornstad.com", "%r" % s.csvRepr()
 
         assert len(studentsInClass(cls)) == 1 == len(studentsInClass(cls2))
         assert studentsInClass(cls)[0] == s
@@ -96,3 +99,15 @@ class StudentTests(utils.DbTestCase):
         assert errs
         assert "Student already exists" in errs
         assert len(studentsInClass(cls)) == 3, len(studentsInClass(cls))
+
+    def testExporting(self):
+        cls = db.classes.Class("TestClass (no pun intended)")
+        s = Student.createNew("Bjornstad", "Soren", "3", "c56al", "contact@sorenbjornstad.net", cls)
+        s2 = Student.createNew("Almzead", "Maud,Her", "2", "55655", "maud@sorenbjornstad.net", cls)
+
+        compare_against = 'tests/resources/test_stuexport.csv'
+        floc = 'testStudents.csv'
+        exportCsv(studentsInClass(cls), floc)
+        assert filecmp.cmp(floc, compare_against), \
+                "Output different from saved correct output file"
+        os.remove(floc)
