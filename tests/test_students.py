@@ -38,3 +38,61 @@ class StudentTests(utils.DbTestCase):
         assert len(studentsInClass(cls)) == 1 == len(studentsInClass(cls2))
         assert studentsInClass(cls)[0] == s
         assert studentsInClass(cls2)[0] == s2
+
+    def testImporting(self):
+        # simple valid file without emails, just like a default TP install's
+        cls = db.classes.Class("TestClass (no pun intended)")
+        fname = 'tests/resources/stuimport/valid-noemails.csv'
+        errs = importStudents(fname, cls)
+        assert not errs
+        assert len(studentsInClass(cls)) == 3, len(studentsInClass(cls))
+        assert studentsInClass(cls)[0].getLn() == "Bjornstad"
+        assert studentsInClass(cls)[0].getEmail() == ""
+        assert studentsInClass(cls)[0].getTpid() == "1"
+
+        # as before, but with the addition of emails
+        cls = db.classes.Class("TestClass2")
+        fname = 'tests/resources/stuimport/valid-emails.csv'
+        errs = importStudents(fname, cls)
+        assert not errs
+        assert len(studentsInClass(cls)) == 3, len(studentsInClass(cls))
+        assert studentsInClass(cls)[0].getLn() == "Bjornstad"
+        assert studentsInClass(cls)[0].getEmail() == "soren@example.com"
+        assert studentsInClass(cls)[0].getTpid() == "1"
+
+        # let's mix the order of the columns up a bit
+        cls = db.classes.Class("TestClass3")
+        fname = 'tests/resources/stuimport/mixed-cols-emails.csv'
+        errs = importStudents(fname, cls)
+        assert not errs
+        assert len(studentsInClass(cls)) == 3, len(studentsInClass(cls))
+        assert studentsInClass(cls)[0].getLn() == "Bjornstad"
+        assert studentsInClass(cls)[0].getEmail() == "soren@example.com"
+        assert studentsInClass(cls)[0].getTpid() == "1"
+
+        # what about extraneous columns? they won't be imported of course, but
+        # we should ignore those columns with a quiet warning.
+        cls = db.classes.Class("TestClass4")
+        fname = 'tests/resources/stuimport/valid-extracols.csv'
+        errs = importStudents(fname, cls)
+        assert errs
+        assert "Unrecognized header" in errs and "FluxCapacitor" in errs
+        assert len(studentsInClass(cls)) == 3, len(studentsInClass(cls))
+        assert studentsInClass(cls)[0].getLn() == "Bjornstad"
+        assert studentsInClass(cls)[0].getEmail() == "soren@example.com"
+        assert studentsInClass(cls)[0].getTpid() == "1"
+
+        # several invalid possibilities
+        cls = db.classes.Class("TestClass5")
+        fname = 'tests/resources/stuimport/invalid-wrongdelim.csv'
+        errs = importStudents(fname, cls)
+        assert errs, errs
+        assert "Invalid delimiter" in errs
+        assert len(studentsInClass(cls)) == 0, len(studentsInClass(cls))
+
+        cls = db.classes.Class("TestClass6")
+        fname = 'tests/resources/stuimport/invalid-dupe.csv'
+        errs = importStudents(fname, cls)
+        assert errs
+        assert "Student already exists" in errs
+        assert len(studentsInClass(cls)) == 3, len(studentsInClass(cls))

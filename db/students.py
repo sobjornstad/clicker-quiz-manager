@@ -4,6 +4,7 @@
 
 import database as d
 import db.classes
+import csv
 
 class Student(object):
     def __init__(self, stid):
@@ -96,6 +97,8 @@ class Student(object):
         s = '\t'.join([self._ln, self._fn, self._tpid, self._tpdev, self._email])
         return s
 
+
+### UTILITY FUNCTIONS ###
 def makesDupeStudent(ln, fn, tpid, tpdev, email, class_):
     cid = class_.getCid()
     q = '''SELECT stid FROM students
@@ -129,3 +132,111 @@ def newDummyTextStudent(cls):
     while makesDupeStudent(ln + str(num), fn, tpid, tpdev, email, cls):
         num += 1
     return Student.createNew(ln + str(num), fn, tpid, tpdev, email, cls)
+
+
+### IMPORTING ###
+class ImporterError(Exception):
+    def __init__(self, emsg):
+        self.emsg = emsg
+    def __str__(self):
+        return repr(self.emsg)
+
+class StudentImporter(object):
+    def __init__(self, fname, cls):
+        self.fname = fname
+        self.cls = cls
+        self.students = []
+        self.errors = []
+
+    def txtImport(self):
+        """
+        Run an import. Returns a string to display to the user containing a
+        list of errors in the import. If headers are invalid, raise
+        ImporterError.
+        """
+
+        with open(self.fname, 'rb') as csvfile:
+            try:
+                dialect = csv.Sniffer().sniff(csvfile.read(1024))
+            except Exception as e:
+                if "Could not determine delimiter" in e:
+                    return "Could not determine the delimiter used in this " \
+                           "file. Please use tab, comma, or semicolon."
+                else:
+                    raise e
+            if dialect.delimiter not in ('\t', ',', ';'):
+                return "Invalid delimiter detected. Please use tab, comma, " \
+                       "or semicolon."
+            csvfile.seek(0)
+            r = csv.reader(csvfile, dialect)
+            rowsSetup = False
+            for row in r:
+                if not rowsSetup:
+                    self.setupRows(row)
+                    rowsSetup = True
+                else:
+                    self.mkStudent(row)
+
+        return self.errListFormat()
+
+    def setupRows(self, headers):
+        cols = {}
+        for i in ('Device ID(s)', 'User ID', 'Last Name', 'First Name'):
+            if i not in headers:
+                raise ImporterError("A required header is missing! The file needs to contain the columns 'Device ID(s)', 'User ID', 'Last Name', and 'First Name' (and optionally 'Email'.")
+        for i in headers:
+            if not (i == 'Device ID(s)' or i == 'User ID' or i == 'Last Name' or
+                    i == 'First Name' or i == 'Email'):
+                self.errors.append((headers[0], "Warning: Unrecognized header %s. The import will ignore this column." % i))
+
+        cols['tpdev'] = headers.index('Device ID(s)')
+        cols['tpid'] = headers.index('User ID')
+        cols['ln'] = headers.index('Last Name')
+        cols['fn'] = headers.index('First Name')
+        if 'Email' in headers:
+            cols['email'] = headers.index('Email')
+        else:
+            cols['email'] = None
+        self.cols = cols
+
+    def mkStudent(self, row):
+        cols = self.cols
+        try:
+            ln = row[cols['ln']]
+            fn = row[cols['fn']]
+            tpid = row[cols['tpid']]
+            tpdev = row[cols['tpdev']]
+            if cols['email'] is not None:
+                email = row[cols['email']]
+            else:
+                email = ""
+        except ValueError:
+            self.errors.append((row[0], "Wrong number of columns for this row."))
+            return
+        except Exception as e:
+            self.errors.append((row[0], e))
+        else:
+            if makesDupeStudent(ln, fn, tpid, tpdev, email, self.cls):
+                self.errors.append((row[0], "Student already exists."))
+                return
+            elif ln == fn == tpid == tpdev == email == '':
+                # blank line, but with delimiters; TP usually puts one at the
+                # bottom when you export, so silently ignore
+                return
+            else:
+                self.students.append(Student.createNew(
+                        ln, fn, tpid, tpdev, email, self.cls))
+
+    def errListFormat(self):
+        """Provide user with a list of problems that occurred during import."""
+        errString = ""
+        num = 1
+        for i in self.errors:
+            errString += "\n\n#%i.\nStudent: %s\nError: %s" % (num, i[0], i[1])
+            num += 1
+        return errString.strip()
+
+def importStudents(fname, cls):
+    si = StudentImporter(fname, cls)
+    errs = si.txtImport()
+    return errs

@@ -4,9 +4,9 @@
 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QDialog, QInputDialog, QMessageBox, QShortcut, \
-     QKeySequence
+     QKeySequence, QFileDialog
 from PyQt4.QtCore import QObject, QAbstractTableModel, QModelIndex
-from forms.students import Ui_Dialog
+from ui.forms.students import Ui_Dialog
 
 import utils
 import db.students
@@ -114,7 +114,7 @@ class StudentTableModel(QAbstractTableModel):
         insertion = db.students.newDummyTextStudent(self.nextClassInsert)
         self.beginInsertRows(parent, row, row+count-1)
         for i in range(count):
-            self.l.insert(int(row + count), insertion)
+            self.l.insert(int(row + i), insertion)
         self.endInsertRows()
         return True
 
@@ -191,7 +191,23 @@ class StudentsDialog(QDialog):
                 return
         self.tableModel.removeRow(self.form.tableView.currentIndex().row())
     def onImport(self):
-        pass
+        f = QFileDialog.getOpenFileName(caption="Import Students from CSV",
+                filter="All files (*)")
+        if not f:
+            return
+        importer = db.students.StudentImporter(f, self._currentClass())
+        errors = importer.txtImport()
+
+        self.reFillStudents()
+
+        if errors:
+            utils.tracebackBox("Import returned the following errors:\n%s\n\nAny " \
+                               "students that were valid have been imported." \
+                               % errors, "Import Results", False)
+        else:
+            utils.informationBox("Import completed successfully.",
+                    "Import Results")
+
     def onExport(self):
         pass
 
