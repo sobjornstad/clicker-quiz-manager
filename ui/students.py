@@ -65,6 +65,23 @@ class StudentTableModel(QAbstractTableModel):
         self.emit(QtCore.SIGNAL("dataChanged"))
         return True
 
+    def sort(self, column, order=QtCore.Qt.AscendingOrder):
+        rev = (order == QtCore.Qt.AscendingOrder)
+        if column == 0:
+            key = lambda i: i.getLn()
+        elif column == 1:
+            key = lambda i: i.getFn()
+        elif column == 2:
+            key = lambda i: i.getTpid()
+        elif column == 3:
+            key = lambda i: i.getTpdev()
+        elif column == 4:
+            key = lambda i: i.getEmail()
+
+        self.beginResetModel()
+        self.l.sort(key=key, reverse=rev)
+        self.endResetModel()
+
     def flags(self, index):
         q = QtCore.Qt
         return q.ItemIsSelectable | q.ItemIsEnabled | q.ItemIsEditable
@@ -154,6 +171,10 @@ class StudentsDialog(QDialog):
         cls = self._currentClass()
         students = db.students.studentsInClass(cls)
         self.tableModel.replaceStudentSet(students)
+        self.defaultSort()
+
+    def defaultSort(self):
+        self.form.tableView.sortByColumn(0)
 
     def onAdd(self):
         self.tableModel.setNextClassInsert(self._currentClass())

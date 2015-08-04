@@ -85,18 +85,19 @@ a new entry, and you will not be asked to confirm deletions.</string>
         <enum>Qt::ActionsContextMenu</enum>
        </property>
        <property name="toolTip">
-        <string>Press Alt-L to focus this list.
-Double-click or press F2 to edit a cell.
-Press Tab to move between cells.</string>
+        <string/>
        </property>
        <property name="editTriggers">
-        <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
+        <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
        </property>
        <property name="selectionMode">
         <enum>QAbstractItemView::SingleSelection</enum>
        </property>
        <property name="selectionBehavior">
         <enum>QAbstractItemView::SelectItems</enum>
+       </property>
+       <property name="sortingEnabled">
+        <bool>true</bool>
        </property>
        <attribute name="horizontalHeaderHighlightSections">
         <bool>false</bool>
