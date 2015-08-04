@@ -42,7 +42,7 @@ def questionBox(text, title=None):
         msgBox.setWindowTitle(title)
     return msgBox.exec_()
 
-def confirmDeleteBox(item, additional):
+def confirmDeleteBox(item, additional=''):
     msgBox = QMessageBox()
     s = "Are you sure you want to delete this %s? %s" % (item, additional)
     msgBox.setText(s)

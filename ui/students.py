@@ -80,29 +80,18 @@ class StudentTableModel(QAbstractTableModel):
         self.l = newList
         self.reset()
 
-    def addBlankStudent(self, cls):
-        """
-        Create a new blank student with dummy data. Return an index that can
-        be used to select the first column of the new student.
-        """
-
-        # for the life of me, I cannot correctly implement insertRows, so I'm
-        # doing this instead. Since I want to select something new after an
-        # add it's ok that the selection breaks
-        self.l.append(db.students.newDummyTextStudent(cls))
-        self.beginResetModel()
-        self.reset()
-        self.endResetModel()
-        return self.createIndex(len(self.l)-1, 0)
-
     def setNextClassInsert(self, cls):
+        """
+        Since insertRows() does not accept custom arguments, this sets the
+        class to be used for the dummy entry when a new addition is made.
+        """
         self.nextClassInsert = cls
 
     def insertRows(self, row, count, parent=QModelIndex()):
         """
-        Insert one or more new rows. This method should be accessed through
-        addBlankStudent() to avoid creating empty rows that don't show up in
-        the database.
+        Insert one or more new rows. Before calling, make sure to
+        setNextClassInsert() so that the new dummy entry is in the correct
+        class.
         """
 
         insertion = db.students.newDummyTextStudent(self.nextClassInsert)
@@ -132,6 +121,8 @@ class StudentsDialog(QDialog):
         self.form.importButton.clicked.connect(self.onImport)
         self.form.exportButton.clicked.connect(self.onExport)
         self.form.closeButton.clicked.connect(self.reject)
+        self.form.fastEditBox.toggled.connect(self.onChangeFastEdit)
+        self.onChangeFastEdit() # set up initial state
 
         self.setupClassCombo()
         self.tableModel = StudentTableModel(self)
@@ -171,11 +162,22 @@ class StudentsDialog(QDialog):
         self.form.tableView.edit(idx)
 
     def onDelete(self):
+        if not self.fastEdit:
+            resp = utils.confirmDeleteBox('student')
+            if resp != 16384:
+                return
         self.tableModel.removeRow(self.form.tableView.currentIndex().row())
     def onImport(self):
         pass
     def onExport(self):
         pass
+
+    def onChangeFastEdit(self):
+        self.fastEdit = self.form.fastEditBox.isChecked()
+        if self.fastEdit:
+            self.form.addButton.setDefault(True)
+        else:
+            self.form.addButton.setDefault(False)
 
     def _currentClass(self):
         clsName = unicode(self.form.classCombo.currentText())

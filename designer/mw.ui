@@ -114,7 +114,7 @@
       <item row="5" column="0">
        <widget class="QPushButton" name="studentsButton">
         <property name="text">
-         <string>S&amp;tudents</string>
+         <string>St&amp;udents</string>
         </property>
        </widget>
       </item>
