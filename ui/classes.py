@@ -10,6 +10,7 @@ from forms.classes import Ui_dialog
 
 import utils
 import db.classes
+import ui.students
 
 class ClassesWindow(QDialog):
     def __init__(self, mw):
@@ -23,6 +24,7 @@ class ClassesWindow(QDialog):
         self.form.addButton.clicked.connect(self.add)
         self.form.deleteButton.clicked.connect(self.delete)
         self.form.renameButton.clicked.connect(self.rename)
+        self.form.studentsButton.clicked.connect(self.students)
 
         qlShortcut = QShortcut(QKeySequence("Alt+L"), self.form.listWidget)
         qlShortcut.connect(qlShortcut, QtCore.SIGNAL("activated()"), lambda: self.form.listWidget.setFocus())
@@ -88,3 +90,10 @@ class ClassesWindow(QDialog):
             row = self.form.listWidget.currentRow()
             self.form.listWidget.takeItem(row)
             db.classes.deleteClass(nameToDelete)
+
+    def students(self):
+        stw = ui.students.StudentsDialog(self)
+        clsName = unicode(self.form.listWidget.currentItem().text())
+        cls = db.classes.getClassByName(clsName)
+        stw.setInitialClass(cls)
+        stw.exec_()

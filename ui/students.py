@@ -110,6 +110,7 @@ class StudentTableModel(QAbstractTableModel):
         self.endRemoveRows()
         return True
 
+
 class StudentsDialog(QDialog):
     def __init__(self, parent):
         QDialog.__init__(self)
@@ -130,12 +131,13 @@ class StudentsDialog(QDialog):
         self.reFillStudents()
         self.form.classCombo.activated.connect(self.reFillStudents)
 
-        #### TODO RECIPE:
-        #i = self.form.jumpCombo.findText(set)
-        #self.form.jumpCombo.setCurrentIndex(i)
-
         qlShortcut = QShortcut(QKeySequence("Alt+L"), self.form.tableView)
         qlShortcut.connect(qlShortcut, QtCore.SIGNAL("activated()"), lambda: self.form.tableView.setFocus())
+
+    def setInitialClass(self, cls):
+        idx = self.form.classCombo.findText(cls.getName())
+        self.form.classCombo.setCurrentIndex(idx)
+        self.reFillStudents()
 
     def setupClassCombo(self):
         self.form.classCombo.clear()
