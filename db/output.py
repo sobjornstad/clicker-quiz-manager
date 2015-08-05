@@ -9,11 +9,12 @@ Besides two errors (LaTeXError and UnopenableError), this module provides no
 classes.
 
 Provided public functions:
-    genRtfFile, renderRTF: create an RTF object from quiz and render it to file
-    genPlainText, renderTxt: create a text string and render it to file
-    htmlText, renderHtml: create an HTML string and render it to file
+    renderRTF: create an RTF object from question list and render it to file
+    renderTxt: create a text string and render it to file
+    genPlainText: return a text string for preview purposes
+    renderHtml: create an HTML string and render it to file
+    renderPdf: render provided questions to a PDF file using LaTeX
     autoOpen: automatically open given file in the OS's default program for it
-    makePaperQuiz: render provided questions to a PDF file using LaTeX
     munge_latex: escape characters in string to not confuse LaTeX
 
 Abbreviations used in this module:
@@ -24,7 +25,6 @@ Abbreviations used in this module:
     cwd: current working directory
 """
 
-
 import os
 import re
 import tempfile
@@ -32,13 +32,24 @@ import shutil
 import subprocess
 import sys
 
-import PyRTF as rtf
 # pylint doesn't see that this is used in .encode()
 import rtfunicode # pylint: disable=W0611
+import PyRTF as rtf
 
+# when a cloze [...] is encountered, what is it replaced with in text formats?
 OCCLUSION_OUTPUT = '_' * 8
 
+
 ### RTF for TurningPoint ###
+def renderRTF(questions, fname):
+    """
+    Format and write the list of Questions to a file with name /fname/.
+    """
+    rtfObj = _genRtfFile(questions)
+    renderer = rtf.Renderer()
+    with open(fname, 'wb') as f:
+        renderer.Write(rtfObj, f)
+
 def _getRTFFormattedContent(ques, questionNum):
     "Return question data formatted for ExamView rtf file format."
 
@@ -52,7 +63,7 @@ def _getRTFFormattedContent(ques, questionNum):
     oCA = '\t'.join(['ANS:', ques.getCorrectAnswer()])
     return oQ, oA, oCA
 
-def genRtfFile(questions):
+def _genRtfFile(questions):
     """
     Given a list of Questions, return an RTF object which contains all data and
     can be rendered when appropriate using the renderRTF() function in this
@@ -84,21 +95,16 @@ def genRtfFile(questions):
 
     return doc
 
-def renderRTF(rtfObj, fname):
-    """
-    Write an RTF object created by genRtfFile to file with name /fname/.
-    """
-    renderer = rtf.Renderer()
-    with open(fname, 'wb') as f:
-        renderer.Write(rtfObj, f)
 
-
-### PLAIN TEXT ###
+### Plain text ###
 def genPlainText(questions, forQuiz=False):
     """
     Return a plain text string of the list of Questions (for preview or
     export). If /forQuiz/, do not include set names and correct answers;
     otherwise, do.
+
+    This function is used by renderTxt, but it can also be called alone to
+    generate a preview of a quiz.
     """
     indices = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4}
     letters = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e'}
@@ -132,16 +138,19 @@ def genPlainText(questions, forQuiz=False):
         qNum += 1
     return '\n'.join(prev)
 
-def renderTxt(content, cls, quizNum, filename):
+def renderTxt(questions, cls, quizNum, filename, forQuiz=False):
     """
     Render a text string created by genPlainText() to file /filename/.
 
     Arguments:
-        content: the string
+        questions: list of quiz questions to be rendered
         cls: Class object that this quiz is being generated for
         quizNum: which quiz this is (lastSet in classes table)
         filename: name of the file to write the contents to
+        forQuiz: if True, do not include set names and correct answers;
+            otherwise, do.
     """
+    content = genPlainText(questions, forQuiz)
     className = cls.getName()
     title = "%s, Quiz %i" % (className, quizNum)
     title = title + '\n' + ('-' * len(title)) + '\n\n'
@@ -150,14 +159,14 @@ def renderTxt(content, cls, quizNum, filename):
         f.write(content)
 
 
-### HTML OUTPUT ###
+### HTML ###
 DEFAULT_HTML_HEADER = 'db/resources/html_header_default.html'
 DEFAULT_HTML_FOOTER = 'db/resources/html_footer_default.html'
 
-def htmlText(questions, forQuizzing=False):
+def _htmlText(questions, forQuiz=False):
     """
     Given a list of Questions, return quiz as a string of HTML, very similar to
-    the plain text version but formatted. If forQuizzing, do not include set
+    the plain text version but formatted. If forQuiz, do not include set
     names and answers; otherwise, do.
     """
     indices = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4}
@@ -178,7 +187,7 @@ def htmlText(questions, forQuizzing=False):
             topline, botline = topline.strip(), botline.strip()
             quesIsMultiPart = True
 
-        if not forQuizzing:
+        if not forQuiz:
             if quesIsMultiPart:
                 topline = "%s (%s)" % (topline, st)
             else:
@@ -202,7 +211,7 @@ def htmlText(questions, forQuizzing=False):
             letterNum += 1
         prev.append('</div>')
 
-        if not forQuizzing:
+        if not forQuiz:
             correctAnswerText = a[indices[question.getCorrectAnswer()]]
             ca = '<div class="answer">Answer: <span class="answertext">' \
                     '(%s) %s</span></div>' % (ca, correctAnswerText)
@@ -210,25 +219,28 @@ def htmlText(questions, forQuizzing=False):
 
     return '<ol class="quiz">' + '\n'.join(prev) + '</ol>'
 
-def renderHtml(content, cls, quizNum, fname,
+def renderHtml(questions, cls, quizNum, fname, forQuiz=False,
         headerPath=DEFAULT_HTML_HEADER, footerPath=DEFAULT_HTML_FOOTER):
     """
-    Render an HTML content string /content/ (generated by htmlText()) to a
-    file.
+    Render a list of Questions to an HTML file.
 
     Arguments:
-        content: the content string
+        questions: list of questions to render
         cls: Class object for the class the file is being generated for
         quizNum: which quiz this is (lastSet in classes table)
         fname: name of the file to write the contents to
-        headerPath: optionally, the path to an HTML header, which can be used
+        forQuiz: (optionally) if True, do not include set names or answers;
+            otherwise, do. (Default False.)
+        headerPath: (optionally) the path to an HTML header, which can be used
             to impose a custom format on the output (including CSS, etc.)
-        footerPath: optionally, the path to an HTML footer (usually not very
+        footerPath: (optionally) the path to an HTML footer (usually not very
             useful except to properly finish the document).
 
     If no values are provided for the optional arguments, the default header
     and footer in db/resources will be used.
     """
+    content = _htmlText(questions)
+
     with open(headerPath) as f:
         header = f.read()
     with open(footerPath) as f:
@@ -244,7 +256,7 @@ def renderHtml(content, cls, quizNum, fname,
         f.write(output)
 
 
-### LaTeX OUTPUT ###
+### PDF via LaTeX ###
 DEFAULT_LATEX_HEADER = 'db/resources/latex_header_default.tex'
 DEFAULT_LATEX_FOOTER = 'db/resources/latex_footer_default.tex'
 
@@ -257,6 +269,7 @@ class LatexError(Exception):
         self.emsg = emsg
     def __str__(self):
         return repr(self.emsg)
+
 class UnopenableError(Exception):
     """
     Indicates that CQM was unable to open a generated PDF file (when using
@@ -282,8 +295,7 @@ def autoOpen(path):
     else:
         raise UnopenableError
 
-
-def makePaperQuiz(questions, cls, quiznum,
+def renderPdf(questions, cls, quiznum,
         headerPath=DEFAULT_LATEX_HEADER, footerPath=DEFAULT_LATEX_FOOTER,
         latexCommand='xelatex',
         doOpen=True, doCopy=False, copyTo=None):
@@ -353,7 +365,6 @@ def makePaperQuiz(questions, cls, quiznum,
 
     # shutil.rmtree(tdir, ignore_errors=True)
 
-
 def munge_latex(s):
     "Escape characters reserved by LaTeX in string /s/."
 
@@ -393,7 +404,7 @@ def _prepareLaTeXString(questions, cls, quizNum, headerPath, footerPath):
         footerPath: optionally, the path to a LaTeX footer (usually not very
             useful except to properly finish the document).
 
-    This function is called from makePaperQuiz().
+    This function is called from renderPdf().
     """
     text = []
     qNum = 1
@@ -423,6 +434,7 @@ def _prepareLaTeXString(questions, cls, quizNum, headerPath, footerPath):
     with open(footerPath) as f:
         footer = f.read()
 
+    className = cls.getName()
     header = header.replace('%%% INSERT CLASS HEADER HERE %%%',
-            '\\header{%s}{%s}' % (cls, 'Quiz %i' % quizNum))
+            '\\header{%s}{%s}' % (className, 'Quiz %i' % quizNum))
     return header + '\n\n' + '\n\n'.join(text) + '\n\n' + footer

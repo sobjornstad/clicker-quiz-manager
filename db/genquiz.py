@@ -262,62 +262,13 @@ class Quiz(object):
         qPrev = output.genPlainText(ql)
         return qPrev
 
-    # We're doing something a bit odd and creating a method that doesn't have
-    # self as first argument because we want to decorate a method and still
-    # have access to /self/ from within the wrapper. This does work correctly.
-    # TODO: Pick this up -- we have to disable all kinds of pylint checks to
-    # make this work, and it's clearly bizarre.
-    # pylint: disable=E1101
-    def outputRoutine(func): #pylint: disable=E0213
+    def fetchQuestionsForOutput(self):
         """
-        Decorate an output routine with a verification that the quiz has been
-        properly generated and a routine to fetch a list of the Questions.
+        Retrieve the list of chosen questions so they can be output.
         """
-        def wrapper(self, *args, **kwargs):
-            "Wrapper function for decorator."
-            if not self.isSetUp() and rtfObj: #pylint: disable=E0602
-                assert False, "Need to call generate() first!"
-            self.genQl = [i.getQuestion() for i in self.allQuestions]
-            func(self, *args, **kwargs) #pylint: disable=E1102
-        return wrapper
-
-    @outputRoutine
-    def makeRtfFile(self, filename):
-        """Call output routine to write to an RTF file."""
-        rtfObj = output.genRtfFile(self.genQl)
-        output.renderRTF(rtfObj, filename)
-
-    @outputRoutine
-    def makePdf(self, filename, className, quizNum):
-        """Call output routine to write to a PDF file."""
-        # at some point we might want to make provisions for passing other
-        # makePaperQuiz options
-        output.makePaperQuiz(self.genQl, className, quizNum,
-                doOpen=False, doCopy=True, copyTo=filename)
-
-    @outputRoutine
-    def makeHtml(self, filename, cls, quizNum, forQuizzing=False):
-        """
-        Call output routine to write the quiz to an HTML file. If /forQuizzing/
-        is enabled, do not list set names or answers; otherwise, do.
-        """
-        # ditto, on header paths
-        content = output.htmlText(self.genQl, forQuizzing)
-        output.renderHtml(content, cls, quizNum, filename)
-
-    @outputRoutine
-    def makeTxt(self, filename, cls, quizNum, forQuiz):
-        """
-        Call output routine to write to a text file. If /forQuiz/ is enabled,
-        do not list set names or answers; otherwise, do.
-
-        This function is also called to show a preview of the quiz when
-        generating. (?)
-        """
-
-        content = output.genPlainText(self.genQl, forQuiz)
-        output.renderTxt(content, cls, quizNum, filename)
-    #pylint: enable=E1101
+        if not self.isSetUp() and rtfObj:
+            assert False, "Need to call generate() first!"
+        return [i.getQuestion() for i in self.allQuestions]
 
     def rewriteSchedule(self):
         """

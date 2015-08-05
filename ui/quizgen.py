@@ -14,7 +14,7 @@ import db.classes
 import db.genquiz
 import db.sets
 import db.questions
-import utils
+import ui.utils as utils
 from db.output import LatexError
 
 class QuizWindow(QDialog):
@@ -182,10 +182,11 @@ class PreviewDialog(QDialog):
     def onSave(self):
         selection = self.form.formatCombo.currentText()
         try:
+            questions = self.parent.quiz.fetchQuestionsForOutput()
             if 'rtf' in selection:
                 fname = self.getFilename('rtf')
                 if fname:
-                    self.parent.quiz.makeRtfFile(fname)
+                    db.output.renderRTF(questions, fname)
                 else:
                     return
             elif 'pdf' in selection:
@@ -195,9 +196,10 @@ class PreviewDialog(QDialog):
                 if fname:
                     QApplication.setOverrideCursor(QCursor(QtCore.Qt.WaitCursor))
                     try:
-                        self.parent.quiz.makePdf(fname, cls.getName(), quizNum)
+                        db.output.renderPdf(questions, cls, quizNum, doOpen=False,
+                                doCopy=True, copyTo=fname)
                     except LatexError as err:
-                        bd.done(1)
+                        QApplication.restoreOverrideCursor()
                         txt = """
 An error occurred while running LaTeX to create the paper quiz. Please check the error and contact the developer if you are unsure how to correct it. The error text is as follows:
 
@@ -217,7 +219,7 @@ An error occurred while running LaTeX to create the paper quiz. Please check the
                 cls = self.parent.quiz.getClass()
                 quizNum = db.genquiz.getSetsUsed(cls) + 1
                 if fname:
-                    self.parent.quiz.makeHtml(fname, cls, quizNum, fq)
+                    db.output.renderHtml(questions, cls, quizNum, fname, fq)
                 else:
                     return
             elif 'Plain Text' in selection:
@@ -226,7 +228,7 @@ An error occurred while running LaTeX to create the paper quiz. Please check the
                 cls = self.parent.quiz.getClass()
                 quizNum = db.genquiz.getSetsUsed(cls) + 1
                 if fname:
-                    self.parent.quiz.makeTxt(fname, cls, quizNum, fq)
+                    db.output.renderTxt(questions, cls, quizNum, fname, fq)
                 else:
                     return
         except:

@@ -2,6 +2,7 @@ import db.questions
 import db.sets
 import db.classes
 import db.database as d
+import db.output
 from db.genquiz import *
 import utils
 
@@ -104,7 +105,7 @@ class QuizTests(utils.DbTestCase):
 
         # generate
         qPrev = quiz.generate()
-        quiz.makeRtfFile("tmp.rtf")
+        db.output.renderRTF(quiz.fetchQuestionsForOutput(), "tmp.rtf")
         from os import remove
         remove("tmp.rtf")
         # rendering is tested in test_rtfexport.py

@@ -9,6 +9,7 @@ import utils
 from db.questions import Question
 from db.sets import Set
 from db.output import *
+from db.output import _htmlText
 from db.classes import Class
 
 class OutputTests(utils.DbTestCase):
@@ -18,8 +19,7 @@ class OutputTests(utils.DbTestCase):
         st = Set("Test Set", 2)
         questions = [Question("Hello [...]?", ["foo", "bar", "baz", "quux"],
             "c", st, 1)]
-        obj = genRtfFile(questions)
-        renderRTF(obj, fname)
+        renderRTF(questions, fname)
         try:
             f = open(fname)
         except IOError:
@@ -105,12 +105,12 @@ This \{is\} some text, which costs \$4 \& 50 cents, which is \#1 in annoyance fo
         qs = makeTestQuestions()
         cls = Class("German 101")
         quizNum = 1
-        makePaperQuiz(qs, cls, quizNum, doOpen=False)
+        renderPdf(qs, cls, quizNum, doOpen=False)
         with self.assertRaises(LatexError) as ex:
-            makePaperQuiz(qs, cls, quizNum,
+            renderPdf(qs, cls, quizNum,
                     latexCommand='flibbertygibbertyaoeu', doOpen=False)
         with self.assertRaises(LatexError) as ex:
-            makePaperQuiz(qs, cls, quizNum, doOpen=False,
+            renderPdf(qs, cls, quizNum, doOpen=False,
                     headerPath='tests/resources/latex_header_invalid.tex')
 
 
@@ -119,11 +119,11 @@ This \{is\} some text, which costs \$4 \& 50 cents, which is \#1 in annoyance fo
 
         with open('tests/resources/test_html_export_forquizzing.html') as f:
             txt = f.read()
-        assert txt.strip() == htmlText(qs, forQuizzing=True).strip()
+        assert txt.strip() == _htmlText(qs, forQuiz=True).strip()
 
         with open('tests/resources/test_html_export_notforquizzing.html') as f:
             txt2 = f.read()
-        assert txt2.strip() == htmlText(qs, forQuizzing=False).strip()
+        assert txt2.strip() == _htmlText(qs, forQuiz=False).strip()
 
         cls = Class("German 101")
         quizNum = 1
@@ -131,11 +131,10 @@ This \{is\} some text, which costs \$4 \& 50 cents, which is \#1 in annoyance fo
         against_fname = "tests/resources/test_html_complete.html"
 
         try:
-            renderHtml(txt2, cls, quizNum, fname)
+            renderHtml(qs, cls, quizNum, fname, forQuiz=False)
             assert filecmp.cmp(fname, against_fname), \
                     "Output different from saved correct output file"
         finally:
-            pass
             os.remove(fname)
 
 
