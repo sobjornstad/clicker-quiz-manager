@@ -31,7 +31,7 @@ class Question(object):
     ##TODO: ^ The code should eventually be changed to match above schema
     """
 
-    _qLetters = ['a', 'b', 'c', 'd', 'e']
+    qLetters = ['a', 'b', 'c', 'd', 'e']
 
     def __init__(self, question, answersList, correctAnswer, st, order, qid=None):
         self._qid = qid
@@ -160,7 +160,7 @@ class Question(object):
         # find and save value of correct answer
         indices = {}
         num = 0
-        for i in self._qLetters:
+        for i in self.qLetters:
             indices[i] = num
             num += 1
         # http://stackoverflow.com/questions/483666/
@@ -221,7 +221,7 @@ class Question(object):
 
         # selected correct answer exists
         try:
-            idx = self._qLetters.index(self._ca)
+            idx = self.qLetters.index(self._ca)
         except ValueError:
             raise QuestionFormatError("The correct answer specified must be " \
                     "a, b, c, d, or e.")
@@ -245,7 +245,7 @@ class Question(object):
             return False
 
         # correct answer must be a lc MC letter
-        if self._ca not in self._qLetters:
+        if self._ca not in self.qLetters:
             raise QuestionFormatError("The correct answer choice was not a " \
                     "valid letter.")
             return False

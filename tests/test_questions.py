@@ -55,23 +55,23 @@ class QuestionTests(utils.DbTestCase):
         questions = [q, q2]
 
         # answers
-        q, a, ca = db.output.getRTFFormattedContent(questions[0], 1)
+        q, a, ca = db.output._getRTFFormattedContent(questions[0], 1)
         for ans in a:
             self.failUnless(".\t" in ans)
             let = ans.split('.\t')[0]
-            self.assertTrue(let in Question._qLetters), \
+            self.assertTrue(let in Question.qLetters), \
                     "Answer letter missing or incorrect on answer %r" % ans
 
         # correct answer
-        q, a, ca = db.output.getRTFFormattedContent(questions[0], 2)
+        q, a, ca = db.output._getRTFFormattedContent(questions[0], 2)
 
         self.assertTrue('\t' in ca), "Missing tab"
         ans, let = ca.split('\t')
         self.assertTrue(ans == 'ANS:')
-        self.assertTrue(let in Question._qLetters)
+        self.assertTrue(let in Question.qLetters)
 
         # question number
-        q, a, ca = db.output.getRTFFormattedContent(questions[0], 3)
+        q, a, ca = db.output._getRTFFormattedContent(questions[0], 3)
 
         self.assertTrue(".\t" in q), "Missing tab"
         num = q.split('.')[0]

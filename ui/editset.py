@@ -116,7 +116,7 @@ class SetEditor(QDialog):
         self.form.correctAnswerCombo.clear()
         if isNewQuestion and not self.sl.mw.autoAnsA:
             self.form.correctAnswerCombo.addItem("", 0) # no choice selected yet
-        for ans in [i.upper() for i in Question._qLetters]:
+        for ans in [i.upper() for i in Question.qLetters]:
             self.form.correctAnswerCombo.addItem(ans, 0)
 
     def reject(self):
@@ -200,7 +200,7 @@ class SetEditor(QDialog):
         for i in range(len(a)):
             self.ansChoices[i].setText(a[i])
 
-        i = Question._qLetters.index(q.getCorrectAnswer())
+        i = Question.qLetters.index(q.getCorrectAnswer())
         self.populateCorrectAnswer(False)
         self.form.correctAnswerCombo.setCurrentIndex(i)
 
