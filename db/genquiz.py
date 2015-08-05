@@ -47,7 +47,7 @@ Database schema for history table:
 """
 
 import db.database as d
-import db.questions
+import db.questions as questions
 import db.output as output
 import db.sets as sets
 
@@ -242,8 +242,7 @@ class Quiz(object):
 
         It is the caller's responsibility to make sure that the quiz isSetUp.
 
-        Returns a plaintext preview string. Sets self.rtfObj to the RTF object
-        to be output.
+        Returns a plaintext preview string.
         """
 
         # choose questions
@@ -343,7 +342,7 @@ class Quiz(object):
 
         self.newQ = [] # reset
         for st in self.newSets:
-            ql = db.questions.getBySet(st)
+            ql = questions.getBySet(st)
             for q in ql:
                 self.newQ.append(QuizItem(q, self.cls))
 
@@ -356,7 +355,7 @@ class Quiz(object):
         d.cursor.execute('SELECT sid FROM history WHERE cid=?', (cid,))
         ql = []
         for st in d.cursor.fetchall():
-            setQuestions = db.questions.getBySet(sets.findSet(sid=st[0]))
+            setQuestions = questions.getBySet(sets.findSet(sid=st[0]))
             for question in setQuestions:
                 ql.append(QuizItem(question, self.cls))
 
