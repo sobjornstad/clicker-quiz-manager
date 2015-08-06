@@ -103,6 +103,9 @@ class MainWindow(QMainWindow):
         hiw = ui.history.HistoryDialog(self)
         hiw.exec_()
 
+    def closeEvent(self, event):
+        self.quit()
+
     def quit(self):
         # save current database location to configuration
         self.config.writeConf('dbPath', self.dbpath)
