@@ -33,4 +33,4 @@ class PicklingTests(utils.DbTestCase):
 
         unPickledQl = pickle.loads(qPickle)
         #content = op.genPlainText(unPickledQl)
-        op.renderTxt(unPickledQl, cls, quizNum, 'testfile.txt')
+        #op.renderTxt(unPickledQl, cls, quizNum, 'testfile.txt')

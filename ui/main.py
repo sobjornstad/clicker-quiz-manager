@@ -2,15 +2,25 @@
 # This file is part of Clicker Quiz Generator.
 # Copyright 2014 Soren Bjornstad. All rights reserved.
 
-import os, sys
+import os
+import traceback
+import shutil
+import sys
 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QApplication, QMainWindow, QFileDialog, QDesktopServices, QAction, QInputDialog
 from forms.mw import Ui_MainWindow
-import utils
 
 import db.database
 import db.tools.create_database
+
+import ui.classes
+import ui.quizgen
+import ui.questionsets
+import ui.students
+import ui.history
+import ui.prefs
+import ui.utils as utils
 
 APPLICATION_VERSION = "1.0.1"
 
@@ -70,8 +80,7 @@ class MainWindow(QMainWindow):
         # value will be dealt with in _connectDb()
 
     def onClasses(self):
-        import classes
-        cw = classes.ClassesWindow(self)
+        cw = ui.classes.ClassesWindow(self)
         cw.exec_()
 
     def onQuizGen(self):
@@ -79,23 +88,19 @@ class MainWindow(QMainWindow):
             utils.errorBox("Please create at least one class first.",
                     "No Classes")
             return False
-        import quizgen
-        qw = quizgen.QuizWindow(self)
+        qw = ui.quizgen.QuizWindow(self)
         qw.exec_()
 
     def onSets(self):
-        import questionsets
-        qsw = questionsets.QuestionSetsDialog(self)
+        qsw = ui.questionsets.QuestionSetsDialog(self)
         qsw.exec_()
 
     def onStudents(self):
-        import students
-        stw = students.StudentsDialog(self)
+        stw = ui.students.StudentsDialog(self)
         stw.exec_()
 
     def onHistory(self):
-        import history
-        hiw = history.HistoryDialog(self)
+        hiw = ui.history.HistoryDialog(self)
         hiw.exec_()
 
     def quit(self):
@@ -137,7 +142,6 @@ class MainWindow(QMainWindow):
         if not copyto.endswith('.db'):
             copyto += '.db'
         db.database.close() # make sure everything's been saved & taken care of
-        import shutil
         try:
             shutil.copyfile(self.dbpath, copyto)
         except shutil.Error:
@@ -162,8 +166,7 @@ class MainWindow(QMainWindow):
                            "error to the developer.", "File not found")
 
     def onPrefs(self):
-        import prefs
-        pw = prefs.PrefsDialog(self)
+        pw = ui.prefs.PrefsDialog(self)
         pw.exec_()
 
     def onVersion(self):
@@ -207,7 +210,6 @@ class MainWindow(QMainWindow):
         actionWriteConf.triggered.connect(writeConfiguration)
 
     def exception_hook(self, exctype, value, tb):
-        import traceback
         tbtext = ''.join(traceback.format_exception(exctype, value, tb))
         utils.tracebackBox(tbtext, isDebug=self.isDebugMode)
         return
