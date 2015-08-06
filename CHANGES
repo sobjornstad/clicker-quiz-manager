@@ -1,3 +1,24 @@
+Changes in 1.0.2
+----------------
+
+- Add students tables and editing interface.
+
+- Add history dialog; none of the buttons yet work, but it does store quiz
+  history.
+
+- Add export routines for paper quizzes, HTML, and plain text.
+
+- Allow using Ctrl-S along with Alt-S to save a question in the question
+  editor.
+
+- Fix missing access keys and links in the menus of the main window.
+
+- Add preference to automatically select answer choice A, and to warn if a lot
+  of correct answers seem to be "A" to go along with that.
+
+- Some refactoring and under-the-hood improvements.
+
+
 Changes in 1.0.1
 ----------------
 
