@@ -635,11 +635,13 @@ QGroupBox::title {
  <tabstops>
   <tabstop>questionList</tabstop>
   <tabstop>newButton</tabstop>
-  <tabstop>deleteButton</tabstop>
-  <tabstop>importButton</tabstop>
   <tabstop>moveUpButton</tabstop>
+  <tabstop>deleteButton</tabstop>
   <tabstop>moveDownButton</tabstop>
+  <tabstop>importButton</tabstop>
   <tabstop>exportButton</tabstop>
+  <tabstop>genQuizButton</tabstop>
+  <tabstop>randomizeButton</tabstop>
   <tabstop>questionBox</tabstop>
   <tabstop>difficultySpinner</tabstop>
   <tabstop>answerA</tabstop>
