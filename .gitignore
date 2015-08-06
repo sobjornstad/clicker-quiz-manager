@@ -1,6 +1,6 @@
 *.un~
 *.pyc
 *.db
-*.html
+docs/*.html
 ui/forms/
 nogit/
