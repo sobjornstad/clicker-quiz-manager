@@ -23,19 +23,6 @@
       <property name="verticalSpacing">
        <number>0</number>
       </property>
-      <item row="4" column="1">
-       <widget class="QPushButton" name="quitButton">
-        <property name="minimumSize">
-         <size>
-          <width>125</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>&amp;Quit</string>
-        </property>
-       </widget>
-      </item>
       <item row="3" column="1">
        <widget class="QPushButton" name="quizButton">
         <property name="minimumSize">
@@ -72,7 +59,7 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
+      <item row="5" column="0">
        <widget class="QPushButton" name="setsButton">
         <property name="minimumSize">
          <size>
@@ -84,7 +71,7 @@
          <string/>
         </property>
         <property name="text">
-         <string>&amp;Sets</string>
+         <string>Question &amp;Sets</string>
         </property>
        </widget>
       </item>
@@ -111,10 +98,30 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
+      <item row="6" column="0">
        <widget class="QPushButton" name="studentsButton">
         <property name="text">
          <string>St&amp;udents</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QPushButton" name="quitButton">
+        <property name="minimumSize">
+         <size>
+          <width>125</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>&amp;Quit</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QPushButton" name="historyButton">
+        <property name="text">
+         <string>Quiz &amp;History</string>
         </property>
        </widget>
       </item>
