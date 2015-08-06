@@ -26,7 +26,7 @@ Abbreviations used in this module:
     sid: a set ID (primary key for sets)
     cid: a class ID (ditto for classes)
     hid: a history ID (ditto for history entries)
-    q: the question text of a Question
+    q: the question text of a Question, or a query to send to SQL
     cls: a class (sorry, yes, this conflicts with the class method standard arg)
     ctype: whether a QuizItem is new or review
     ivl: interval (time between two reviews)
@@ -46,12 +46,14 @@ Database schema for history table:
     factor: the number by which lastIvl will be multiplied on schedule
 """
 
+import datetime
+import pickle
+import random
+
 import db.database as d
 import db.questions as questions
 import db.output as output
 import db.sets as sets
-
-import random
 
 class SetRescheduler(object):
     """
@@ -279,8 +281,37 @@ class Quiz(object):
         curSet = getSetsUsed(self.cls)
         for i in self.newL + self.revL:
             i.reschedule(curSet, sr)
+        self.saveHistory()
         sr.runResched()
         incrementSetsUsed(self.cls)
+
+    def saveHistory(self):
+        """
+        Save information about a quiz that's been generated to the database's
+        history table for later reference. Called from self.rewriteSchedule().
+        """
+        cid = self.cls.getCid()
+        qList = [i.getQuestion() for i in self.allQuestions]
+        qPickle = pickle.dumps(qList)
+        d.cursor.execute('SELECT MAX(seq) FROM quizzes WHERE cid=?', (cid,))
+        seq = d.cursor.fetchall()[0][0]
+        if seq == None:
+            seq = 1
+        date = datetime.datetime.now().strftime('%Y-%m-%d')
+        newQuestions = len(self.newL)
+        revQuestions = len(self.revL)
+        setNames = ', '.join([i.getName() for i in self.newSets])
+        resultsFlag = 0 # clearly, there are no results imported yet
+        notes = ''
+
+        q = '''INSERT INTO quizzes
+               (zid, cid, qPickle, newNum, revNum, newSetNames, seq,
+                resultsFlag, datestamp, notes)
+               VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?, ?)'''
+        vals = (cid, qPickle, newQuestions, revQuestions, setNames, seq,
+                resultsFlag, date, notes)
+        d.cursor.execute(q, vals)
+        d.checkAutosave()
 
     def _fillNewItems(self):
         """

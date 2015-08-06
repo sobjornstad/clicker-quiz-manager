@@ -14,6 +14,7 @@ def makeDatabase(fname):
     cursor.execute('CREATE TABLE history (hid INTEGER PRIMARY KEY, cid INTEGER, sid INTEGER, nextSet INTEGER, lastIvl INTEGER, factor INTEGER)')
     cursor.execute('CREATE TABLE conf (conf TEXT)')
     cursor.execute('CREATE TABLE students (stid INTEGER PRIMARY KEY, ln TEXT, fn TEXT, tpid TEXT, tpdev TEXT, email TEXT, cid INTEGER)')
+    cursor.execute('CREATE TABLE quizzes (zid INTEGER PRIMARY KEY, cid INTEGER, qPickle TEXT, newNum INTEGER, revNum INTEGER, newSetNames TEXT, seq INTEGER, resultsFlag INTEGER, datestamp TEXT, notes TEXT)')
     return connection
 
 if __name__ == "__main__":

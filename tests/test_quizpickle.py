@@ -11,8 +11,6 @@ from db.classes import Class
 
 import pickle
 
-#TODO TODO TODO: continue checking the change of renderTxt. Finish with HTML and PDF. Normalize the names of all the render fns.
-
 class PicklingTests(utils.DbTestCase):
     def testSaveRestore(self):
         cls = Class("TestClass")

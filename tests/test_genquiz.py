@@ -6,6 +6,9 @@ import db.output
 from db.genquiz import *
 import utils
 
+import datetime
+import pickle
+
 class QuizTests(utils.DbTestCase):
     def testQuizItem(self):
         cls = db.classes.Class("Test Class")
@@ -116,6 +119,26 @@ class QuizTests(utils.DbTestCase):
         assert oldSetsUsed + 1 == getSetsUsed(cls)
         # more resched is tested with QuizItem
 
+        # history entries
+        # the insert code works; do some testing on what we got out of it
+        d.cursor.execute('SELECT * FROM quizzes')
+        zid, cid, qPickle, newNum, revNum, newSetNames, seq, resultsFlag, \
+                datestamp, notes = d.cursor.fetchall()[0]
+        assert cid == cls.getCid()
+        assert newNum == 1 #/see section "fill with random questions" above
+        assert revNum == 2 #\
+        assert newSetNames == "Test Set"
+        assert seq == 1
+        assert resultsFlag == 0
+        assert datestamp == datetime.datetime.now().strftime('%Y-%m-%d')
+        assert notes == ""
+        ql = pickle.loads(qPickle)
+        assert len(ql) == 3
+        assert q2 in ql or q3 in ql
+        assert q in ql or q4 in ql
+        assert st == ql[0].getSet() or st2 == ql[0].getSet()
+
+
     def testFindSets(self):
         st1 = db.sets.Set("Test Set 1", 1)
         st2 = db.sets.Set("Test Set 2", 2)
@@ -139,10 +162,6 @@ class QuizTests(utils.DbTestCase):
         # now we should only have one new
         sts = findNewSets(cls)
         assert len(sts) == 1, len(sts)
-
-
-
-
 
 
 if __name__ == "__main__":
