@@ -253,8 +253,10 @@ An error occurred while running LaTeX to create the paper quiz. Please check the
             return f
 
     def accept(self):
-        r = utils.questionBox("Accepting will reschedule all sets in this " \
-                "quiz. Continue?", "Confirm Reschedule")
+        r = utils.questionBox("Rescheduling will place your selected new sets "
+                              "into review and schedule any review sets "
+                              "further into the future. Rescheduling cannot "
+                              "be undone. Continue?", "Confirm Reschedule")
         if r == QMessageBox.Yes:
             self.parent.quiz.rewriteSchedule()
             self.parent.previewResult = True
@@ -265,10 +267,11 @@ An error occurred while running LaTeX to create the paper quiz. Please check the
 
     def reject(self):
         if self.hasSaved:
-            r = utils.questionBox("""
-If you return to the settings now, the sets used in this quiz will not be rescheduled to reflect the fact that you saved and will use this quiz. This cannot be undone. Really continue?
-                    """.strip(),
-                    "Cancel reschedule?")
+            r = utils.questionBox("If you return to the settings now, no "
+                   "history entry will be saved for this quiz and the selected "
+                   "new set(s) will not be scheduled for review. You should "
+                   "continue only if you do not want to use this quiz in your "
+                   "class. Really continue?", "Really cancel reschedule?")
             if r != QMessageBox.Yes:
                 return
         self.parent.previewResult = False
