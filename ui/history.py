@@ -53,7 +53,7 @@ class HistoryDialog(QDialog):
         self.form.tableView.resizeColumnsToContents()
 
     def defaultSort(self):
-        self.form.tableView.sortByColumn(0)
+        self.form.tableView.sortByColumn(0, QtCore.Qt.AscendingOrder)
 
     def onViewQuiz(self):
         pass
@@ -129,7 +129,7 @@ class HistoryTableModel(QAbstractTableModel):
     #    return True
 
     def sort(self, column, order=QtCore.Qt.AscendingOrder):
-        rev = (order == QtCore.Qt.AscendingOrder)
+        rev = not (order == QtCore.Qt.AscendingOrder)
 
         if column == 0:
             key = lambda i: i.seq

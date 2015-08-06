@@ -68,17 +68,33 @@ class StudentTableModel(QAbstractTableModel):
         return True
 
     def sort(self, column, order=QtCore.Qt.AscendingOrder):
-        rev = (order == QtCore.Qt.AscendingOrder)
+        rev = not (order == QtCore.Qt.AscendingOrder)
+        if column == 2:
+            # The TPID is not required to be an integer, but it often will be.
+            # Therefore, we implement a sort in which ints or items coercible
+            # to ints sort first, then a case-insensitive sort of all other
+            # items.
+            def attemptIntSort(i):
+                try:
+                    val = int(i.getTpid())
+                except ValueError:
+                    val = i.getTpid().lower()
+                return val
+
+            self.beginResetModel()
+            self.l.sort(key=attemptIntSort, reverse=rev)
+            self.endResetModel()
+            return
+
+        # Non-tpid columns use normal case-insensitive sorting.
         if column == 0:
-            key = lambda i: i.getLn()
+            key = lambda i: i.getLn().lower()
         elif column == 1:
-            key = lambda i: i.getFn()
-        elif column == 2:
-            key = lambda i: i.getTpid()
+            key = lambda i: i.getFn().lower()
         elif column == 3:
-            key = lambda i: i.getTpdev()
+            key = lambda i: i.getTpdev().lower()
         elif column == 4:
-            key = lambda i: i.getEmail()
+            key = lambda i: i.getEmail().lower()
 
         self.beginResetModel()
         self.l.sort(key=key, reverse=rev)
@@ -184,7 +200,7 @@ class StudentsDialog(QDialog):
         self.defaultSort()
 
     def defaultSort(self):
-        self.form.tableView.sortByColumn(0)
+        self.form.tableView.sortByColumn(0, QtCore.Qt.AscendingOrder)
 
     def onAdd(self):
         self.tableModel.setNextClassInsert(self._currentClass())
