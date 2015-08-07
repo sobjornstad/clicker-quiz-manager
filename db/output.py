@@ -239,7 +239,7 @@ def renderHtml(questions, cls, quizNum, fname, forQuiz=False,
     If no values are provided for the optional arguments, the default header
     and footer in db/resources will be used.
     """
-    content = _htmlText(questions)
+    content = _htmlText(questions, forQuiz)
 
     with open(headerPath) as f:
         header = f.read()
