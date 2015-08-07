@@ -91,12 +91,18 @@
          <property name="text">
           <string>View &amp;quiz</string>
          </property>
+         <property name="autoDefault">
+          <bool>false</bool>
+         </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="importResultsButton">
          <property name="text">
           <string>&amp;Import results</string>
+         </property>
+         <property name="autoDefault">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -105,6 +111,9 @@
          <property name="text">
           <string>View &amp;results</string>
          </property>
+         <property name="autoDefault">
+          <bool>false</bool>
+         </property>
         </widget>
        </item>
        <item>
@@ -112,12 +121,18 @@
          <property name="text">
           <string>&amp;Email results</string>
          </property>
+         <property name="autoDefault">
+          <bool>false</bool>
+         </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="closeButton">
          <property name="text">
           <string>Cl&amp;ose</string>
+         </property>
+         <property name="autoDefault">
+          <bool>false</bool>
          </property>
         </widget>
        </item>

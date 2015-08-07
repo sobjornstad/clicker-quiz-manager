@@ -123,7 +123,7 @@ class QuizWindow(QDialog):
         d.setText(prevText)
         d.exec_()
 
-        #### eek
+        #### maybe make this a return val later? not sure
         if self.previewResult:
             QDialog.accept(self)
 

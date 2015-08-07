@@ -294,9 +294,8 @@ class Quiz(object):
         qList = [i.getQuestion() for i in self.allQuestions]
         qPickle = pickle.dumps(qList)
         d.cursor.execute('SELECT MAX(seq) FROM quizzes WHERE cid=?', (cid,))
-        seq = d.cursor.fetchall()[0][0]
-        if seq == None:
-            seq = 1
+        lastSeq = d.cursor.fetchall()[0][0]
+        seq = (lastSeq + 1) if lastSeq is not None else 1
         date = datetime.datetime.now().strftime('%Y-%m-%d')
         newQuestions = len(self.newL)
         revQuestions = len(self.revL)

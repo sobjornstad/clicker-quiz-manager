@@ -3,9 +3,30 @@
 # Copyright 2015 Soren Bjornstad. All rights reserved.
 
 import datetime
+import pickle
 
 import db.database as d
 import db.classes
+
+class QuizProvider(object):
+    """
+    Class to provide quiz questions to the quiz preview/save dialog so that it
+    can save quizzes that have been previously generated. Since no rescheduling
+    needs to be done at this point, a true Quiz object is not required. Thus,
+    an object of this class is used and imitates Quiz in the methods that the
+    PreviewDialog requires, which are fetchQuestionsForOutput() and getClass().
+    """
+
+    def __init__(self, questions, cls):
+        self.cls = cls
+        self.ql = questions
+
+    def getClass(self):
+        return self.cls
+
+    def fetchQuestionsForOutput(self):
+        return self.ql
+
 
 class HistoryItem(object):
     """
@@ -21,6 +42,7 @@ class HistoryItem(object):
         self.zid, self.cid, self.qPickle, self.newNum, self.revNum, \
                 self.newSetNames, self.seq, self.resultsFlag, \
                 self.datestamp, self.notes = d.cursor.fetchall()[0]
+        self.ql = pickle.loads(self.qPickle)
 
     def getFormattedDate(self, dateFormat='%Y-%m-%d'):
         """

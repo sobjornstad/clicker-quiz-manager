@@ -8,6 +8,7 @@ from PyQt4.QtGui import QDialog, QInputDialog, QMessageBox, QShortcut, \
 from PyQt4.QtCore import QObject, QAbstractTableModel, QModelIndex
 from ui.forms.history import Ui_Dialog
 
+import ui.quizgen
 import ui.utils as utils
 import db.classes
 import db.genquiz
@@ -28,11 +29,21 @@ class HistoryDialog(QDialog):
         self.setupClassCombo()
         self.tableModel = HistoryTableModel(self)
         self.form.tableView.setModel(self.tableModel)
+        self.sm = self.form.tableView.selectionModel()
+        #self.sm.currentRowChanged.connect(self.checkButtonEnablement)
+        self.sm.selectionChanged.connect(self.checkButtonEnablement)
         self.reFillHistory()
         self.form.classCombo.activated.connect(self.reFillHistory)
 
         qlShortcut = QShortcut(QKeySequence("Alt+L"), self.form.tableView)
         qlShortcut.connect(qlShortcut, QtCore.SIGNAL("activated()"), lambda: self.form.tableView.setFocus())
+
+    def checkButtonEnablement(self):
+        doEnable = self.sm.hasSelection()
+        sf = self.form
+        for i in (sf.viewQuizButton, sf.importResultsButton,
+                  sf.viewResultsButton, sf.emailResultsButton):
+            i.setEnabled(doEnable)
 
     def setupClassCombo(self):
         self.form.classCombo.clear()
@@ -51,12 +62,36 @@ class HistoryDialog(QDialog):
         self.tableModel.replaceHistorySet(history)
         self.defaultSort()
         self.form.tableView.resizeColumnsToContents()
+        self.checkButtonEnablement()
 
     def defaultSort(self):
         self.form.tableView.sortByColumn(0, QtCore.Qt.AscendingOrder)
 
     def onViewQuiz(self):
-        pass
+        # make sure there are entries to display
+        if self.tableModel.rowCount(self) == 0:
+            return
+
+        # get the history item for the selected row
+        obj = self.tableModel.getObj(self.form.tableView.currentIndex())
+
+        # set up the preview dialog -- some changes need to be made since it's
+        # being used somewhat differently
+        d = ui.quizgen.PreviewDialog(self)
+        d.form.okButton.setVisible(False)
+        d.form.cancelButton.setToolTip("")
+        d.form.cancelButton.setText("&Close")
+        clsName = self._currentClass().getName()
+        d.setWindowTitle("%s ~ Quiz %i" % (clsName, obj.seq))
+
+        # Fetch quiz preview and set text. self.quiz (accessed through parent
+        # -- i.e., the present object) is here a QuizProvider, emulating an
+        # actual Quiz
+        self.quiz = db.history.QuizProvider(obj.ql, self._currentClass())
+        quizPreviewText = db.output.genPlainText(
+                self.quiz.fetchQuestionsForOutput())
+        d.setText(quizPreviewText)
+        d.exec_()
 
     def onEmailResults(self):
         pass
@@ -167,3 +202,6 @@ class HistoryTableModel(QAbstractTableModel):
 
     def numItems(self):
         return len(self.l)
+
+    def getObj(self, index):
+        return self.l[index.row()]
