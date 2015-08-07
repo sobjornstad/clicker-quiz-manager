@@ -49,6 +49,7 @@ Database schema for history table:
 import datetime
 import pickle
 import random
+import sqlite3
 
 import db.database as d
 import db.questions as questions
@@ -307,8 +308,8 @@ class Quiz(object):
                (zid, cid, qPickle, newNum, revNum, newSetNames, seq,
                 resultsFlag, datestamp, notes)
                VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?, ?)'''
-        vals = (cid, qPickle, newQuestions, revQuestions, setNames, seq,
-                resultsFlag, date, notes)
+        vals = (cid, sqlite3.Binary(qPickle), newQuestions, revQuestions,
+                setNames, seq, resultsFlag, date, notes)
         d.cursor.execute(q, vals)
         d.checkAutosave()
 
