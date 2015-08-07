@@ -212,6 +212,15 @@ class MainWindow(QMainWindow):
         debugMenu.addAction(actionWriteConf)
         actionWriteConf.triggered.connect(writeConfiguration)
 
+        def forceSave():
+            db.database.forceSave()
+            utils.informationBox("Saved.")
+        actionForceSave = QAction(self)
+        actionForceSave.setText("Force save now")
+        debugMenu.addAction(actionForceSave)
+        actionForceSave.triggered.connect(forceSave)
+
+
     def exception_hook(self, exctype, value, tb):
         tbtext = ''.join(traceback.format_exception(exctype, value, tb))
         utils.tracebackBox(tbtext, isDebug=self.isDebugMode)
