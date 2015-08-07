@@ -166,6 +166,8 @@ class StudentsDialog(QDialog):
         self.setupClassCombo()
         self.tableModel = StudentTableModel(self)
         self.form.tableView.setModel(self.tableModel)
+        self.sm = self.form.tableView.selectionModel()
+        self.sm.selectionChanged.connect(self.checkButtonEnablement)
         self.reFillStudents()
         self.form.classCombo.activated.connect(self.reFillStudents)
 
@@ -176,6 +178,10 @@ class StudentsDialog(QDialog):
 
         qlShortcut = QShortcut(QKeySequence("Alt+L"), self.form.tableView)
         qlShortcut.connect(qlShortcut, QtCore.SIGNAL("activated()"), lambda: self.form.tableView.setFocus())
+
+    def checkButtonEnablement(self):
+        doEnable = self.sm.hasSelection()
+        self.form.deleteButton.setEnabled(doEnable)
 
     def setInitialClass(self, cls):
         idx = self.form.classCombo.findText(cls.getName())
@@ -198,6 +204,7 @@ class StudentsDialog(QDialog):
         students = db.students.studentsInClass(cls)
         self.tableModel.replaceStudentSet(students)
         self.defaultSort()
+        self.checkButtonEnablement()
 
     def defaultSort(self):
         self.form.tableView.sortByColumn(0, QtCore.Qt.AscendingOrder)

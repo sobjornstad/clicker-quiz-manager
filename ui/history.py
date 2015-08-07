@@ -30,7 +30,6 @@ class HistoryDialog(QDialog):
         self.tableModel = HistoryTableModel(self)
         self.form.tableView.setModel(self.tableModel)
         self.sm = self.form.tableView.selectionModel()
-        #self.sm.currentRowChanged.connect(self.checkButtonEnablement)
         self.sm.selectionChanged.connect(self.checkButtonEnablement)
         self.reFillHistory()
         self.form.classCombo.activated.connect(self.reFillHistory)
