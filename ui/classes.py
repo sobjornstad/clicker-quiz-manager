@@ -86,7 +86,7 @@ class ClassesWindow(QDialog):
                 "\"%s\"! Your sets and questions will be unaffected." \
                 % nameToDelete)
 
-        if resp == 16384: # "yes"
+        if resp == QMessageBox.Yes: # "yes"
             row = self.form.listWidget.currentRow()
             self.form.listWidget.takeItem(row)
             db.classes.deleteClass(nameToDelete)

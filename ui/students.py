@@ -220,7 +220,7 @@ class StudentsDialog(QDialog):
     def onDelete(self):
         if not self.fastEdit:
             resp = utils.confirmDeleteBox('student')
-            if resp != 16384:
+            if resp != QMessageBox.Yes:
                 return
         self.tableModel.removeRow(self.form.tableView.currentIndex().row())
     def onImport(self):

@@ -2,6 +2,8 @@
 # This file is part of Clicker Quiz Generator.
 # Copyright 2014 Soren Bjornstad. All rights reserved.
 
+import os
+
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QDialog, QMessageBox
 from PyQt4.QtCore import QObject
@@ -51,6 +53,40 @@ def confirmDeleteBox(item, additional=''):
     msgBox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
     msgBox.setDefaultButton(QMessageBox.No)
     return msgBox.exec_()
+
+def forceExtension(filename, ext):
+    """
+    On Linux, a filename extension might not be automatically appended to the
+    result of a file open/save box. This means we have to do it ourselves and
+    check to be sure we're not overwriting something ourselves.
+
+    This check is not safe from race conditions (if another program wrote a
+    file with the same name between this function running and the output
+    routine, the other file would be overwritten), but the chance of that
+    causing a bad problem are essentially zero in this situation, and
+    neither is the normal file-save routine.
+
+    Arguments:
+        filename: the path to (or simple name of) the file we're checking
+        ext: the extension, without period, you want to ensure is included
+
+    Return:
+      - The filename (modified or not) if the file does not exist;
+      - None if it does exist and the user said she didn't want to
+        overwrite it.
+    """
+    # on linux, the extension might not be automatically appended
+    filename = unicode(filename)
+    if not filename.endswith('.%s' % ext):
+        filename += ".%s" % ext
+        if os.path.exists(filename):
+            r = questionBox("%s already exists.\nDo you want to "
+                            "replace it?" % filename)
+            if r != QMessageBox.Yes: # yes
+                return None
+    return filename
+
+
 
 #class BusyDialog(QDialog):
     #"""

@@ -253,19 +253,15 @@ An error occurred while running LaTeX to create the paper quiz. Please check the
 
     def getFilename(self, filetype):
         ft = PreviewDialog.ftdict[filetype]
-        f = QFileDialog.getSaveFileName(caption="Export Quiz", filter=ft)
-        if not f:
-            return None
-        else:
-            # on linux, the extension might not be automatically appended
-            f = unicode(f)
-            if filetype == 'rtf' and not f.endswith('.rtf'):
-                f += '.rtf'
-            elif filetype == 'pdf' and not f.endswith('.pdf'):
-                f += '.pdf'
-            elif filetype == 'html' and not f.endswith('.html'):
-                f += '.html'
-            return f
+        while True:
+            f = QFileDialog.getSaveFileName(caption="Export Quiz", filter=ft)
+            if not f:
+                return None
+            else:
+                f = utils.forceExtension(f, filetype)
+                if f is not None:
+                    break
+        return f
 
     def accept(self):
         r = utils.questionBox("Rescheduling will place your selected new sets "
