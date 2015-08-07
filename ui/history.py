@@ -67,22 +67,9 @@ class HistoryDialog(QDialog):
         self.form.tableView.sortByColumn(0, QtCore.Qt.AscendingOrder)
 
     def onViewQuiz(self):
-        # make sure there are entries to display
-        if self.tableModel.rowCount(self) == 0:
-            return
-
-        # get the history item for the selected row
         obj = self.tableModel.getObj(self.form.tableView.currentIndex())
-
-        # set up the preview dialog -- some changes need to be made since it's
-        # being used somewhat differently
         d = ui.quizgen.PreviewDialog(self)
-        d.form.okButton.setVisible(False)
-        d.form.cancelButton.setToolTip("")
-        d.form.cancelButton.setText("&Close")
-        clsName = self._currentClass().getName()
-        d.setWindowTitle("%s ~ Quiz %i" % (clsName, obj.seq))
-
+        d.setupForRePreview(self._currentClass(), obj.seq)
         # Fetch quiz preview and set text. self.quiz (accessed through parent
         # -- i.e., the present object) is here a QuizProvider, emulating an
         # actual Quiz

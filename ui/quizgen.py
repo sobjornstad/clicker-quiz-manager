@@ -167,6 +167,21 @@ class PreviewDialog(QDialog):
         self.form.cancelButton.clicked.connect(self.reject)
         self.form.saveButton.clicked.connect(self.onSave)
         self.hasSaved = False
+        self.displayCloseConfirm = True
+
+    def setupForRePreview(self, currentClass, quizNum):
+        """
+        Run if the preview dialog is being set up to display a quiz that's
+        already been generated, a situation in which the dialog box needs
+        to be slightly different.
+        """
+
+        self.form.okButton.setVisible(False)
+        self.form.cancelButton.setToolTip("")
+        self.form.cancelButton.setText("&Close")
+        clsName = currentClass.getName()
+        self.setWindowTitle("%s ~ Quiz %i" % (clsName, quizNum))
+        self.displayCloseConfirm = False
 
     def setSaved(self):
         self.hasSaved = True
@@ -266,7 +281,7 @@ An error occurred while running LaTeX to create the paper quiz. Please check the
             QDialog.accept(self)
 
     def reject(self):
-        if self.hasSaved:
+        if self.hasSaved and self.displayCloseConfirm:
             r = utils.questionBox("If you return to the settings now, no "
                    "history entry will be saved for this quiz and the selected "
                    "new set(s) will not be scheduled for review. You should "
