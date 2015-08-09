@@ -128,6 +128,27 @@ def studentsInClass(cls):
     d.cursor.execute('SELECT stid FROM students WHERE cid=?', (cls.getCid(),))
     return [Student(stu[0]) for stu in d.cursor.fetchall()]
 
+def findStudentByTpid(tpid, cls):
+    """
+    Return a Student matching tpid /tpid/ in class /cls/.
+
+    Return:
+        - If the tpid is valid, a Student object for that student.
+        - If the tpid doesn't exist, None.
+    
+    Raises:
+        AssertionError: If more than one student matches, we've screwed up,
+        because tpids are required to be unique.
+    """
+    d.cursor.execute('SELECT stid FROM students WHERE tpid=?', (tpid,))
+    retvals = d.cursor.fetchall()
+    if not retvals:
+        return None
+    if len(retvals) > 1:
+        assert False, "ERROR: Two students have the same tpid! Did we " \
+                      "remember to implement validation?"
+    return Student(retvals[0][0])
+
 def newDummyTextStudent(cls):
     """
     Return a valid Student object, not a duplicate of any existing student,

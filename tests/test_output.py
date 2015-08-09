@@ -5,6 +5,8 @@
 import filecmp
 import os
 
+from nose.plugins.attrib import attr
+
 import utils
 from db.questions import Question
 from db.sets import Set
@@ -101,6 +103,7 @@ This \{is\} some text, which costs \$4 \& 50 cents, which is \#1 in annoyance fo
         #with open ('/home/soren/output', 'wb') as f:
         #    f.write(goodstr)
 
+    @attr('slow')
     def testLaTeXRender(self):
         qs = makeTestQuestions()
         cls = Class("German 101")

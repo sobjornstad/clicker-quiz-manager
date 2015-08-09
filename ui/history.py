@@ -8,6 +8,7 @@ from PyQt4.QtGui import QDialog, QInputDialog, QMessageBox, QShortcut, \
 from PyQt4.QtCore import QObject, QAbstractTableModel, QModelIndex
 from ui.forms.history import Ui_Dialog
 
+import ui.results
 import ui.quizgen
 import ui.utils as utils
 import db.classes
@@ -86,7 +87,10 @@ class HistoryDialog(QDialog):
         pass
 
     def onViewResults(self):
-        pass
+        obj = self.tableModel.getObj(self.form.tableView.currentIndex())
+        zid = obj.zid
+        rw = ui.results.ResultsDialog(self, self._currentClass(), zid)
+        rw.exec_()
 
     def _currentClass(self):
         clsName = unicode(self.form.classCombo.currentText())

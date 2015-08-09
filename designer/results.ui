@@ -36,7 +36,7 @@
            <number>0</number>
           </property>
           <item row="0" column="1">
-           <widget class="QLabel" name="label_10">
+           <widget class="QLabel" name="classLabel">
             <property name="text">
              <string>My Class Long Name 1</string>
             </property>
@@ -69,7 +69,7 @@
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QLabel" name="label_8">
+           <widget class="QLabel" name="averageLabel">
             <property name="text">
              <string>8.67/10 (86.7%)</string>
             </property>
@@ -83,7 +83,7 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QLabel" name="label_12">
+           <widget class="QLabel" name="quizLabel">
             <property name="text">
              <string>5</string>
             </property>
@@ -121,12 +121,12 @@
                <set>Qt::AlignCenter</set>
               </property>
               <property name="buddy">
-               <cstring>listWidget</cstring>
+               <cstring>studentsTable</cstring>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QListWidget" name="listWidget"/>
+             <widget class="QListWidget" name="studentsTable"/>
             </item>
            </layout>
           </item>
@@ -178,7 +178,7 @@
              <set>Qt::AlignCenter</set>
             </property>
             <property name="buddy">
-             <cstring>tableView</cstring>
+             <cstring>stuAnswersTable</cstring>
             </property>
            </widget>
           </item>
@@ -222,7 +222,7 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLabel" name="label_4">
+               <widget class="QLabel" name="stuNameLabel">
                 <property name="text">
                  <string>Bjornstad, Soren</string>
                 </property>
@@ -248,7 +248,7 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLabel" name="label_5">
+               <widget class="QLabel" name="stuScoreLabel">
                 <property name="text">
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;9/10 (90%)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
@@ -273,7 +273,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QTableView" name="tableView"/>
+             <widget class="QTableView" name="stuAnswersTable"/>
             </item>
            </layout>
           </item>
@@ -298,14 +298,14 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_2">
+        <widget class="QPushButton" name="viewQuizButton">
          <property name="text">
           <string>View &amp;Quiz</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton">
+        <widget class="QPushButton" name="closeButton">
          <property name="text">
           <string>&amp;Close</string>
          </property>
