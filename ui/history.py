@@ -10,6 +10,7 @@ from ui.forms.history import Ui_Dialog
 
 import ui.results
 import ui.quizgen
+import ui.emailing
 import ui.utils as utils
 import db.classes
 import db.genquiz
@@ -98,7 +99,9 @@ class HistoryDialog(QDialog):
         d.exec_()
 
     def onEmailResults(self):
-        pass
+        ew = ui.emailing.EmailingDialog(
+                self, self._currentClass(), self._currentZid())
+        ew.exec_()
 
     def onImportResults(self):
         fname = QFileDialog.getOpenFileName(caption="Import Results",
