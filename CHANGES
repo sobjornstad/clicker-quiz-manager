@@ -1,3 +1,31 @@
+Changes in 1.0.3
+----------------
+
+This release is primarily bugfixes; while progress has been made on other new
+features, they are largely not complete yet, and no significant changes will be
+seen in the interface.
+
+- Implement "view quiz" function to see the questions that were on past quizzes
+  and export them to another format again.
+
+- Properly save the database when closing by clicking the X button.
+
+- Add HTML files that are necessary to export as HTML but were accidentally
+  left out of the previous release.
+
+- Add code to parse and import TurningPoint results files; this part is
+  partially untested and cannot be completely used from the main user interface.
+
+- Improve sorting in the students dialog: numbers will sort in numeric order,
+  and case no longer matters.
+
+- Fix the tab order in the question editor.
+
+- Improve several error and confirmation messages.
+
+- A collection of miscellaneous bugfixes.
+
+
 Changes in 1.0.2
 ----------------
 
