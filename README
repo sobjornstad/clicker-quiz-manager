@@ -18,13 +18,20 @@ DEPENDENCIES
 - Python 2.7
 - PyQt 4
 - sqlite3
-- PyRTF (in the thirdparty/ directory)
-- rtfunicode (in the thirdparty/ directory)
+
+Python packages:
+- BeautifulSoup 4 (pip install beautifulsoup4)
+- PyRTF (packaged in the thirdparty/ directory)
+- rtfunicode (packaged in the thirdparty/ directory)
 
 Additionally, to use the printed quiz function, you need to have LaTeX
-installed, with a few packages which I will add a list of here later. In the
-meantime, you can find out which ones they are by looking in the default header
-in db/resources.
+installed, with a few packages: fontspec, xunicode, geometry, setspace,
+titlesec, microtype, ebgaramond, ifluatex, ifxetex. The files need to be
+compiled with the XeTeX engine to display correctly.
 
-For development:
+If you can't install those packages or want to render the output in a different
+manner, it's possible to edit the LaTeX header in db/resources.
+
+For development, you will also need the following dependencies:
 - pyuic4 (to rebuild modified Qt Designer files)
+- the development headers for PyQt 4
