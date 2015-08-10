@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>549</width>
+    <height>565</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Email Results ~ Quiz 5, My Class 101</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_3">
+   <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="styleSheet">
+      <string notr="true">QGroupBox{
+	border: 2px solid gray;
+	border-radius: 9px;
+	margin-top: 0.5em;
+	font-weight: bold;
+}
+
+QGroupBox::title {
+	background-color: transparent;
+	subcontrol-position: top center;
+	padding: 4 -40px;
+}</string>
+     </property>
+     <property name="title">
+      <string>Email</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="4" column="1">
+         <widget class="QPlainTextEdit" name="bodyBox">
+          <property name="tabChangesFocus">
+           <bool>true</bool>
+          </property>
+          <property name="backgroundVisible">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_9">
+          <property name="text">
+           <string>From &amp;name</string>
+          </property>
+          <property name="buddy">
+           <cstring>fromNameBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="fromNameBox">
+          <property name="toolTip">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="fromAddrBox">
+          <property name="toolTip">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>&amp;Body</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+          </property>
+          <property name="buddy">
+           <cstring>bodyBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>From &amp;address</string>
+          </property>
+          <property name="buddy">
+           <cstring>fromAddrBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="subjectBox"/>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Sub&amp;ject</string>
+          </property>
+          <property name="buddy">
+           <cstring>subjectBox</cstring>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="styleSheet">
+      <string notr="true">QGroupBox{
+	border: 2px solid gray;
+	border-radius: 9px;
+	margin-top: 0.5em;
+	font-weight: bold;
+}
+
+QGroupBox::title {
+	background-color: transparent;
+	subcontrol-position: top center;
+	padding: 4 -40px;
+}</string>
+     </property>
+     <property name="title">
+      <string>SMTP server</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string>&amp;Password</string>
+          </property>
+          <property name="buddy">
+           <cstring>passwordBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QLineEdit" name="passwordBox">
+          <property name="echoMode">
+           <enum>QLineEdit::Password</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>&amp;Hostname</string>
+          </property>
+          <property name="buddy">
+           <cstring>hostnameBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QComboBox" name="SSLCombo"/>
+        </item>
+        <item row="4" column="1">
+         <widget class="QLineEdit" name="usernameBox"/>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="portBox"/>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>SS&amp;L</string>
+          </property>
+          <property name="buddy">
+           <cstring>SSLCombo</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="2">
+         <widget class="QCheckBox" name="showPWCheck">
+          <property name="text">
+           <string>Sho&amp;w password</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>&amp;Username</string>
+          </property>
+          <property name="buddy">
+           <cstring>usernameBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>P&amp;ort</string>
+          </property>
+          <property name="buddy">
+           <cstring>portBox</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="hostnameBox">
+          <property name="toolTip">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="sendMailButton">
+       <property name="toolTip">
+        <string>Send email to all students in the class.</string>
+       </property>
+       <property name="text">
+        <string>&amp;Send mail</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="sendTestButton">
+       <property name="toolTip">
+        <string>Send a test email using these settings to yourself.</string>
+       </property>
+       <property name="text">
+        <string>Send &amp;test</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancelButton">
+       <property name="text">
+        <string>&amp;Cancel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>fromNameBox</tabstop>
+  <tabstop>fromAddrBox</tabstop>
+  <tabstop>subjectBox</tabstop>
+  <tabstop>bodyBox</tabstop>
+  <tabstop>hostnameBox</tabstop>
+  <tabstop>portBox</tabstop>
+  <tabstop>SSLCombo</tabstop>
+  <tabstop>usernameBox</tabstop>
+  <tabstop>passwordBox</tabstop>
+  <tabstop>showPWCheck</tabstop>
+  <tabstop>sendMailButton</tabstop>
+  <tabstop>cancelButton</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>
