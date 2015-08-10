@@ -14,6 +14,7 @@ import ui.utils as utils
 import db.classes
 import db.genquiz
 import db.history
+import db.results
 
 class HistoryDialog(QDialog):
     def __init__(self, parent):
@@ -39,11 +40,27 @@ class HistoryDialog(QDialog):
         qlShortcut.connect(qlShortcut, QtCore.SIGNAL("activated()"), lambda: self.form.tableView.setFocus())
 
     def checkButtonEnablement(self):
-        doEnable = self.sm.hasSelection()
         sf = self.form
-        for i in (sf.viewQuizButton, sf.importResultsButton,
-                  sf.viewResultsButton, sf.emailResultsButton):
-            i.setEnabled(doEnable)
+        # if nothing is selected, disable all options and return
+        if not self.sm.hasSelection():
+            for i in (sf.viewQuizButton, sf.importResultsButton,
+                      sf.viewResultsButton, sf.emailResultsButton):
+                i.setEnabled(False)
+            return
+
+        # view quiz is always available as long as a quiz is selected
+        sf.viewQuizButton.setEnabled(True)
+
+        # import results available iff results not imported
+        obj = self.tableModel.getObj(self.form.tableView.currentIndex())
+        sf.importResultsButton.setEnabled(obj.resultsFlag == 0)
+
+        # view results available if results is available or sent
+        sf.viewResultsButton.setEnabled(obj.resultsFlag != 0)
+
+        # email results available iff results is available
+        # TODO: it may be better to allow emailing again, but give a warning
+        sf.emailResultsButton.setEnabled(obj.resultsFlag == 1)
 
     def setupClassCombo(self):
         self.form.classCombo.clear()
@@ -84,13 +101,27 @@ class HistoryDialog(QDialog):
         pass
 
     def onImportResults(self):
-        pass
+        fname = QFileDialog.getOpenFileName(caption="Import Results",
+                filter="HTML files (*.html)")
+        if not fname:
+            return
+        with open(fname) as f:
+            html = f.read()
+        responses = db.results.parseHtmlString(html)
+        for resp in responses:
+            db.results.writeResults(
+                    resp, self._currentClass(), self._currentZid())
+        obj = self.tableModel.getObj(self.form.tableView.currentIndex())
+        obj.rewriteResultsFlag(1) # results imported, not yet sent
 
     def onViewResults(self):
-        obj = self.tableModel.getObj(self.form.tableView.currentIndex())
-        zid = obj.zid
+        zid = self._currentZid()
         rw = ui.results.ResultsDialog(self, self._currentClass(), zid)
         rw.exec_()
+
+    def _currentZid(self):
+        obj = self.tableModel.getObj(self.form.tableView.currentIndex())
+        return obj.zid
 
     def _currentClass(self):
         clsName = unicode(self.form.classCombo.currentText())

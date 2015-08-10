@@ -140,7 +140,8 @@ def findStudentByTpid(tpid, cls):
         AssertionError: If more than one student matches, we've screwed up,
         because tpids are required to be unique.
     """
-    d.cursor.execute('SELECT stid FROM students WHERE tpid=?', (tpid,))
+    d.cursor.execute('SELECT stid FROM students WHERE cid=? AND tpid=?',
+            (cls.getCid(), tpid))
     retvals = d.cursor.fetchall()
     if not retvals:
         return None

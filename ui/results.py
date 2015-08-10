@@ -12,6 +12,7 @@ import ui.utils as utils
 import db.results
 import db.classes
 import db.students
+from db.history import HistoryItem
 
 class ResultsDialog(QDialog):
     """
@@ -37,21 +38,55 @@ class ResultsDialog(QDialog):
 
         self.tableModel = AnswersTableModel(self)
         self.form.stuAnswersTable.setModel(self.tableModel)
+        self.form.studentsTable.itemSelectionChanged.connect(
+                self.displayStudent)
 
         qlShortcut = QShortcut(QKeySequence("Alt+L"), self.form.studentsTable)
-        qlShortcut.connect(qlShortcut, QtCore.SIGNAL("activated()"), lambda: self.form.studentsTable.setFocus())
+        qlShortcut.connect(qlShortcut, QtCore.SIGNAL("activated()"),
+                self.form.studentsTable.setFocus)
 
+        # initialize lists
         self.setupStudentList()
+        self.setupSummaryData()
+        self.form.studentsTable.setCurrentRow(0)
+        self.displayStudent()
+
+    def setupSummaryData(self):
+        self.form.classLabel.setText(self.cls.getName())
+        historyItem = HistoryItem(self.zid)
+        self.form.quizLabel.setText(unicode(historyItem.seq))
+        self.form.newSetsLabel.setText(unicode(historyItem.newSetNames))
+
+        allResults = []
+        for stu in self.students:
+            results = db.results.readResults(stu, self.zid)
+            allResults.append(calcCorrectValues(results)[0])
+        totalNum = len(results) # it should be the same for all students
+        avgCorrect = float(sum(allResults)) / len(allResults)
+        self.form.averageLabel.setText("%.02f/%i (%.01f%%)" % (
+            avgCorrect, totalNum, 100 * avgCorrect / totalNum))
+        self.setWindowTitle("%s ~ Results for Quiz %i" % (
+            self.cls.getName(), historyItem.seq))
 
     def setupStudentList(self):
-        print self.cls
-        students = db.students.studentsInClass(self.cls)
+        self.students = db.students.studentsInClass(self.cls)
         # sort by last name, then first name
-        students.sort(key=lambda i: i.getFn())
-        students.sort(key=lambda i: i.getLn())
-        for stu in students:
+        self.students.sort(key=lambda i: i.getFn())
+        self.students.sort(key=lambda i: i.getLn())
+        for stu in self.students:
             self.form.studentsTable.addItem("%s, %s"%(stu.getLn(), stu.getFn()))
 
+    def displayStudent(self):
+        studentIndex = self.form.studentsTable.currentRow()
+        selectedStudent = self.students[studentIndex]
+        self.form.stuNameLabel.setText("%s, %s" % (
+            selectedStudent.getLn(), selectedStudent.getFn()))
+
+        results = db.results.readResults(selectedStudent, self.zid)
+        self.tableModel.replaceContents(results)
+        numCorrect, numTotal, percent = calcCorrectValues(results)
+        scoreStr = "%i/%i (%.01f%%)" % (numCorrect, numTotal, percent)
+        self.form.stuScoreLabel.setText(scoreStr)
 
     def onViewQuiz(self):
         pass
@@ -84,7 +119,7 @@ class AnswersTableModel(QAbstractTableModel):
         if col == 0:
             return robj[0]
         elif col == 1:
-            return robj[1].upper()
+            return robj[1].upper() + (" (!)" if robj[1] != robj[2] else "")
         elif col == 2:
             return robj[2].upper()
 
@@ -107,3 +142,25 @@ class AnswersTableModel(QAbstractTableModel):
 
     def numItems(self):
         return len(self.l)
+
+    def replaceContents(self, newList):
+        self.beginResetModel()
+        self.l = newList
+        self.endResetModel()
+
+def calcCorrectValues(results):
+    """
+    Calculate the fraction and percentage correct for a student's answers.
+
+    Arguments:
+        results: The results list in standard format (from the db table).
+
+    Return:
+        A tuple: (number correct, total number of questions, float percentage)
+    """
+
+    numCorrect = 0
+    for i in results:
+        if i[1] == i[2]:
+            numCorrect += 1
+    return (numCorrect, len(results), 100 * float(numCorrect) / len(results))

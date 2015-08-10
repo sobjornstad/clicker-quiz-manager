@@ -32,9 +32,11 @@ class HistoryItem(object):
     """
     Unlike the rest of our data containers in this application, we're going to
     handle this one with public attributes, as this rarely needs to write back
-    to the db and can mostly be an immutable container. The only thing we'll
-    need to update is resultsFlag and possibly notes; we'll add setter
-    functions for those when we need them.
+    to the db and can mostly be an immutable container.
+    
+    To change resultsFlag, use the function rewriteResultsFlag() rather than
+    modifying the attribute. There should be no reason to modify any other
+    attribute after creation.
     """
 
     def __init__(self, zid):
@@ -43,6 +45,11 @@ class HistoryItem(object):
                 self.newSetNames, self.seq, self.resultsFlag, \
                 self.datestamp, self.notes = d.cursor.fetchall()[0]
         self.ql = pickle.loads(self.qPickle)
+
+    def rewriteResultsFlag(self, flag):
+        self.resultsFlag = flag
+        q = 'UPDATE quizzes SET resultsFlag=? WHERE zid=?'
+        d.cursor.execute(q, (self.resultsFlag, self.zid))
 
     def getFormattedDate(self, dateFormat='%Y-%m-%d'):
         """
