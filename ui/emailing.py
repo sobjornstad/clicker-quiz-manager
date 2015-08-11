@@ -11,21 +11,19 @@ from ui.forms.emailopts import Ui_Dialog
 import ui.utils as utils
 from db.history import HistoryItem
 
-"""
-Format strings available in subject or body:
-    $c: name of current class
-    $n: number of current quiz
-    $s: name of student email is being sent to
-    $r: number correct
-    $t: total number of questions
-    $p: percentage correct
-    $$: literal dollar sign
+class PasswordSafeQLineEdit(QLineEdit):
+    # NOTE: This doesn't disable the undo from the context menu; for this to be
+    # safe, it's currently necessary to disable the context menu. See
+    # http://stackoverflow.com/questions/31929996/
+    # prevent-undo-in-a-particular-text-box
+    def keyPressEvent(self,event):
+        if event.key()==(QtCore.Qt.Key_Control and QtCore.Qt.Key_Z):
+            self.undo()
+        else:
+            QLineEdit.keyPressEvent(self,event)
 
-Format strings available in body only:
-    $a: list of student's answers vs. correct (like in view dialog)
-    $q: display of quiz, with correct answers
-    $Q: display of quiz, with correct & student's answers
-"""
+    def undo(self):
+        pass
 
 class EmailingDialog(QDialog):
     def __init__(self, parent, cls, zid):
@@ -41,8 +39,10 @@ class EmailingDialog(QDialog):
 
         self.form.cancelButton.clicked.connect(self.reject)
         self.form.showPWCheck.toggled.connect(self.toggleShowPW)
+        self.form.passwordBox.textEdited.connect(self.unsetPasswordWasLoaded)
 
         self.fetchOptions()
+        self.makeOptionsDict()
 
     def fetchOptions(self):
         # do something to get the options from the conf part of the db; for now,
@@ -71,6 +71,19 @@ class EmailingDialog(QDialog):
 
         self.passwordWasLoaded = True if opts['password'] else False
 
+    def makeOptionsDict(self):
+        opts = {}
+        opts['fromName'] = unicode(self.form.fromNameBox.text())
+        opts['fromAddr'] = unicode(self.form.fromAddrBox.text())
+        opts['subject'] = unicode(self.form.subjectBox.text())
+        opts['body'] = unicode(self.form.bodyBox.toPlainText())
+        opts['hostname'] = unicode(self.form.hostnameBox.text())
+        opts['port'] = unicode(self.form.portBox.text())
+        opts['ssl'] = unicode(self.form.SSLCombo.currentText())
+        opts['username'] = unicode(self.form.usernameBox.text())
+        opts['password'] = unicode(self.form.passwordBox.text())
+        return opts
+
     def putOptions(self):
         # do something to save the options into the db; for now, we do nothing.
         pass
@@ -81,9 +94,9 @@ class EmailingDialog(QDialog):
             # if password was saved in the config, don't let it be shown in
             # plaintext for some basic security
             if self.passwordWasLoaded:
-                r = utils.questionBox("For security reasons, you cannot view a "
-                        "saved password. Would you like to erase the saved "
-                        "password?", "Erase Password")
+                r = utils.questionBox("For security reasons, you cannot view "
+                        "any part of a saved password. Would you like to erase "
+                        "the saved password?", "Erase Password")
                 if r == QMessageBox.Yes:
                     self.form.passwordBox.setText("")
                     self.passwordWasLoaded = False
@@ -93,3 +106,7 @@ class EmailingDialog(QDialog):
             self.form.passwordBox.setEchoMode(QLineEdit.Normal)
         else:
             self.form.passwordBox.setEchoMode(QLineEdit.Password)
+
+    def unsetPasswordWasLoaded(self):
+        if unicode(self.form.passwordBox.text()) == '':
+            self.passwordWasLoaded = False

@@ -57,12 +57,8 @@ class ResultsDialog(QDialog):
         self.form.quizLabel.setText(unicode(historyItem.seq))
         self.form.newSetsLabel.setText(unicode(historyItem.newSetNames))
 
-        allResults = []
-        for stu in self.students:
-            results = db.results.readResults(stu, self.zid)
-            allResults.append(calcCorrectValues(results)[0])
-        totalNum = len(results) # it should be the same for all students
-        avgCorrect = float(sum(allResults)) / len(allResults)
+        avgCorrect, totalNum, avgPercentage = db.results.calcClassAverages(
+                self.students, self.zid)
         self.form.averageLabel.setText("%.02f/%i (%.01f%%)" % (
             avgCorrect, totalNum, 100 * avgCorrect / totalNum))
         self.setWindowTitle("%s ~ Results for Quiz %i" % (
@@ -82,9 +78,10 @@ class ResultsDialog(QDialog):
         self.form.stuNameLabel.setText("%s, %s" % (
             selectedStudent.getLn(), selectedStudent.getFn()))
 
+        #TODO: This will break with None
         results = db.results.readResults(selectedStudent, self.zid)
         self.tableModel.replaceContents(results)
-        numCorrect, numTotal, percent = calcCorrectValues(results)
+        numCorrect, numTotal, percent = db.results.calcCorrectValues(results)
         scoreStr = "%i/%i (%.01f%%)" % (numCorrect, numTotal, percent)
         self.form.stuScoreLabel.setText(scoreStr)
 
@@ -119,6 +116,7 @@ class AnswersTableModel(QAbstractTableModel):
         if col == 0:
             return robj[0]
         elif col == 1:
+            #TODO: I think this will break with None
             return robj[1].upper() + (" (!)" if robj[1] != robj[2] else "")
         elif col == 2:
             return robj[2].upper()
@@ -147,20 +145,3 @@ class AnswersTableModel(QAbstractTableModel):
         self.beginResetModel()
         self.l = newList
         self.endResetModel()
-
-def calcCorrectValues(results):
-    """
-    Calculate the fraction and percentage correct for a student's answers.
-
-    Arguments:
-        results: The results list in standard format (from the db table).
-
-    Return:
-        A tuple: (number correct, total number of questions, float percentage)
-    """
-
-    numCorrect = 0
-    for i in results:
-        if i[1] == i[2]:
-            numCorrect += 1
-    return (numCorrect, len(results), 100 * float(numCorrect) / len(results))

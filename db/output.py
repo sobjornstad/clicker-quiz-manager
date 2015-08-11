@@ -97,17 +97,23 @@ def _genRtfFile(questions):
 
 
 ### Plain text ###
-def genPlainText(questions, forQuiz=False):
+def genPlainText(questions, forQuiz=False, includeStudentResults=None):
     """
     Return a plain text string of the list of Questions (for preview or
     export). If /forQuiz/, do not include set names and correct answers;
     otherwise, do.
+
+    If /includeStudentResults/ is set, include the answers in the results list
+    underneath the correct answers. If includeStudentResults is not None,
+    forQuiz is implied False.
 
     This function is used by renderTxt, but it can also be called alone to
     generate a preview of a quiz.
     """
     indices = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4}
     letters = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e'}
+    if includeStudentResults is not None:
+        forQuiz = False # by implication
 
     prev = []
     qNum = 1
@@ -128,7 +134,18 @@ def genPlainText(questions, forQuiz=False):
             prev.append("\t%s. %s" % (letters[letterNum], ans))
             letterNum += 1
 
-        if not forQuiz:
+        if includeStudentResults is not None:
+            correctAnswerText = a[indices[question.getCorrectAnswer()]]
+            try:
+                studentAnswerText = a[indices[includeStudentResults[qNum-1][1]]]
+            except KeyError:
+                studentAnswerText = "None"
+            ca = "Answer: (%s) %s" % (ca, correctAnswerText)
+            stuAnswer = "Your answer: (%s) %s %s" % (
+                    includeStudentResults[qNum-1][1], studentAnswerText,
+                    "(!)" if studentAnswerText != correctAnswerText else "")
+            prev.append(ca + '\n' + stuAnswer + '\n')
+        elif not forQuiz:
             correctAnswerText = a[indices[question.getCorrectAnswer()]]
             ca = "Answer: (%s) %s" % (ca, correctAnswerText)
             prev.append(ca + '\n')

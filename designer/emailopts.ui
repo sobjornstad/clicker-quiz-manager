@@ -160,7 +160,10 @@ QGroupBox::title {
          </widget>
         </item>
         <item row="5" column="1">
-         <widget class="QLineEdit" name="passwordBox">
+         <widget class="PasswordSafeQLineEdit" name="passwordBox">
+          <property name="contextMenuPolicy">
+           <enum>Qt::NoContextMenu</enum>
+          </property>
           <property name="echoMode">
            <enum>QLineEdit::Password</enum>
           </property>
@@ -296,6 +299,13 @@ QGroupBox::title {
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PasswordSafeQLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>ui/emailing</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>fromNameBox</tabstop>
   <tabstop>fromAddrBox</tabstop>

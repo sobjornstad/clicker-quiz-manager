@@ -20,6 +20,12 @@ class WrongQuizError(Exception):
     def __str__(self):
         return repr(self.emsg)
 
+class MissingStudentError(Exception):
+    def __init__(self, emsg):
+        self.emsg = emsg
+    def __str__(self):
+        return repr(self.emsg)
+
 def readResults(stu, zid):
     """
     Return a student's responses for a quiz as a list of tuples.
@@ -31,6 +37,9 @@ def readResults(stu, zid):
     Return:
         A list of tuples consisting of the question number, the user's answer,
         and the correct answer for that quiz question.
+
+        If the student doesn't have any responses at all for a quiz (maybe they
+        were added to the class after the quiz was taken), return None.
     """
 
     # get the student's answers
@@ -38,7 +47,10 @@ def readResults(stu, zid):
     d.cursor.execute('SELECT answers FROM results WHERE zid=? AND stid=?',
             (zid, stid))
     answers = d.cursor.fetchall()
-    answers = json.loads(answers[0][0])
+    try:
+        answers = json.loads(answers[0][0])
+    except IndexError:
+        return None
 
     # Get the questions so we can find the correct answer. (Note: when we run
     # this function 20 times to find the values for each student, these are
@@ -72,17 +84,19 @@ def writeResults(response, cls, zid, suppressCheck=False):
             the quiz we're importing into.
 
     Return:
-        True if everything was successful.
-        False if a student by that tpid was not found in the database.
+        None (if everything was successful).
 
     Raises:
         WrongQuizError: if the questions in the response don't seem to match
             up with the questions in the quiz, throw this error unless
             suppressCheck is True.
+        MissingStudentError: if no tpid can be found in the database matching
+            the one in what's been imported.
     """
     stu = findStudentByTpid(response.tpid, cls)
     if stu is None:
-        return False
+        raise MissingStudentError("No student by ID %s is in the students table!"
+                " Please check and correct the list." % response.tpid)
 
     # do a quick check to make sure we're not clearly importing results into
     # the wrong quiz
@@ -116,7 +130,6 @@ def writeResults(response, cls, zid, suppressCheck=False):
            VALUES (null, ?, ?, ?)'''
     vals = (zid, stu.getStid(), json.dumps(answers))
     d.cursor.execute(q, vals)
-    return True
 
 
 ### TurningPoint statistics parser ###
@@ -210,3 +223,38 @@ def parseHtmlString(data):
             #print ""
         users.append(ResponsesForUser(tpid, responseList))
     return users
+
+def calcCorrectValues(results):
+    """
+    Calculate the fraction and percentage correct for a student's answers.
+
+    Arguments:
+        results: The results list in standard format (from the db table).
+
+    Return:
+        A tuple: (number correct, total number of questions, float percentage)
+    """
+
+    numCorrect = 0
+    for i in results:
+        if i[1] == i[2]:
+            numCorrect += 1
+    return (numCorrect, len(results), 100 * float(numCorrect) / len(results))
+
+def calcClassAverages(studentList, zid):
+    """
+    Like calcCorrectValues(), but returns the fraction/percentage correct for
+    all students in the studentList rather than a single student.
+    """
+
+    allResults = []
+    for stu in studentList:
+        results = readResults(stu, zid)
+        if results is None:
+            # there are no results for this student; ignore them
+            continue
+        allResults.append(calcCorrectValues(results)[0])
+    totalNum = len(results) # it should be the same for all students
+    avgCorrect = float(sum(allResults)) / len(allResults)
+    avgPercentage = 100 * avgCorrect / totalNum
+    return (avgCorrect, totalNum, avgPercentage)
