@@ -60,34 +60,33 @@ class EmailManager(object):
 
     def _expandFormatStr(self, text, student, body=False):
         """
-        Required data:
-          HistoryItem<-zid, Student, results list of tuples, cls
-        Global:
-          HistoryItem<-zid, cls
-          -> zid, cls
-        Per-student:
-          results list<-(stu,zid), Student<-cls studentsInClass
-          -> cls, zid
+        Expand any format-string parameters in /text/, filling with values from
+        self when they are global parameters, or from /student/ when specific
+        to an individual student.
+
+        If /body/ is true (default False), also expand format strings that are
+        available in only the body and not the subject.
 
         Format strings available in subject or body:
-            $c: name of current class                   : cls
-            $n: number of current quiz                  : HistoryItem object
+            $c: name of current class
+            $n: number of current quiz
             $s: name of student email is being sent to, as Firstname Lastname
             $S: name of student email is being sent to, as Lastname, Firstname
-            $r: number correct                          : results.calc... retval
-            $t: total number of questions               : "
-            $p: percentage correct                      : "
+            $r: number correct
+            $t: total number of questions
+            $p: percentage correct
             $R: class average correct
             $P: class average percentage
-            $$: literal dollar sign                     : (string constant)
+            $$: literal dollar sign
 
         Format strings available in body only:
             $a: list of student's answers vs. correct (like in view dialog)
-                : -> results semi-object -> stu, zid
             $q: display of quiz, with correct answers
-                : (output function requiring: question list) -> HI object
             $Q: display of quiz, with correct & student's answers
-                : (we have to write a new output function) -> HI obj + (fetched) results
+
+        Any $[a-zA-Z] string that is not mentioned in the above lists will be
+        ignored, but for clarity, anytime you want a literal dollar sign, you
+        should write `$$`.
         """
 
         text = text.replace('$c', self.cls.getName())
