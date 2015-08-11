@@ -12,10 +12,10 @@ import ui.utils as utils
 from db.history import HistoryItem
 
 class PasswordSafeQLineEdit(QLineEdit):
-    # NOTE: This doesn't disable the undo from the context menu; for this to be
-    # safe, it's currently necessary to disable the context menu. See
-    # http://stackoverflow.com/questions/31929996/
-    # prevent-undo-in-a-particular-text-box
+    # NOTE: This doesn't disable undo from the context menu, which is also
+    # necessary for this to be "password-safe." This is done in the dialog by
+    # creating a custom context menu and using the displayContextMenu()
+    # function.
     def keyPressEvent(self,event):
         if event.key()==(QtCore.Qt.Key_Control and QtCore.Qt.Key_Z):
             self.undo()
@@ -40,6 +40,8 @@ class EmailingDialog(QDialog):
         self.form.cancelButton.clicked.connect(self.reject)
         self.form.showPWCheck.toggled.connect(self.toggleShowPW)
         self.form.passwordBox.textEdited.connect(self.unsetPasswordWasLoaded)
+        self.form.passwordBox.customContextMenuRequested.connect(
+                self.displayPasswordContextMenu)
 
         self.fetchOptions()
         self.makeOptionsDict()
@@ -110,3 +112,11 @@ class EmailingDialog(QDialog):
     def unsetPasswordWasLoaded(self):
         if unicode(self.form.passwordBox.text()) == '':
             self.passwordWasLoaded = False
+
+    def displayPasswordContextMenu(self, point):
+        menu = self.form.passwordBox.createStandardContextMenu()
+        for action in menu.actions():
+            if action.text() == '&Undo\tCtrl+Z':
+                action.setDisabled(True)
+                break
+        menu.exec_(self.form.passwordBox.mapToGlobal(point))
