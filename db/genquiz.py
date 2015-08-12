@@ -93,19 +93,19 @@ class SetRescheduler(object):
                    }
 
             if item.ctype == 'rev':
-                d.cursor.execute('''UPDATE history
+                d.inter.exQuery('''UPDATE history
                                     SET nextSet=:ns, factor=:factor, lastIvl=:li
                                     WHERE sid=:sid AND cid=:cid''', vals)
             elif item.ctype == 'new':
-                d.cursor.execute('INSERT INTO history \
+                d.inter.exQuery('INSERT INTO history \
                                  (cid, sid, nextSet, lastIvl, factor) \
                                  VALUES (:cid, :sid, :ns, :li, :factor)', vals)
-                item.hid = d.cursor.lastrowid
+                item.hid = d.inter.getLastRowId()
                 item.ctype = 'rev'
             else:
                 assert False, "Invalid card type in QuizItem!"
 
-        d.checkAutosave()
+        d.inter.checkAutosave()
 
 
 class QuizItem(object):
@@ -122,11 +122,11 @@ class QuizItem(object):
         st = q.getSet()
         sid = st.getSid()
 
-        d.cursor.execute('SELECT * FROM history WHERE sid=? AND cid=?',
+        c = d.inter.exQuery('SELECT * FROM history WHERE sid=? AND cid=?',
                 (sid, cid))
         try:
             self.hid, self.cid, self.sid, self.nextSet, self.lastIvl, \
-                    self.factor = d.cursor.fetchall()[0]
+                    self.factor = c.fetchall()[0]
         except IndexError:
             self.sid = sid
             self.cid = cid
@@ -294,8 +294,8 @@ class Quiz(object):
         cid = self.cls.getCid()
         qList = [i.getQuestion() for i in self.allQuestions]
         qPickle = pickle.dumps(qList)
-        d.cursor.execute('SELECT MAX(seq) FROM quizzes WHERE cid=?', (cid,))
-        lastSeq = d.cursor.fetchall()[0][0]
+        c = d.inter.exQuery('SELECT MAX(seq) FROM quizzes WHERE cid=?', (cid,))
+        lastSeq = c.fetchall()[0][0]
         seq = (lastSeq + 1) if lastSeq is not None else 1
         date = datetime.datetime.now().strftime('%Y-%m-%d')
         newQuestions = len(self.newL)
@@ -310,8 +310,8 @@ class Quiz(object):
                VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?, ?)'''
         vals = (cid, sqlite3.Binary(qPickle), newQuestions, revQuestions,
                 setNames, seq, resultsFlag, date, notes)
-        d.cursor.execute(q, vals)
-        d.checkAutosave()
+        d.inter.exQuery(q, vals)
+        d.inter.checkAutosave()
 
     def _fillNewItems(self):
         """
@@ -334,9 +334,9 @@ class Quiz(object):
         """
         # pull in all items that might be eligible based on their class
         cid = self.cls.getCid()
-        d.cursor.execute('SELECT sid FROM history WHERE cid=?', (cid,))
+        c = d.inter.exQuery('SELECT sid FROM history WHERE cid=?', (cid,))
         ql = []
-        for st in d.cursor.fetchall():
+        for st in c.fetchall():
             setQuestions = questions.getBySet(sets.findSet(sid=st[0]))
             for question in setQuestions:
                 ql.append(QuizItem(question, self.cls))
@@ -384,9 +384,9 @@ class Quiz(object):
 def findNewSets(cls):
     "Return a list of all sets that are *not* in review."
     cid = cls.getCid()
-    d.cursor.execute('SELECT sid FROM history WHERE cid=?', (cid,))
+    c = d.inter.exQuery('SELECT sid FROM history WHERE cid=?', (cid,))
 
-    revs = [sets.findSet(sid=sid[0]) for sid in d.cursor.fetchall()]
+    revs = [sets.findSet(sid=sid[0]) for sid in c.fetchall()]
     alls = sets.getAllSets()
     news = [i for i in alls if i not in revs]
     return news
@@ -394,8 +394,8 @@ def findNewSets(cls):
 def getSetsUsed(cls):
     """Return all sets that have been used in class /cls/."""
     cid = cls.getCid()
-    d.cursor.execute('SELECT setsUsed FROM classes WHERE cid=?', (cid,))
-    return d.cursor.fetchall()[0][0]
+    c = d.inter.exQuery('SELECT setsUsed FROM classes WHERE cid=?', (cid,))
+    return c.fetchall()[0][0]
 
 def incrementSetsUsed(cls):
     """
@@ -406,9 +406,9 @@ def incrementSetsUsed(cls):
 
     cid = cls.getCid()
     curVal = getSetsUsed(cls)
-    d.cursor.execute('UPDATE classes SET setsUsed=? WHERE cid=?',
+    d.inter.exQuery('UPDATE classes SET setsUsed=? WHERE cid=?',
             (curVal+1, cid))
-    d.checkAutosave()
+    d.inter.checkAutosave()
 
 def itemDue(item, curSet):
     """Determine if an item is currently due for review."""

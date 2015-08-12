@@ -11,7 +11,7 @@ from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QApplication, QMainWindow, QFileDialog, QDesktopServices, QAction, QInputDialog
 from forms.mw import Ui_MainWindow
 
-import db.database
+import db.database as d
 import db.tools.create_database
 
 import ui.classes
@@ -61,7 +61,8 @@ class MainWindow(QMainWindow):
 
     def _connectDb(self, name):
         self.dbpath = name
-        db.database.connect(self.dbpath, autosaveInterval=self.autosaveInterval)
+        d.DatabaseInterface.connectToFile(
+                self.dbpath, autosaveInterval=self.autosaveInterval)
         self.dbFilename = self.dbpath.split('/')[-1]
         self.form.dbLabel.setText("Database: " + self.dbFilename)
 
@@ -110,7 +111,7 @@ class MainWindow(QMainWindow):
         # save current database location to configuration
         self.config.writeConf('dbPath', self.dbpath)
         self.config.sync()
-        db.database.close()
+        d.inter.close()
         sys.exit(0)
 
     def onNewDB(self):
@@ -255,6 +256,7 @@ class ConfigurationManager(object):
 
 
 def start():
+    QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)
     app = QApplication(sys.argv)
     mw = MainWindow()
     sys._excepthook = sys.excepthook

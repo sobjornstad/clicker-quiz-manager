@@ -3,6 +3,7 @@
 import pickle
 from sqlite3 import Binary
 
+from nose.plugins.attrib import attr
 import tests.utils as utils
 from db.emailing import *
 from db.questions import Question
@@ -12,12 +13,13 @@ from db.results import parseHtmlString, writeResults, MissingStudentError
 import db.classes
 
 class EmailingTests(utils.DbTestCase):
+    @attr('slow')
     def testFormatter(self):
         # set up a quiz with results
         cls = db.classes.Class("TestClass (no pun intended)")
         st = Set("fooset", 1)
-        s = Student.createNew("Bjornstad", "Soren", "2", "c56al", "contact@sorenbjornstad.net", cls)
-        s2 = Student.createNew("Almzead", "Maud,Her", "5", "55655", "maud@sorenbjornstad.net", cls)
+        s = Student.createNew("Bjornstad", "Soren", "2", "c56al", "acts+emailTesting@sorenbjornstad.com", cls)
+        s2 = Student.createNew("Almzead", "Maud,Her", "5", "55655", "invalid@example.com", cls)
         q1 = Question(u"das Buch", ['hourglass', 'book', 'Bach', 'cat'], 'b', st, 1)
         q2 = Question(u"die Lieblingsfarbe", ['favorite class', 'computer', 'color', 'favorite color'], 'd', st, 1)
         q3 = Question(u"die Tür", ['aa', 'bb', 'cc', 'dd'], 'd', st, 1)
@@ -37,7 +39,7 @@ class EmailingTests(utils.DbTestCase):
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'''
         vals = (1, cls.getCid(), Binary(qPickle), 8, 2, "Foobar", 1,
                 0, '2015-08-01', '')
-        d.cursor.execute(q, vals)
+        d.inter.exQuery(q, vals)
         with open('tests/resources/tpStatsParse/mamasoren1.html') as f:
             data = f.read()
         responses = parseHtmlString(data)
@@ -47,25 +49,31 @@ class EmailingTests(utils.DbTestCase):
             for resp in responses:
                 writeResults(resp, cls, 1)
         # now fix that.
-        s3 = Student.createNew("Bjornstad", "Jennifer", "1", "55655", "jen@example.com", cls)
+        s3 = Student.createNew("Bjornstad", "Jennifer", "1", "55655", "invalid2@example.com", cls)
         for resp in responses:
             writeResults(resp, cls, 1)
 
         # now try some formatting things.
-        # incomplete dict; will work for this test
         optsDict = {'fromName': 'Testy Tester',
                     'fromAddr': 'tester@example.com',
                     'subject': '[CQM $c] Quiz $n for $s: $r/$t ($p%)',
                     'body': 'Table of scores:\n$a\n\nAnnotated quiz:\n$Q\n\n'
                             'Original quiz:\n$q\n\nThe class average was '
-                            '$R/$t ($P%). You won $$2 from your scores!'
+                            '$R/$t ($P%). You won $$2 from your scores!',
+                    'hostname': 'mail.messagingengine.com',
+                    'port': '465',
+                    'ssl': 'SSL/TLS',
+                    'username': 'someone@fastmail.com',
+                    'password': 'notMyPassword',
+                    #TODO: make sure this username/pass doesn't stay in here!
                    }
         em = EmailManager(optsDict, cls, 1)
         assert em._expandFormatStr(optsDict['body'], s3, True).strip() == \
                 correctFormatStrTest.strip()
         assert em._expandFormatStr(optsDict['subject'], s3, False).strip() == \
                 correctFormatStrSubjTest.strip()
-        em.makeEmail(s3) # do both of those things for real, and more
+        #em.sendEmail(s) # do both of those things for real, and more
+        #em.closeSMTPConnection()
         #assert False
 
 

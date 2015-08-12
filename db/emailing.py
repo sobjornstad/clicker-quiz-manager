@@ -32,28 +32,42 @@ class EmailManager(object):
         self.cls = cls
         self.historyItem = HistoryItem(zid)
         self.studentsList = studentsInClass(cls)
+        self.connection = None
 
+    def openSMTPConnection(self):
+        hostname = self.opts['hostname']
+        port = self.opts['port']
+        if self.opts['ssl'] == 'SSL/TLS':
+            s = smtplib.SMTP_SSL('%s:%s' % (hostname, port))
+        elif self.opts['ssl'] == 'STARTTLS':
+            s = smtplib.SMTP('%s:%s' % (hostname, port))
+            s.ehlo()
+            s.starttls()
+        else:
+            # connection unsecured; not likely to be used, but we support it
+            s = smtplib.SMTP('%s:%s' % (hostname, port))
+            s.ehlo()
+        s.login(self.opts['username'], self.opts['password'])
+        self.connection = s
 
-    def makeEmail(self, student):
+    def closeSMTPConnection(self):
+        self.connection.quit()
+
+    def sendEmail(self, student):
         fromStr = "%s <%s>" % (self.opts['fromName'], self.opts['fromAddr'])
+        toStr = "%s %s <%s>" % (
+                student.getFn(), student.getLn(), student.getEmail())
         subjectStr = self._expandFormatStr(self.opts['subject'], student, False)
         emailStr = self._expandFormatStr(self.opts['body'], student, True)
+
         msg = MIMEText(emailStr.encode('utf-8'), _charset='utf-8')
+        msg['From'] = fromStr
+        msg['To'] = toStr
+        msg['Subject'] = subjectStr
 
-        return
-        # ... copied
-        msg = MIMEText(emailstr.encode('utf-8'), _charset='utf-8')
-        msg['Subject'] = "Test email from Soren"
-        msg['From'] = me
-        msg['To'] = you
-
-        s = smtplib.SMTP('smtp.gmail.com:587')
-        s.ehlo()
-        s.starttls()
-        s.login('soren.bjornstad', 'nlrjkdytgcbwpfrb')
-        s.sendmail(me, [you], msg.as_string())
-        s.quit()
-
+        if self.connection is None:
+            self.openSMTPConnection()
+        self.connection.sendmail(fromStr, toStr, msg.as_string())
 
     def getPreview(self):
         pass

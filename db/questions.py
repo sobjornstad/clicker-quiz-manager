@@ -125,18 +125,18 @@ class Question(object):
         if self._qid:
             # exists already
             nq['qid'] = self._qid
-            d.cursor.execute('UPDATE questions SET q=:question, ca=:ca, \
+            d.inter.exQuery('UPDATE questions SET q=:question, ca=:ca, \
                     answers=:answers, ord=:order, sid=:sid WHERE qid=:qid', nq)
 
         else:
-            d.cursor.execute('INSERT INTO questions \
+            d.inter.exQuery('INSERT INTO questions \
                     (qid, ord, q, ca, answers, sid) VALUES \
                     (null, :order, :question, :ca, :answers, :sid)',
                     nq)
-            self._qid = d.cursor.lastrowid
+            self._qid = d.inter.getLastRowId()
 
         if commit:
-            d.checkAutosave()
+            d.inter.checkAutosave()
 
     def delete(self):
         """Delete a question from the db. Calling this alone may cause the
@@ -144,8 +144,8 @@ class Question(object):
         which are supposed to be adjacent, so always call delete through the
         question manager."""
 
-        d.cursor.execute('DELETE FROM questions WHERE qid=?', (self._qid,))
-        d.checkAutosave()
+        d.inter.exQuery('DELETE FROM questions WHERE qid=?', (self._qid,))
+        d.inter.checkAutosave()
         # we shouldn't use this instance again of course, but the class does
         # not enforce its nonuse.
 
@@ -326,8 +326,8 @@ def getById(qid):
     """Return a Question from the db, given the qid. Return None if it doesn't
     exist."""
 
-    d.cursor.execute('SELECT * FROM questions WHERE qid=?', (qid,))
-    qid, order, q, ca, answers, sid = d.cursor.fetchall()[0]
+    c = d.inter.exQuery('SELECT * FROM questions WHERE qid=?', (qid,))
+    qid, order, q, ca, answers, sid = c.fetchall()[0]
     if qid:
         answers = json.loads(answers)
         return Question(q, answers, ca, sets.findSet(sid=sid), order, qid)
@@ -339,8 +339,8 @@ def getByName(name):
     # and/or replace all 3 of these with a find() function like in sets.py
     """Return a Question, given its text. Return None if it doesn't exist."""
 
-    d.cursor.execute('SELECT * FROM questions WHERE q=?', (name,))
-    data = d.cursor.fetchall()
+    c = d.inter.exQuery('SELECT * FROM questions WHERE q=?', (name,))
+    data = c.fetchall()
     if data:
         qid, order, q, ca, answers, sid = data[0]
         answers = json.loads(answers)
@@ -352,10 +352,10 @@ def getBySet(st):
     """Return a list of all questions in the given SET, sorted by their ORD."""
     sid = st.getSid()
 
-    d.cursor.execute('SELECT * FROM questions WHERE sid = ? \
+    c = d.inter.exQuery('SELECT * FROM questions WHERE sid = ? \
                       ORDER BY ord', (sid,))
     questionList = []
-    for i in d.cursor.fetchall():
+    for i in c.fetchall():
         qid, order, q, ca, answers, sid = i
         answers = json.loads(answers)
         questionList.append(Question(q, answers, ca, st, order, qid))
@@ -367,7 +367,7 @@ def swapRows(q1, q2):
     r1, r2 = q1.getOrder(), q2.getOrder()
     q1.setOrder(r2, commit=False)
     q2.setOrder(r1, commit=False)
-    d.checkAutosave()
+    d.inter.checkAutosave()
 
 def insertQuestion(q1, posn):
     """
@@ -386,7 +386,7 @@ def insertQuestion(q1, posn):
 
     q1.setOrder(posn) # change q1's ord
     shiftOrds(setAtIssue) # defragment to fill the gap created by the change
-    d.checkAutosave()
+    d.inter.checkAutosave()
 
 
 def shiftOrds(st):
@@ -399,14 +399,14 @@ def shiftOrds(st):
         if q.getOrder() != curOrd:
             q.setOrder(curOrd, commit=False)
         curOrd += 1
-    d.checkAutosave()
+    d.inter.checkAutosave()
 
 def findNextOrd(st):
     """Find the next unused question ord in a set, or return 1 if there are
     no questions in the set yet."""
     sid = st.getSid()
-    d.cursor.execute('SELECT MAX(ord) FROM questions WHERE sid = ?', (sid,))
-    last = d.cursor.fetchall()[0][0]
+    c = d.inter.exQuery('SELECT MAX(ord) FROM questions WHERE sid = ?', (sid,))
+    last = c.fetchall()[0][0]
     if last:
         return last + 1
     else:

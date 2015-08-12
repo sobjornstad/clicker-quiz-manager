@@ -10,10 +10,10 @@ class DbTestCase(unittest.TestCase):
     # common to all database-using test cases
     def dbSetUp(self):
         conn = db.tools.create_database.makeDatabase(TEST_DB_FNAME)
-        db.database.openDbConnect(conn)
+        db.database.DatabaseInterface(conn)
 
     def dbTearDown(self):
-        db.database.connection.close()
+        db.database.inter.close()
 
     # reimplement these if additional setup is needed
     def setUp(self):

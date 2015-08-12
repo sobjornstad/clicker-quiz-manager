@@ -40,16 +40,18 @@ class HistoryItem(object):
     """
 
     def __init__(self, zid):
-        d.cursor.execute('SELECT * FROM quizzes WHERE zid=?', (zid,))
+        query = 'SELECT * FROM quizzes WHERE zid=?'
+        vals = (zid,)
+        c = d.inter.exQuery(query, vals)
         self.zid, self.cid, self.qPickle, self.newNum, self.revNum, \
                 self.newSetNames, self.seq, self.resultsFlag, \
-                self.datestamp, self.notes = d.cursor.fetchall()[0]
+                self.datestamp, self.notes = c.fetchall()[0]
         self.ql = pickle.loads(self.qPickle)
 
     def rewriteResultsFlag(self, flag):
         self.resultsFlag = flag
         q = 'UPDATE quizzes SET resultsFlag=? WHERE zid=?'
-        d.cursor.execute(q, (self.resultsFlag, self.zid))
+        d.inter.exQuery(q, (self.resultsFlag, self.zid))
 
     def getFormattedDate(self, dateFormat='%Y-%m-%d'):
         """
@@ -73,6 +75,6 @@ class HistoryItem(object):
 
 def historyForClass(cls):
     cid = cls.getCid()
-    d.cursor.execute('SELECT zid FROM quizzes WHERE cid=?', (cid,))
-    quizzes = [HistoryItem(i[0]) for i in d.cursor.fetchall()]
+    c = d.inter.exQuery('SELECT zid FROM quizzes WHERE cid=?', (cid,))
+    quizzes = [HistoryItem(i[0]) for i in c.fetchall()]
     return quizzes

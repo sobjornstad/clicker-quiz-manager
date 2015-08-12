@@ -42,21 +42,21 @@ class Set(object):
 
         if self._sid:
             # exists already
-            d.cursor.execute('UPDATE sets SET name=?, num=? WHERE sid=?',
+            d.inter.exQuery('UPDATE sets SET name=?, num=? WHERE sid=?',
                     (self._name, self._num, self._sid))
         else:
             # new set, not in db
-            d.cursor.execute('INSERT INTO sets VALUES (null, ?, ?)',
+            d.inter.exQuery('INSERT INTO sets VALUES (null, ?, ?)',
                     (self._name, self._num))
-            self._sid = d.cursor.lastrowid
+            self._sid = d.inter.getLastRowId()
 
         if commit:
-            d.checkAutosave()
+            d.inter.checkAutosave()
 
     def delete(self):
-        d.cursor.execute('DELETE FROM questions WHERE sid=?', (self._sid,))
-        d.cursor.execute('DELETE FROM sets WHERE sid=?', (self._sid,))
-        d.checkAutosave()
+        d.inter.exQuery('DELETE FROM questions WHERE sid=?', (self._sid,))
+        d.inter.exQuery('DELETE FROM sets WHERE sid=?', (self._sid,))
+        d.inter.checkAutosave()
         # we shouldn't use this instance again of course, but the class does
         # not enforce its nonuse.
 
@@ -89,9 +89,9 @@ def findSet(sid=None, name=None, num=None):
         assert False, "No criterion provided to findSet!"
 
     query = 'SELECT sid, name, num FROM sets WHERE %s=?' % (has)
-    d.cursor.execute(query, (value,))
+    c = d.inter.exQuery(query, (value,))
     try:
-        sid, name, num = d.cursor.fetchall()[0]
+        sid, name, num = c.fetchall()[0]
     except IndexError:
         return None
     else:
@@ -101,8 +101,8 @@ def getAllSets():
     """Return a list of all sets in the database, ordered by their num field
     for insertion into a correctly ordered list."""
 
-    d.cursor.execute('SELECT sid FROM sets ORDER BY num')
-    return [findSet(sid=i[0]) for i in d.cursor.fetchall()]
+    c = d.inter.exQuery('SELECT sid FROM sets ORDER BY num')
+    return [findSet(sid=i[0]) for i in c.fetchall()]
 
 def insertSet(s1, posn):
     """
@@ -132,11 +132,11 @@ def shiftNums():
         if s.getNum() != curNum:
             s.setNum(curNum, commit=False)
         curNum += 1
-    d.checkAutosave()
+    d.inter.checkAutosave()
 
 def swapRows(s1, s2):
     "Swap the nums of the two sets passed."
     r1, r2 = s1.getNum(), s2.getNum()
     s1.setNum(r2, commit=False)
     s2.setNum(r1, commit=False)
-    d.checkAutosave()
+    d.inter.checkAutosave()

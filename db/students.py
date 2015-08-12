@@ -8,10 +8,13 @@ import csv
 
 class Student(object):
     def __init__(self, stid):
+        """
+        See HistoryItem docstring for info on dbConnection.
+        """
         q = 'SELECT ln, fn, tpid, tpdev, email, cid FROM students WHERE stid=?'
-        d.cursor.execute(q, (stid,))
+        c = d.inter.exQuery(q, (stid,))
         self._ln, self._fn, self._tpid, self._tpdev, self._email, cid = \
-                d.cursor.fetchall()[0]
+                c.fetchall()[0]
         self._class = db.classes.getClassByCid(cid)
         self._stid = stid
 
@@ -19,8 +22,8 @@ class Student(object):
     def createNew(cls, ln, fn, tpid, tpdev, email, class_):
         q = '''INSERT INTO students (stid, ln, fn, tpid, tpdev, email, cid)
                VALUES (null, ?, ?, ?, ?, ?, ?)'''
-        d.cursor.execute(q, (ln, fn, tpid, tpdev, email, class_.getCid()))
-        return cls(d.cursor.lastrowid)
+        d.inter.exQuery(q, (ln, fn, tpid, tpdev, email, class_.getCid()))
+        return cls(d.inter.getLastRowId())
 
     def dump(self):
         q = '''UPDATE students
@@ -36,13 +39,13 @@ class Student(object):
                 'email': self._email,
                 'cid': self._class.getCid()
                }
-        d.cursor.execute(q, vals)
-        d.checkAutosave()
+        d.inter.exQuery(q, vals)
+        d.inter.checkAutosave()
 
     def delete(self):
         #TODO: remove any quiz data, etc.
-        d.cursor.execute('DELETE FROM students WHERE stid=?', (self._stid,))
-        d.checkAutosave()
+        d.inter.exQuery('DELETE FROM students WHERE stid=?', (self._stid,))
+        d.inter.checkAutosave()
 
     def __eq__(self, other):
         return (self._ln == other._ln and self._fn == other._fn and
@@ -116,17 +119,22 @@ def makesDupeStudent(ln, fn, tpid, tpdev, email, class_):
     cid = class_.getCid()
     q = '''SELECT stid FROM students
            WHERE ln=? AND fn=? AND tpid=? AND tpdev=? AND email=? AND cid=?'''
-    d.cursor.execute(q, (ln, fn, tpid, tpdev, email, cid))
-    return (len(d.cursor.fetchall()) > 0)
+    c = d.inter.exQuery(q, (ln, fn, tpid, tpdev, email, cid))
+    return (len(c.fetchall()) > 0)
 
 def allStudents():
     """Return a list of all students."""
-    d.cursor.execute('SELECT stid FROM students')
-    return [Student(stu[0]) for stu in d.cursor.fetchall()]
+    c = d.inter.exQuery('SELECT stid FROM students')
+    return [Student(stu[0]) for stu in c.fetchall()]
 
 def studentsInClass(cls):
-    d.cursor.execute('SELECT stid FROM students WHERE cid=?', (cls.getCid(),))
-    return [Student(stu[0]) for stu in d.cursor.fetchall()]
+    """
+    Find the students in a class. If dbConnection is not None, use that
+    connection instead of the normal one (for use in threaded operations; see
+    the docstring of db/history/HistoryItem() for more).
+    """
+    c = d.inter.exQuery('SELECT stid FROM students WHERE cid=?', (cls.getCid(),))
+    return [Student(stu[0]) for stu in c.fetchall()]
 
 def findStudentByTpid(tpid, cls):
     """
@@ -140,9 +148,9 @@ def findStudentByTpid(tpid, cls):
         AssertionError: If more than one student matches, we've screwed up,
         because tpids are required to be unique.
     """
-    d.cursor.execute('SELECT stid FROM students WHERE cid=? AND tpid=?',
+    c = d.inter.exQuery('SELECT stid FROM students WHERE cid=? AND tpid=?',
             (cls.getCid(), tpid))
-    retvals = d.cursor.fetchall()
+    retvals = c.fetchall()
     if not retvals:
         return None
     if len(retvals) > 1:

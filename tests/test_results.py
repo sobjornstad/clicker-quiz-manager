@@ -39,7 +39,7 @@ class ResultsTests(utils.DbTestCase):
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'''
         vals = (1, cls.getCid(), sqlite3.Binary(qPickle), 8, 2, "Foobar", 1,
                 0, '2015-08-01', '')
-        d.cursor.execute(q, vals)
+        d.inter.exQuery(q, vals)
 
         with open('tests/resources/tpStatsParse/mamasoren1.html') as f:
             data = f.read()
@@ -50,8 +50,8 @@ class ResultsTests(utils.DbTestCase):
         for resp in responses:
             writeResults(resp, cls, 1, suppressCheck=True) # check the check :)
 
-        d.cursor.execute("SELECT * FROM results")
-        answers = json.loads(d.cursor.fetchall()[0][3])
+        c = d.inter.exQuery("SELECT * FROM results")
+        answers = json.loads(c.fetchall()[0][3])
         assert answers[0:2] == [[1, 'a'], [2, 'd']]
 
         # now try to read it back
@@ -88,7 +88,7 @@ class ResultsTests(utils.DbTestCase):
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'''
         vals = (1, cls.getCid(), sqlite3.Binary(qPickle), 8, 2, "Foobar", 1,
                 0, '2015-08-01', '')
-        d.cursor.execute(q, vals)
+        d.inter.exQuery(q, vals)
 
         with open('tests/resources/tpStatsParse/mamasoren1.html') as f:
             data = f.read()

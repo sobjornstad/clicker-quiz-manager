@@ -8,6 +8,7 @@ from PyQt4.QtGui import QDialog, QInputDialog, QMessageBox, QShortcut, \
 from PyQt4.QtCore import QObject
 from ui.forms.emailopts import Ui_Dialog
 
+import ui.sendingmail
 import ui.utils as utils
 from db.history import HistoryItem
 
@@ -38,6 +39,8 @@ class EmailingDialog(QDialog):
         self.form.SSLCombo.addItems(["None", "SSL/TLS", "STARTTLS"])
 
         self.form.cancelButton.clicked.connect(self.reject)
+        self.form.sendMailButton.clicked.connect(self.onSendMail)
+        self.form.sendTestButton.clicked.connect(self.onSendTest)
         self.form.showPWCheck.toggled.connect(self.toggleShowPW)
         self.form.passwordBox.textEdited.connect(self.unsetPasswordWasLoaded)
         self.form.passwordBox.customContextMenuRequested.connect(
@@ -56,8 +59,9 @@ class EmailingDialog(QDialog):
                 'hostname': 'mail.messagingengine.com',
                 'port': '465',
                 'ssl': 'SSL/TLS',
-                'username': 'redacted@fastmail.com',
-                'password': 'notReallyMyPassword'
+                'username': 'someone@fastmail.com',
+                'password': 'NotMyPassword'
+                #TODO: keep username/password out of git control!
                }
 
         self.form.fromNameBox.setText(opts['fromName'])
@@ -84,7 +88,7 @@ class EmailingDialog(QDialog):
         opts['ssl'] = unicode(self.form.SSLCombo.currentText())
         opts['username'] = unicode(self.form.usernameBox.text())
         opts['password'] = unicode(self.form.passwordBox.text())
-        return opts
+        self.opts = opts
 
     def putOptions(self):
         # do something to save the options into the db; for now, we do nothing.
@@ -120,3 +124,13 @@ class EmailingDialog(QDialog):
                 action.setDisabled(True)
                 break
         menu.exec_(self.form.passwordBox.mapToGlobal(point))
+
+    def onSendMail(self):
+        # have an option to preview the email
+        self.makeOptionsDict()
+        busyDialog = ui.sendingmail.SendingDialog(
+                self, self.opts, self.cls, self.zid)
+        busyDialog.exec_()
+
+    def onSendTest(self):
+        pass

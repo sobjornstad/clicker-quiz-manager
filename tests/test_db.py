@@ -1,7 +1,8 @@
+import os
+import time
 import utils
 import db.classes
-import time
-import db.database as database
+import db.database as d
 
 class DbTests(utils.DbTestCase):
     def testDbAutosave(self):
@@ -9,16 +10,41 @@ class DbTests(utils.DbTestCase):
         c1 = db.classes.Class("Greta and IT 101")
         assert c1.getCid() is not None, "cid unset after dump"
 
-        database.forceSave()
-        assert database.checkAutosave() == False # 60 seconds have not passed yet
+        d.inter.forceSave()
+        assert d.inter.checkAutosave() == False # 60 seconds have not passed yet
 
         c2 = db.classes.Class("Greta and IT 353")
         time.sleep(0.05)
-        assert database.checkAutosave(10) == False
-        assert database.checkAutosave(0.04) == True # also activates save
-        assert database.checkAutosave() == False
+        assert d.inter.checkAutosave(10) == False
+        assert d.inter.checkAutosave(0.04) == True # also activates save
+        assert d.inter.checkAutosave() == False
         assert db.classes.getClassByName("Greta and IT 353")
 
+
+class DbTestsOnDisk(utils.DbTestCase):
+    dbname = 'tempdb.db'
+
+    def dbSetUp(self):
+        # reimplemented
+        db.tools.create_database.makeDatabase(self.dbname)
+        conn = d.DatabaseInterface.connectToFile(self.dbname)
+    def dbTearDown(self):
+        d.inter.close()
+        os.remove(self.dbname)
+
+    def testDbOnDisk(self):
+        # test the auxiliary connection option (for use with threads).
+
+        # create a class as a test db item
+        c1 = db.classes.Class("Greta and IT 101")
+        d.inter.forceSave()
+
+        #auxConn = database.takeOutNewConnection()
+        #auxConn.cursor().execute('''INSERT INTO classes (cid, name, setsUsed)
+        #                            VALUES (null, "Maud 101", 0)''')
+        #auxConn.commit()
+
+        #assert db.classes.getClassByName("Maud 101") is not None
 
 
 #        # change the name; check for same cid and new name

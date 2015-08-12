@@ -44,9 +44,9 @@ def readResults(stu, zid):
 
     # get the student's answers
     stid = stu.getStid()
-    d.cursor.execute('SELECT answers FROM results WHERE zid=? AND stid=?',
+    c = d.inter.exQuery('SELECT answers FROM results WHERE zid=? AND stid=?',
             (zid, stid))
-    answers = d.cursor.fetchall()
+    answers = c.fetchall()
     try:
         answers = json.loads(answers[0][0])
     except IndexError:
@@ -58,8 +58,8 @@ def readResults(stu, zid):
     # for all of them. I think the simplicity of interface is easily worth the
     # small performance hit for the small number of students that are normally
     # in a class.)
-    d.cursor.execute('SELECT qPickle FROM quizzes WHERE zid=?', (zid,))
-    questions = pickle.loads(d.cursor.fetchall()[0][0])
+    c = d.inter.exQuery('SELECT qPickle FROM quizzes WHERE zid=?', (zid,))
+    questions = pickle.loads(c.fetchall()[0][0])
 
     returnVals = []
     for i in range(len(answers)):
@@ -101,8 +101,8 @@ def writeResults(response, cls, zid, suppressCheck=False):
     # do a quick check to make sure we're not clearly importing results into
     # the wrong quiz
     if not suppressCheck:
-        d.cursor.execute('SELECT qPickle FROM quizzes WHERE zid=?', (zid,))
-        qPickle = d.cursor.fetchall()[0][0]
+        c = d.inter.exQuery('SELECT qPickle FROM quizzes WHERE zid=?', (zid,))
+        qPickle = c.fetchall()[0][0]
         ql = pickle.loads(qPickle)
         quizQuestionList = [i.getQuestion().strip() for i in ql]
         failures = []
@@ -129,7 +129,7 @@ def writeResults(response, cls, zid, suppressCheck=False):
     q = '''INSERT INTO results (rid, zid, stid, answers)
            VALUES (null, ?, ?, ?)'''
     vals = (zid, stu.getStid(), json.dumps(answers))
-    d.cursor.execute(q, vals)
+    d.inter.exQuery(q, vals)
 
 
 ### TurningPoint statistics parser ###

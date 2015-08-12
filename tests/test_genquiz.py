@@ -82,9 +82,9 @@ class QuizTests(utils.DbTestCase):
         quiz.newQ[0].reschedule(3, sr)
         quiz.newQ[1].reschedule(2, sr)
         sr.runResched()
-        d.cursor.execute('UPDATE classes SET setsUsed=? WHERE cid=?',
+        d.inter.exQuery('UPDATE classes SET setsUsed=? WHERE cid=?',
                 (7,cls.getCid()))
-        d.connection.commit()
+        d.inter.forceSave()
         quiz.resetNewSets()
         quiz.addNewSet(st2)
         quiz.finishSetup()
@@ -121,9 +121,9 @@ class QuizTests(utils.DbTestCase):
 
         # history entries
         # the insert code works; do some testing on what we got out of it
-        d.cursor.execute('SELECT * FROM quizzes')
+        c = d.inter.exQuery('SELECT * FROM quizzes')
         zid, cid, qPickle, newNum, revNum, newSetNames, seq, resultsFlag, \
-                datestamp, notes = d.cursor.fetchall()[0]
+                datestamp, notes = c.fetchall()[0]
         assert cid == cls.getCid()
         assert newNum == 1 #/see section "fill with random questions" above
         assert revNum == 2 #\
@@ -154,10 +154,10 @@ class QuizTests(utils.DbTestCase):
 
         # fake some revs into the history table
         cid = cls.getCid()
-        x = d.cursor.execute
+        x = d.inter.exQuery
         x('INSERT INTO history (cid, sid) VALUES (?,?)', (cid, st2.getSid()))
         x('INSERT INTO history (cid, sid) VALUES (?,?)', (cid, st3.getSid()))
-        d.connection.commit()
+        d.inter.forceSave()
 
         # now we should only have one new
         sts = findNewSets(cls)

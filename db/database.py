@@ -4,6 +4,7 @@
 
 """
 Provides access for other modules to the sqlite database.
+TODO: update docstring
 
 Public module globals:
     cursor: the sqlite database cursor
@@ -22,75 +23,84 @@ Note that initializing a *new* database is done in db/tools/create_database.py.
 import sqlite3 as sqlite
 import time
 
-# Every option besides making these global module variables seems needlessly
+# Every option besides making this a global module variable seems needlessly
 # complex.
 # pylint: disable=C0103
 # pylint: disable=W0603
-connection = None
-cursor = None
-_lastSavedTime = None
-_saveInterval = 60
+inter = None
 
-def connect(fname, autosaveInterval=60):
-    """
-    Connect to database /fname/. Optionally, set the number of seconds between
-    autosaves while this connection is open; if the time since the last commit
-    is greater than this interval when checkAutosave() is called, a new commit
-    will be made.
-    """
-    global connection, cursor, _lastSavedTime, _saveInterval
-    connection = sqlite.connect(fname)
-    cursor = connection.cursor()
-    _lastSavedTime = time.time()
-    _saveInterval = autosaveInterval
+class DatabaseInterface(object):
+    def __init__(self, connection, filename=None, autosaveInterval=60):
+        global inter
+        self._defaultConnection = connection
+        self._defaultCursor = self._defaultConnection.cursor()
+        self._lastSavedTime = time.time()
+        self._saveInterval = autosaveInterval
+        self._fname = filename
+        inter = self
 
-def openDbConnect(conn):
-    """
-    Pull an open connection into the database module's namespace for access by
-    other parts of the program. This is useful in cases like running tests by
-    creating a database in RAM (such that you can't run create_database
-    separately and then reopen the connection).
+    @classmethod
+    def connectToFile(cls, fname, autosaveInterval=60):
+        """
+        Connect to database /fname/ and set that connection as the default
+        connection. Optionally, set the number of seconds between autosaves
+        while this connection is open; if the time since the last commit is
+        greater than this interval when checkAutosave() is called, a new commit
+        will be made.
+        """
+        newConnection = sqlite.connect(fname)
+        return cls(newConnection, fname, autosaveInterval)
 
-    Example:
-        >>> conn = db.tools.create_database.makeDatabase(':memory:')
-        >>> db.database.openDbConnect(conn)
-        >>> db.database.connection.commit()
-    """
+    def exQuery(self, query, parameters=None):
+        """
+        Execute /query/ with /parameters/ and return the cursor object.
+        """
 
-    global connection, cursor, _lastSavedTime
-    connection = conn
-    cursor = connection.cursor()
-    _lastSavedTime = time.time()
+        if parameters is not None:
+            self._defaultCursor.execute(query, parameters)
+        else:
+            self._defaultCursor.execute(query)
+        return self._defaultCursor
 
-def close():
-    """Save and close database connection."""
-    forceSave()
-    connection.close()
+    def getLastRowId(self):
+        return self._defaultCursor.lastrowid
 
-def checkAutosave(thresholdSeconds=None):
-    """
-    Check when the last save (or database creation) was. If greater than
-    /thresholdSeconds/, do a commit. If a commit is made, reset last save
-    timer. _saveInterval, used unless a different value is passed, is set by a
-    user preference on start.
+    def close(self):
+        """Save and close database connection."""
+        self.forceSave()
+        self._defaultConnection.close()
 
-    Return: True if a commit was completed, False if not time yet.
-    """
+    def checkAutosave(self, thresholdSeconds=None):
+        """
+        Check when the last save (or database creation) was. If greater than
+        /thresholdSeconds/, do a commit. If a commit is made, reset last save
+        timer.
 
-    if thresholdSeconds == None:
-        thresholdSeconds = _saveInterval
+        Return: True if a commit was completed, False if not time yet.
+        """
 
-    global _lastSavedTime
-    now = time.time()
-    if now - _lastSavedTime > thresholdSeconds:
-        connection.commit()
-        _lastSavedTime = time.time()
-        return True
-    else:
-        return False
+        if thresholdSeconds == None:
+            thresholdSeconds = self._saveInterval
 
-def forceSave():
-    """Force a commit and update last save time."""
-    global _lastSavedTime
-    connection.commit()
-    _lastSavedTime = time.time()
+        now = time.time()
+        if now - self._lastSavedTime > thresholdSeconds:
+            self._defaultConnection.commit()
+            self._lastSavedTime = time.time()
+            return True
+        else:
+            return False
+
+    def forceSave(self):
+        """Force a commit and update last save time."""
+        self._defaultConnection.commit()
+        self._lastSavedTime = time.time()
+
+#def takeOutNewConnection():
+#    """
+#    Return an extra connection to the db to be used in an auxiliary thread,
+#    using the filename of the database that's currently otherwise open. The
+#    calling process is responsible for committing and closing the connection
+#    when done with it.
+#    """
+#    auxConnection = sqlite.connect(_fname)
+#    return auxConnection

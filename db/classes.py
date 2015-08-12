@@ -64,15 +64,15 @@ class Class(object):
         "Dump object to the db, creating a new or updating an existing entry."
         if self._cid:
             # exists already
-            d.cursor.execute('UPDATE classes SET name=? WHERE cid=?',
+            d.inter.exQuery('UPDATE classes SET name=? WHERE cid=?',
                     (self._name, self._cid))
         else:
             # new set, not in db
-            d.cursor.execute('INSERT INTO classes (name,setsUsed) VALUES (?,?)',
+            d.inter.exQuery('INSERT INTO classes (name,setsUsed) VALUES (?,?)',
                     (self._name, 0))
-            self._cid = d.cursor.lastrowid
+            self._cid = d.inter.getLastRowId()
 
-        d.checkAutosave()
+        d.inter.checkAutosave()
 
 
 def isDupe(name=None, cid=None):
@@ -89,12 +89,11 @@ def isDupe(name=None, cid=None):
 def getClassByCid(cid):
     """
     Return a Class from the db when given the cid. Return None if it doesn't
-    exist.
+    exist. See HistoryItem docstring for info on dbConnection.
     """
-
-    d.cursor.execute('SELECT name FROM classes WHERE cid=?', (cid,))
+    c = d.inter.exQuery('SELECT name FROM classes WHERE cid=?', (cid,))
     try:
-        name = d.cursor.fetchall()[0][0]
+        name = c.fetchall()[0][0]
     except IndexError:
         return None
     else:
@@ -105,9 +104,9 @@ def getClassByName(name):
     Return the first Class from the db by a given name when given the name.
     Return None if it doesn't exist.
     """
-    d.cursor.execute('SELECT cid FROM classes WHERE name=?', (name,))
+    c = d.inter.exQuery('SELECT cid FROM classes WHERE name=?', (name,))
     try:
-        cid = d.cursor.fetchall()[0][0]
+        cid = c.fetchall()[0][0]
     except IndexError:
         return None
     else:
@@ -116,8 +115,8 @@ def getClassByName(name):
 def getAllClasses():
     """Return a list of all classes in the database, in alphabetical order."""
 
-    d.cursor.execute('SELECT cid, name FROM classes ORDER BY name')
-    return [getClassByCid(i[0]) for i in d.cursor.fetchall()]
+    c = d.inter.exQuery('SELECT cid, name FROM classes ORDER BY name')
+    return [getClassByCid(i[0]) for i in c.fetchall()]
 
 def deleteClass(name):
     """
@@ -129,7 +128,7 @@ def deleteClass(name):
     """
     name = str(name) # dumb QStrings
     cid = getClassByName(name).getCid()
-    d.cursor.execute('DELETE FROM classes WHERE cid=?', (cid,))
-    d.checkAutosave()
+    d.inter.exQuery('DELETE FROM classes WHERE cid=?', (cid,))
+    d.inter.checkAutosave()
 
 #to test: Dupe names, deletion
