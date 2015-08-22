@@ -13,7 +13,7 @@ from db.students import Student, findStudentByTpid
 
 class ResultsTests(utils.DbTestCase):
     def testParseAndRead(self):
-        cls = Class("MyClass")
+        cls = Class.createNew("MyClass")
         mama = Student.createNew("Bjornstad", "Jennifer", "1", "9A2DC6",
                 "jennifer@example.com", cls)
         soren = Student.createNew("Bjornstad", "Soren", "2", "9A2D9C",
@@ -62,7 +62,7 @@ class ResultsTests(utils.DbTestCase):
 
     def testWrongQuizError(self):
         # dupe of first part of above test, except with the wrong questions
-        cls = Class("MyClass")
+        cls = Class.createNew("MyClass")
         mama = Student.createNew("Bjornstad", "Jennifer", "1", "9A2DC6",
                 "jennifer@example.com", cls)
         soren = Student.createNew("Bjornstad", "Soren", "2", "9A2D9C",

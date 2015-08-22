@@ -16,7 +16,7 @@ class EmailingTests(utils.DbTestCase):
     @attr('slow')
     def testFormatter(self):
         # set up a quiz with results
-        cls = db.classes.Class("TestClass (no pun intended)")
+        cls = db.classes.Class.createNew("TestClass (no pun intended)")
         st = Set("fooset", 1)
         s = Student.createNew("Bjornstad", "Soren", "2", "c56al", "acts+emailTesting@sorenbjornstad.com", cls)
         s2 = Student.createNew("Almzead", "Maud,Her", "5", "55655", "invalid@example.com", cls)

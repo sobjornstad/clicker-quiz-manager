@@ -37,6 +37,7 @@ class DatabaseInterface(object):
         self._lastSavedTime = time.time()
         self._saveInterval = autosaveInterval
         self._fname = filename
+        self.auxConnection = None
         inter = self
 
     @classmethod
@@ -53,14 +54,34 @@ class DatabaseInterface(object):
 
     def exQuery(self, query, parameters=None):
         """
-        Execute /query/ with /parameters/ and return the cursor object.
+        Execute /query/ with /parameters/ and return the cursor. If this raises
+        a threading error, try executing with the auxiliary connection instead.
+        (Before that works, you have to start a new connection with
+        self.takeOutNewConnection().)
         """
 
-        if parameters is not None:
-            self._defaultCursor.execute(query, parameters)
+        try:
+            if parameters is not None:
+                self._defaultCursor.execute(query, parameters)
+            else:
+                self._defaultCursor.execute(query)
+        except sqlite.ProgrammingError as e:
+            if ('created in a thread' in str(e) or
+                'Recursive use' in str(e)):
+                assert self.auxConnection is not None, \
+                        "You must take out a new connection before accessing " \
+                        "the db from another thread!"
+                cursor = self.auxConnection.cursor()
+                if parameters is not None:
+                    cursor.execute(query, parameters)
+                else:
+                    cursor.execute(query)
+                return cursor
+            else:
+                # don't mask unrelated errors
+                raise
         else:
-            self._defaultCursor.execute(query)
-        return self._defaultCursor
+            return self._defaultCursor
 
     def getLastRowId(self):
         return self._defaultCursor.lastrowid
@@ -84,23 +105,63 @@ class DatabaseInterface(object):
 
         now = time.time()
         if now - self._lastSavedTime > thresholdSeconds:
-            self._defaultConnection.commit()
-            self._lastSavedTime = time.time()
+            self.forceSave()
             return True
         else:
             return False
 
     def forceSave(self):
         """Force a commit and update last save time."""
-        self._defaultConnection.commit()
+
+        # similar structure to exQuery()
+        try:
+            self._defaultConnection.commit()
+        except sqlite.ProgrammingError as e:
+            if ('created in a thread' in str(e) or
+                'Recursive use' in str(e)):
+                assert self.auxConnection is not None, \
+                        "You must take out a new connection before accessing " \
+                        "the db from another thread!"
+                self.auxConnection.commit()
+            else:
+                raise
         self._lastSavedTime = time.time()
 
-#def takeOutNewConnection():
-#    """
-#    Return an extra connection to the db to be used in an auxiliary thread,
-#    using the filename of the database that's currently otherwise open. The
-#    calling process is responsible for committing and closing the connection
-#    when done with it.
-#    """
-#    auxConnection = sqlite.connect(_fname)
-#    return auxConnection
+
+    def takeOutNewConnection(self):
+        """
+        Open an alternate connection for use in a worker thread. Note that
+        this only supports a single alternate connection, but we are not using
+        multi-threading in a very complicated way here, so this should not be
+        a problem.
+
+        When done with this connection (e.g., when the thread terminates or is
+        otherwise done with db access), make sure to run
+        closeAuxiliaryConnection() to preserve the auxiliary connection slot
+        for another thread.
+        
+        Raises AssertionError if the database was not opened with a filename
+        (because it's not possible to open multiple connections to a database
+        that's in memory), or if an auxiliary connection already exists,
+        likely indicating attempted concurrent access from more than two
+        threads, or another programming error.
+
+        NOTE: I was getting segfaults when I tried to *write* to the database
+        with this connection. I don't know what I might have been doing wrong,
+        but since I rewrote the class (it didn't need to do a write anyway), I
+        haven't seen that happening. If in the future we want to be able to
+        write to the db from a different thread, we may have to deal with it
+        again.
+        """
+        assert self._fname is not None, "Auxiliary connections cannot be " \
+                "used with in-memory databases!"
+        assert self.auxConnection is None, \
+                "An auxiliary connection already exists! was %r" % (
+                        self.auxConnection)
+        self.auxConnection = sqlite.connect(self._fname)
+
+    def closeAuxiliaryConnection(self):
+        if self.auxConnection is not None:
+            self.auxConnection.commit()
+            self.auxConnection.close()
+            self.auxConnection = None

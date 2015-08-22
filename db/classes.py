@@ -40,10 +40,16 @@ class Class(object):
         setName()
     """
 
-    def __init__(self, name, cid=None):
-        self._name = name
+    def __init__(self, cid):
+        c = d.inter.exQuery('SELECT name FROM classes WHERE cid=?', (cid,))
+        self._name = c.fetchall()[0][0]
         self._cid = cid
-        self._dump()
+
+    @classmethod
+    def createNew(cls, name):
+        q = '''INSERT INTO classes (name) VALUES (?)'''
+        d.inter.exQuery(q, (name,))
+        return cls(d.inter.getLastRowId())
 
     def __eq__(self, other):
         return (self.getCid() == other.getCid() and
@@ -61,17 +67,10 @@ class Class(object):
         self._dump()
 
     def _dump(self):
-        "Dump object to the db, creating a new or updating an existing entry."
-        if self._cid:
-            # exists already
-            d.inter.exQuery('UPDATE classes SET name=? WHERE cid=?',
-                    (self._name, self._cid))
-        else:
-            # new set, not in db
-            d.inter.exQuery('INSERT INTO classes (name,setsUsed) VALUES (?,?)',
-                    (self._name, 0))
-            self._cid = d.inter.getLastRowId()
-
+        "Dump changed object to the db."
+        ####### following line causes segfault
+        d.inter.exQuery('UPDATE classes SET name=? WHERE cid=?',
+                (self._name, self._cid))
         d.inter.checkAutosave()
 
 
@@ -89,7 +88,7 @@ def isDupe(name=None, cid=None):
 def getClassByCid(cid):
     """
     Return a Class from the db when given the cid. Return None if it doesn't
-    exist. See HistoryItem docstring for info on dbConnection.
+    exist.
     """
     c = d.inter.exQuery('SELECT name FROM classes WHERE cid=?', (cid,))
     try:
@@ -97,7 +96,7 @@ def getClassByCid(cid):
     except IndexError:
         return None
     else:
-        return Class(name, cid)
+        return Class(cid)
 
 def getClassByName(name):
     """
@@ -110,13 +109,13 @@ def getClassByName(name):
     except IndexError:
         return None
     else:
-        return Class(name, cid)
+        return Class(cid)
 
 def getAllClasses():
     """Return a list of all classes in the database, in alphabetical order."""
 
-    c = d.inter.exQuery('SELECT cid, name FROM classes ORDER BY name')
-    return [getClassByCid(i[0]) for i in c.fetchall()]
+    c = d.inter.exQuery('SELECT cid FROM classes ORDER BY name')
+    return [Class(i[0]) for i in c.fetchall()]
 
 def deleteClass(name):
     """

@@ -4,7 +4,7 @@ import db.classes
 class ClassTests(utils.DbTestCase):
     def testDbWriteRead(self):
         # create a class
-        c = db.classes.Class("Greta and TI 101")
+        c = db.classes.Class.createNew("Greta and TI 101")
         assert c.getCid() is not None, "cid unset after dump"
 
         # change the name; check for same cid and new name
@@ -16,6 +16,8 @@ class ClassTests(utils.DbTestCase):
         # pull the class back in and make sure it's the same
         c2 = db.classes.getClassByCid(c.getCid())
         assert c2 is not None, "class did not exist in db"
+        print c.getName()
+        print c2.getName()
         assert c == c2, "newly pulled class not identical to orig"
 
         # delete the class
@@ -25,8 +27,8 @@ class ClassTests(utils.DbTestCase):
 
     def testGets(self):
         # create two classes
-        c = db.classes.Class("First Class")
-        c2 = db.classes.Class("Second Class")
+        c = db.classes.Class.createNew("First Class")
+        c2 = db.classes.Class.createNew("Second Class")
 
         # pull list of classes and make sure it contains what we added
         cl = db.classes.getAllClasses()
@@ -44,7 +46,7 @@ class ClassTests(utils.DbTestCase):
 
     def testDupeCheck(self):
         # a class to check against
-        c = db.classes.Class("First Class")
+        c = db.classes.Class.createNew("First Class")
 
         # name check
         assert db.classes.isDupe("First Class")

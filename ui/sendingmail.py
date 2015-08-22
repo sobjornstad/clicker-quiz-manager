@@ -8,8 +8,10 @@ from PyQt4 import QtGui, QtCore
 #from PyQt4.QtCore import QObject, QAbstractTableModel, QModelIndex, SIGNAL, SLOT
 from ui.forms.busy import Ui_Dialog
 
+import ui.utils
 import db.emailing
 from db.students import studentsInClass
+import db.database as d
 from time import sleep
 import copy
 
@@ -22,17 +24,17 @@ class SendingDialog(QtGui.QDialog):
         self.opts = optsDict
         self.cls = cls
         self.zid = zid
+        self.doClose = False
+        self.form.cancelButton.clicked.connect(self.reject)
 
         self.beginConnect()
         self.thread = WorkerThread()
         self.thread.insertOptions(self.opts, self.cls, self.zid)
         self.thread.finished.connect(self.endOfThread)
+        self.thread.emailFailed.connect(self.onError) # error raised, too
         self.thread.serverContacted.connect(self.startProgress)
         self.thread.aboutToEmail.connect(self.updateProgress)
         self.thread.start()
-
-        #self.form.cancelButton.clicked.connect(self.reject)
-        #self.beginSend()
 
     def beginConnect(self):
         self.form.progressBar.setMinimum(0)
@@ -52,112 +54,94 @@ class SendingDialog(QtGui.QDialog):
         self.form.progressLabel.setText("Sending mail (%i/%i)..." % (
                 newVal, self.totalStudents))
 
+    def onError(self, err):
+        #print "MOOOOOOOO!"
+        raise err
+        #ui.utils.errorBox("An error occurred.", "Email error")
+
     def endOfThread(self):
-        print "reached endOfThread"
+        #print "EOT function run"
         self.thread.quit()
+        #print "thread quitted"
+        self.doClose = True
         self.reject()
-
-
-        #self.thread = QtCore.QThread()
-        #obj = Worker()
-        #obj.moveToThread(self.thread)
-        #obj.finished.connect(self.thread.quit)
-        ###self.thread.started.connect(obj.myMethod)
-        ###self.thread.finished.connect(self.endOfThread)
-        ###self.thread.start()
-        ###self.thread.started.emit()
-        ###print "thread started"
-
-
-        #self.thread.finished.connect(self.finishSend)
-        #self.thread.terminated.connect(self.finishSend)
-        #self.thread.connectedToServer.connect(self.startProgress)
-        #self.connect(self.thread, SIGNAL("connectFinished__()"),
-        #        self.startProgress)
-        #self.connect(self.thread, SIGNAL("studentDone()"),
-                #self.updateProgress)
-        #print "reached end of connections"
-        #QtGui.QApplication.processEvents()
-
-    def moo(self):
-        print "moooooo"
-
-    #def finishSend(self):
-    #    self.reject()
-
+        #print "reject completed"
 
     def reject(self):
-        # take care of canceling the mail
-        super(SendingDialog, self).reject()
+        if not self.doClose:
+            self.thread.exiting = True
+            self.form.progressLabel.setText("Canceling...")
+        else:
+            super(SendingDialog, self).reject()
+
 
 class WorkerThread(QtCore.QThread):
     serverContacted = QtCore.pyqtSignal(name="serverContacted")
     aboutToEmail = QtCore.pyqtSignal(name="aboutToEmail")
+    emailFailed = QtCore.pyqtSignal(Exception, name="emailFailed")
 
     def __init__(self, parent=None):
         QtCore.QThread.__init__(self, parent)
+        self.SMTPOpen = False
+        self.exiting = False
+        self.cleanupDone = False
+
+    def __del__(self):
+        # I'm not sure we ever actually need a destructor, but since it's
+        # working right now, I'm just leaving it in. We can clean it up when
+        # I'm not so effing tired of threading problems.
+        #print "destructor run"
+        if not self.cleanupDone:
+            self.tearDown()
+
+    def tearDown(self):
+        #print "teardown method run"
+        if self.SMTPOpen:
+            self.em.closeSMTPConnection()
+        d.inter.closeAuxiliaryConnection()
+        self.cleanupDone = True
+        self.finished.emit()
 
     def insertOptions(self, opts, cls, zid):
-        self.opts = copy.deepcopy(opts)
+        self.opts = opts
         self.cls = copy.deepcopy(cls)
         self.zid = copy.deepcopy(zid)
 
+    def processEmails(self):
+        # take out new database connection to use in this thread; set up emailer
+        d.inter.takeOutNewConnection()
+        self.em = db.emailing.EmailManager(self.opts, self.cls, self.zid)
+        # check if user has canceled and quit if so
+        if self.exiting:
+            self.tearDown()
+            return
+
+        # negotiate a connection with the server
+        self.em.openSMTPConnection()
+        self.SMTPOpen = True
+        if self.exiting:
+            self.tearDown()
+            return
+        self.serverContacted.emit()
+
+        # send email to all students
+        studentList = studentsInClass(self.cls)
+        numStudents = len(studentList)
+        onStudent = 1
+        for stu in studentList:
+            if self.exiting:
+                break
+            self.aboutToEmail.emit()
+            self.em.sendEmail(stu)
+        # done; clean up
+        self.tearDown()
+
     def run(self):
-        print "started connection attempt"
-        sleep(1)
-        #TODO: somehow we need to get this using a new connection from database.takeOutNewConnection()
-        #self.em = db.emailing.EmailManager(self.opts, self.cls, self.zid)
-        print "email manager setup"
-        #em.openSMTPConnection()
-        print "smtp connection opened"
-        #self.serverContacted.emit()
-        #em.closeSMTPConnection() # remove shortly
-        print "smtp connection closed"
-        print "SMTP open"
-
-        #self.aboutToEmail.emit()
-        #sleep(1)
-        #self.aboutToEmail.emit()
-        #sleep(1)
-        print "now terminating." # implied self.finished.emit()
-
-# class Worker(QtCore.QObject):
-#     #connectedToServer = QtCore.pyqtSignal(int, name="connectedToServer")
-#     finished = QtCore.pyqtSignal()
-# 
-#     #def __init__(self):#, opts, cls, zid):
-#     #    QtCore.QObject.__init__(self)
-#         #self.opts = opts
-#         #self.cls = cls
-#         #self.zid = zid
-#         #self.opts = copy.deepcopy(opts)
-#         #self.cls = copy.deepcopy(cls)
-#         #self.zid = copy.deepcopy(zid)
-#         #self.exiting = False
-# 
-#     #def __del__(self):
-#     #    "Notify self that it should terminate and wait for it to do so."
-#     #    self.exiting = True
-#     #    self.wait()
-#     #    QtCore.QThread.__del__(self)
-# 
-#     @QtCore.pyqtSlot()
-#     def myMethod(self):
-#         self.finished.emit()
-#         #print "running myMethod"
-#         #print "emitted"
-#         #self.connectedToServer.emit(5)
-# 
-#         #studentList = studentsInClass(self.cls)
-#         #numStudents = len(studentList)
-#         #onStudent = 1
-#         #for stu in studentList:
-#         #    print "sending new student"
-#         #    if self.exiting:
-#         #        break
-#         #    em.sendEmail(stu)
-#         #print "send done"
-#         #em.closeSMTPConnection()
-#         #print "conn closed"
-# 
-# 
+        try:
+            self.processEmails()
+        except Exception as err:
+            #print "error handler caught error"
+            # if the destructor is run by another thread, we get an sqlite
+            # error, so we need to tear down before we emit the signal
+            self.tearDown()
+            self.emailFailed.emit(err)

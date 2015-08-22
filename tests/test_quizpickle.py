@@ -13,7 +13,7 @@ import pickle
 
 class PicklingTests(utils.DbTestCase):
     def testSaveRestore(self):
-        cls = Class("TestClass")
+        cls = Class.createNew("TestClass")
         st = Set("TestSet", 1)
         st2 = Set("RevSet", 2)
         sl = [st, st2]

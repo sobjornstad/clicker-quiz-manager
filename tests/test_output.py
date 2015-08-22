@@ -106,7 +106,7 @@ This \{is\} some text, which costs \$4 \& 50 cents, which is \#1 in annoyance fo
     @attr('slow')
     def testLaTeXRender(self):
         qs = makeTestQuestions()
-        cls = Class("German 101")
+        cls = Class.createNew("German 101")
         quizNum = 1
         renderPdf(qs, cls, quizNum, doOpen=False)
         with self.assertRaises(LatexError) as ex:
@@ -128,7 +128,7 @@ This \{is\} some text, which costs \$4 \& 50 cents, which is \#1 in annoyance fo
             txt2 = f.read()
         assert txt2.strip() == _htmlText(qs, forQuiz=False).strip()
 
-        cls = Class("German 101")
+        cls = Class.createNew("German 101")
         quizNum = 1
         fname = "test_htmlrender"
         against_fname = "tests/resources/test_html_complete.html"

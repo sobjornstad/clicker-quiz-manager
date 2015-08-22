@@ -7,13 +7,13 @@ import db.database as d
 class DbTests(utils.DbTestCase):
     def testDbAutosave(self):
         # create a class as a test db item
-        c1 = db.classes.Class("Greta and IT 101")
+        c1 = db.classes.Class.createNew("Greta and IT 101")
         assert c1.getCid() is not None, "cid unset after dump"
 
         d.inter.forceSave()
         assert d.inter.checkAutosave() == False # 60 seconds have not passed yet
 
-        c2 = db.classes.Class("Greta and IT 353")
+        c2 = db.classes.Class.createNew("Greta and IT 353")
         time.sleep(0.05)
         assert d.inter.checkAutosave(10) == False
         assert d.inter.checkAutosave(0.04) == True # also activates save
@@ -36,7 +36,7 @@ class DbTestsOnDisk(utils.DbTestCase):
         # test the auxiliary connection option (for use with threads).
 
         # create a class as a test db item
-        c1 = db.classes.Class("Greta and IT 101")
+        c1 = db.classes.Class.createNew("Greta and IT 101")
         d.inter.forceSave()
 
         #auxConn = database.takeOutNewConnection()

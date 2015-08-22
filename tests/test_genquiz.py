@@ -11,7 +11,7 @@ import pickle
 
 class QuizTests(utils.DbTestCase):
     def testQuizItem(self):
-        cls = db.classes.Class("Test Class")
+        cls = db.classes.Class.createNew("Test Class")
         st = db.sets.Set("Test Set", 1)
         q = db.questions.Question("What is the answer?",
                 ["foo", "bar", "baz", "42"], "d", st, 1)
@@ -48,7 +48,7 @@ class QuizTests(utils.DbTestCase):
         assert item.sid == q.getSid()
 
     def testQuiz(self):
-        cls = db.classes.Class("Test Class")
+        cls = db.classes.Class.createNew("Test Class")
         st = db.sets.Set("Test Set", 1)
         q = db.questions.Question("What is the answer?",
                 ["foo", "bar", "baz", "42"], "d", st, 1)
@@ -146,7 +146,7 @@ class QuizTests(utils.DbTestCase):
         q1 = db.questions.Question("Q1", ['a', 'b', 'c'], 'a', st1, 1)
         q2 = db.questions.Question("Q2", ['a', 'b', 'c'], 'b', st2, 1)
         q3 = db.questions.Question("Q3", ['a', 'b', 'c'], 'c', st3, 1)
-        cls = db.classes.Class("Test Class")
+        cls = db.classes.Class.createNew("Test Class")
 
         # they should all be new and available -- there's nothing in history
         sts = findNewSets(cls)

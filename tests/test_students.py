@@ -7,8 +7,8 @@ import db.classes
 
 class StudentTests(utils.DbTestCase):
     def testClass(self):
-        cls = db.classes.Class("MyClass")
-        cls2 = db.classes.Class("MyOtherClass")
+        cls = db.classes.Class.createNew("MyClass")
+        cls2 = db.classes.Class.createNew("MyOtherClass")
         s = Student.createNew("Bjornstadt", "Sorenn", "3", "c56al", "contact@sorenbjornstad.net", cls)
         s2 = Student.createNew("Almzead", "Maud", "2", "55655", "maud@sorenbjornstad.net", cls2)
         assert s.getLn() == "Bjornstadt"
@@ -44,7 +44,7 @@ class StudentTests(utils.DbTestCase):
 
     def testImporting(self):
         # simple valid file without emails, just like a default TP install's
-        cls = db.classes.Class("TestClass (no pun intended)")
+        cls = db.classes.Class.createNew("TestClass (no pun intended)")
         fname = 'tests/resources/stuimport/valid-noemails.csv'
         errs = importStudents(fname, cls)
         assert not errs
@@ -54,7 +54,7 @@ class StudentTests(utils.DbTestCase):
         assert studentsInClass(cls)[0].getTpid() == "1"
 
         # as before, but with the addition of emails
-        cls = db.classes.Class("TestClass2")
+        cls = db.classes.Class.createNew("TestClass2")
         fname = 'tests/resources/stuimport/valid-emails.csv'
         errs = importStudents(fname, cls)
         assert not errs
@@ -64,7 +64,7 @@ class StudentTests(utils.DbTestCase):
         assert studentsInClass(cls)[0].getTpid() == "1"
 
         # let's mix the order of the columns up a bit
-        cls = db.classes.Class("TestClass3")
+        cls = db.classes.Class.createNew("TestClass3")
         fname = 'tests/resources/stuimport/mixed-cols-emails.csv'
         errs = importStudents(fname, cls)
         assert not errs
@@ -75,7 +75,7 @@ class StudentTests(utils.DbTestCase):
 
         # what about extraneous columns? they won't be imported of course, but
         # we should ignore those columns with a quiet warning.
-        cls = db.classes.Class("TestClass4")
+        cls = db.classes.Class.createNew("TestClass4")
         fname = 'tests/resources/stuimport/valid-extracols.csv'
         errs = importStudents(fname, cls)
         assert errs
@@ -86,14 +86,14 @@ class StudentTests(utils.DbTestCase):
         assert studentsInClass(cls)[0].getTpid() == "1"
 
         # several invalid possibilities
-        cls = db.classes.Class("TestClass5")
+        cls = db.classes.Class.createNew("TestClass5")
         fname = 'tests/resources/stuimport/invalid-wrongdelim.csv'
         errs = importStudents(fname, cls)
         assert errs, errs
         assert "Invalid delimiter" in errs
         assert len(studentsInClass(cls)) == 0, len(studentsInClass(cls))
 
-        cls = db.classes.Class("TestClass6")
+        cls = db.classes.Class.createNew("TestClass6")
         fname = 'tests/resources/stuimport/invalid-dupe.csv'
         errs = importStudents(fname, cls)
         assert errs
@@ -101,7 +101,7 @@ class StudentTests(utils.DbTestCase):
         assert len(studentsInClass(cls)) == 3, len(studentsInClass(cls))
 
     def testExporting(self):
-        cls = db.classes.Class("TestClass (no pun intended)")
+        cls = db.classes.Class.createNew("TestClass (no pun intended)")
         s = Student.createNew("Bjornstad", "Soren", "3", "c56al", "contact@sorenbjornstad.net", cls)
         s2 = Student.createNew("Almzead", "Maud,Her", "2", "55655", "maud@sorenbjornstad.net", cls)
 

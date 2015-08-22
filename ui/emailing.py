@@ -59,8 +59,8 @@ class EmailingDialog(QDialog):
                 'hostname': 'mail.messagingengine.com',
                 'port': '465',
                 'ssl': 'SSL/TLS',
-                'username': 'someone@fastmail.com',
-                'password': 'NotMyPassword'
+                'username': 'sorenbjornstad@fastmail.com',
+                'password': 'NotMyRealPassword'
                 #TODO: keep username/password out of git control!
                }
 
