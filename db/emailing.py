@@ -103,6 +103,8 @@ class EmailManager(object):
         should write `$$`.
         """
 
+        text = text.replace('$$', '<*LITERALDOLLARSIGN*>')
+
         text = text.replace('$c', self.cls.getName())
         text = text.replace('$n', "%i" % self.historyItem.seq)
         fn = student.getFn()
@@ -132,7 +134,7 @@ class EmailManager(object):
             text = text.replace('$Q', db.output.genPlainText(
                 questions, includeStudentResults=results))
 
-        text = text.replace('$$', '$')
+        text = text.replace('<*LITERALDOLLARSIGN*>', '$')
         return text
 
 def _formatResultsTable(results):

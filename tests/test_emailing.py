@@ -59,7 +59,8 @@ class EmailingTests(utils.DbTestCase):
                     'subject': '[CQM $c] Quiz $n for $s: $r/$t ($p%)',
                     'body': 'Table of scores:\n$a\n\nAnnotated quiz:\n$Q\n\n'
                             'Original quiz:\n$q\n\nThe class average was '
-                            '$R/$t ($P%). You won $$2 from your scores!',
+                            '$R/$t ($P%). You won $$2 from your scores! '
+                            'To clarify, $$roll this.',
                     'hostname': 'mail.messagingengine.com',
                     'port': '465',
                     'ssl': 'SSL/TLS',
@@ -247,5 +248,5 @@ Answer: (c) cc
 Answer: (a) aa
 
 
-The class average was 1.5/10 (15.0%). You won $2 from your scores!
+The class average was 1.5/10 (15.0%). You won $2 from your scores! To clarify, $roll this.
 """.strip()
