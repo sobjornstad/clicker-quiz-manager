@@ -57,7 +57,7 @@ class QuestionSetsDialog(QDialog):
 
         self.form.setList.addItem(toAdd)
         num = self.form.setList.count() - 1 # row numbering starts from 0
-        db.sets.Set(toAdd, num)
+        db.sets.Set.createNew(toAdd, num)
 
     def edit(self):
         import editset

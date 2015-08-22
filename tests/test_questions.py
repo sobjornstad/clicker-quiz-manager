@@ -10,7 +10,7 @@ class QuestionTests(utils.DbTestCase):
         a = ["Bethamer", "Thorne", "Almzead", "Jallwei"]
         ca = "c"
         order = 1
-        st = Set("Maudiverse Set", 5)
+        st = Set.createNew("Maudiverse Set", 5)
         ques = Question(q, a, ca, st, order)
 
         # make sure getters work
@@ -40,7 +40,7 @@ class QuestionTests(utils.DbTestCase):
 
     def testDbWriteRead(self):
         # create a question
-        st = Set("Test Set", 3)
+        st = Set.createNew("Test Set", 3)
         q = Question("Hello?", ["foo", "bar", "baz", "quux"], "c", st, 1)
         qid = q.getQid()
 
@@ -49,7 +49,7 @@ class QuestionTests(utils.DbTestCase):
         assert q == q2
 
     def testRTFOutput(self):
-        st = Set("Test Set", 3)
+        st = Set.createNew("Test Set", 3)
         q = Question("Hello?", ["foo", "bar", "baz", "quux"], "c", st, 1)
         q2 = Question("Goodbye?", ["1", "2", "3", "4"], "d", st, 2)
         questions = [q, q2]
@@ -81,12 +81,12 @@ class QuestionTests(utils.DbTestCase):
             self.assertTrue(False), "Returned question number not an int"
 
     def testSetGet(self):
-        st = Set("Test Set", 4)
+        st = Set.createNew("Test Set", 4)
         # these are in the set
         q = Question("Hello?", ["foo", "bar", "baz", "quux"], "c", st, 1)
         q2 = Question("Goodbye?", ["1", "2", "3", "4"], "d", st, 2)
         # this is *not* (included to be sure it doesn't accidentally get pulled)
-        q3 = Question("Bye-bye?", ["1", "2", "3", "4"], "d", Set("t", 2), 2)
+        q3 = Question("Bye-bye?", ["1", "2", "3", "4"], "d", Set.createNew("t", 2), 2)
 
         # make sure gotten questions and originals are the same
         sets = getBySet(st)
@@ -95,8 +95,8 @@ class QuestionTests(utils.DbTestCase):
         assert sets[1].getQid() == q2.getQid()
 
     def testDupeQuestionNames(self):
-        st = Set("Test Set", 1)
-        st2 = Set("Test Set 2", 2)
+        st = Set.createNew("Test Set", 1)
+        st2 = Set.createNew("Test Set 2", 2)
         q = Question("What is the answer?", ["foo", "bar", "baz", "42"],
                 "d", st, 1)
         with self.assertRaises(DuplicateError):
@@ -114,7 +114,7 @@ class QuestionTests(utils.DbTestCase):
             assert False, e
 
     def testInvalidQuestions(self):
-        st = Set("Test Set", 1)
+        st = Set.createNew("Test Set", 1)
         with self.assertRaises(QuestionFormatError):
             q = Question("What is the answer?", ["foo", "bar", "foo", "42"],
                     "d", st, 1)
@@ -133,7 +133,7 @@ class QuestionTests(utils.DbTestCase):
 
 
     def testQuestionManager(self):
-        st = Set("Test Set", 1)
+        st = Set.createNew("Test Set", 1)
         q1 = Question("What is the answer?",
                 ["foo", "bar", "baz", "42"], "d", st, 1)
         q2 = Question("What is the answer to this one?",
@@ -162,7 +162,7 @@ class QuestionTests(utils.DbTestCase):
         assert qbyord == q1
 
     def testSwap(self):
-        st = Set("Test Set", 1)
+        st = Set.createNew("Test Set", 1)
         q1 = Question("What is the answer?",
                 ["foo", "bar", "baz", "42"], "d", st, 1)
         q2 = Question("What is the answer to this one?",
@@ -172,7 +172,7 @@ class QuestionTests(utils.DbTestCase):
         assert q2.getOrder() == 1
 
     def testInsertQuestion(self):
-        st = Set("Test Set", 1)
+        st = Set.createNew("Test Set", 1)
         q1 = Question("What is the answer?",
                 ["foo", "bar", "baz", "42"], "d", st, 0)
         q2 = Question("What is the answer to this one?",
@@ -197,7 +197,7 @@ class QuestionTests(utils.DbTestCase):
 
 
     def testDelete(self):
-        st = Set("Test Set", 1)
+        st = Set.createNew("Test Set", 1)
         q1 = Question("What is the answer?",
                 ["foo", "bar", "baz", "42"], "d", st, 1)
         q2 = Question("What is the answer to this one?",
@@ -225,7 +225,7 @@ class QuestionTests(utils.DbTestCase):
         assert len(qs_from_qm) == 1
 
     def testFindNextOrd(self):
-        st = Set("Foo set", 1)
+        st = Set.createNew("Foo set", 1)
         q1 = Question("What is the answer?",
                 ["foo", "bar", "baz", "42"], "d", st, 1)
         q2 = Question("What is the answer to this one?",
@@ -234,7 +234,7 @@ class QuestionTests(utils.DbTestCase):
                 ["foo", "bar", "42", "quux"], "c", st, 3)
 
         # to make sure the where clause works
-        throwOffSet = Set("Bar set", 2)
+        throwOffSet = Set.createNew("Bar set", 2)
         q4 = Question("And how about this?",
                 ["foo", "bar", "42", "quux"], "c", throwOffSet, 5)
 
@@ -242,7 +242,7 @@ class QuestionTests(utils.DbTestCase):
         assert o == 4, "Wrong next ord, expected 4, got %i" % o
 
     def testRandomize(self):
-        st = Set("Foo set", 1)
+        st = Set.createNew("Foo set", 1)
         q = Question("What is 2 + 2?",
                 ["1", "2", "3", "4"], "d", st, 1)
 

@@ -14,8 +14,8 @@ import pickle
 class PicklingTests(utils.DbTestCase):
     def testSaveRestore(self):
         cls = Class.createNew("TestClass")
-        st = Set("TestSet", 1)
-        st2 = Set("RevSet", 2)
+        st = Set.createNew("TestSet", 1)
+        st2 = Set.createNew("RevSet", 2)
         sl = [st, st2]
         q = Question("Hello?", ["foo", "bar", "baz", "quux"], "c", st, 1) #"new"
         q2 = Question("Goodbye?", ["1", "2", "3", "4"], "d", st, 2) # "new"

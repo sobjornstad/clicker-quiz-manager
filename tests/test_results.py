@@ -18,7 +18,7 @@ class ResultsTests(utils.DbTestCase):
                 "jennifer@example.com", cls)
         soren = Student.createNew("Bjornstad", "Soren", "2", "9A2D9C",
                 "soren@example.com", cls)
-        st = Set("fooset", 1)
+        st = Set.createNew("fooset", 1)
         q1 = Question(u"das Buch", ['aa', 'bb', 'cc', 'dd'], 'b', st, 1)
         q2 = Question(u"die Lieblingsfarbe", ['aa', 'bb', 'cc', 'dd'], 'd', st, 1)
         q3 = Question(u"die Tür", ['aa', 'bb', 'cc', 'dd'], 'd', st, 1)
@@ -67,7 +67,7 @@ class ResultsTests(utils.DbTestCase):
                 "jennifer@example.com", cls)
         soren = Student.createNew("Bjornstad", "Soren", "2", "9A2D9C",
                 "soren@example.com", cls)
-        st = Set("fooset", 1)
+        st = Set.createNew("fooset", 1)
         q1 = Question(u"das Buch", ['aa', 'bb', 'cc', 'dd'], 'a', st, 1)
         q2 = Question(u"die Lieblingsfarbe", ['aa', 'bb', 'cc', 'dd'], 'a', st, 1)
         q3 = Question(u"die Tür", ['aa', 'bb', 'cc', 'dd'], 'a', st, 1)

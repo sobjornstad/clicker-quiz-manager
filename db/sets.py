@@ -5,11 +5,15 @@
 import database as d
 
 class Set(object):
-    def __init__(self, name, num, sid=None):
-        self._name = name
-        self._num = num
+    def __init__(self, sid):
+        c = d.inter.exQuery('SELECT name, num FROM sets WHERE sid=?', (sid,))
+        self._name, self._num = c.fetchall()[0]
         self._sid = sid
-        self.dump()
+
+    @classmethod
+    def createNew(cls, name, num):
+        d.inter.exQuery('INSERT INTO sets VALUES (null, ?, ?)', (name, num))
+        return cls(d.inter.getLastRowId())
 
     def __eq__(self, other):
         return self._sid == other._sid and \
@@ -33,25 +37,17 @@ class Set(object):
         self._num = num
         self.dump(commit)
 
-    def dump(self, commit=True):
+    def dump(self, commit=None):
         """
-        Update the database to match the state of this object. If commit is set
-        to True (turn off for bulk operations on many sets), check if we need
-        to commit and do so if appropriate.
+        Update the database to match the state of this object.
+
+        /commit/ is ignored but retained until a cleanup to avoid changing
+        a bunch of code unnecessarily.
         """
 
-        if self._sid:
-            # exists already
-            d.inter.exQuery('UPDATE sets SET name=?, num=? WHERE sid=?',
-                    (self._name, self._num, self._sid))
-        else:
-            # new set, not in db
-            d.inter.exQuery('INSERT INTO sets VALUES (null, ?, ?)',
-                    (self._name, self._num))
-            self._sid = d.inter.getLastRowId()
-
-        if commit:
-            d.inter.checkAutosave()
+        d.inter.exQuery('UPDATE sets SET name=?, num=? WHERE sid=?',
+                (self._name, self._num, self._sid))
+        d.inter.checkAutosave()
 
     def delete(self):
         d.inter.exQuery('DELETE FROM questions WHERE sid=?', (self._sid,))
@@ -88,21 +84,21 @@ def findSet(sid=None, name=None, num=None):
     if not has:
         assert False, "No criterion provided to findSet!"
 
-    query = 'SELECT sid, name, num FROM sets WHERE %s=?' % (has)
+    query = 'SELECT sid FROM sets WHERE %s=?' % (has)
     c = d.inter.exQuery(query, (value,))
     try:
-        sid, name, num = c.fetchall()[0]
+        sid = c.fetchall()[0][0]
     except IndexError:
         return None
     else:
-        return Set(name, num, sid)
+        return Set(sid)
 
 def getAllSets():
     """Return a list of all sets in the database, ordered by their num field
     for insertion into a correctly ordered list."""
 
     c = d.inter.exQuery('SELECT sid FROM sets ORDER BY num')
-    return [findSet(sid=i[0]) for i in c.fetchall()]
+    return [Set(i[0]) for i in c.fetchall()]
 
 def insertSet(s1, posn):
     """

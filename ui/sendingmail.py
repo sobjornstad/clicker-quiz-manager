@@ -8,6 +8,10 @@ from PyQt4 import QtGui, QtCore
 #from PyQt4.QtCore import QObject, QAbstractTableModel, QModelIndex, SIGNAL, SLOT
 from ui.forms.busy import Ui_Dialog
 
+import socket
+import smtplib
+import sys, traceback # debug
+
 import ui.utils
 import db.emailing
 from db.students import studentsInClass
@@ -25,13 +29,20 @@ class SendingDialog(QtGui.QDialog):
         self.cls = cls
         self.zid = zid
         self.doClose = False
+        self.hadError = False
+        self.recipientErrors = []
         self.form.cancelButton.clicked.connect(self.reject)
 
+        # Make absolutely sure db is synced up before opening a concurrent
+        # connection in the worker thread (we shouldn't need to have committed,
+        # but just in case).
+        d.inter.forceSave()
         self.beginConnect()
         self.thread = WorkerThread()
         self.thread.insertOptions(self.opts, self.cls, self.zid)
         self.thread.finished.connect(self.endOfThread)
-        self.thread.emailFailed.connect(self.onError) # error raised, too
+        self.thread.emailFailed.connect(self.onError)
+        self.thread.recipientRefused.connect(self.onRecipientRefused)
         self.thread.serverContacted.connect(self.startProgress)
         self.thread.aboutToEmail.connect(self.updateProgress)
         self.thread.start()
@@ -54,31 +65,72 @@ class SendingDialog(QtGui.QDialog):
         self.form.progressLabel.setText("Sending mail (%i/%i)..." % (
                 newVal, self.totalStudents))
 
+    def onRecipientRefused(self, err):
+        self.recipientErrors.append(err.recipients.values()[0])
+        self.hadError = True
+
     def onError(self, err):
-        #print "MOOOOOOOO!"
-        raise err
-        #ui.utils.errorBox("An error occurred.", "Email error")
+        self.hadError = True
+        eb = ui.utils.errorBox
+        try:
+            raise err
+        except socket.gaierror as e:
+            if 'Name or service not known' in e:
+                eb("Could not connect to the SMTP server specified. Please "
+                   "check the hostname for accuracy; if problems continue, "
+                   "you may have a firewall or internet connection problem.",
+                   "Could not resolve SMTP hostname")
+        except smtplib.SMTPServerDisconnected as e:
+            eb("The server disconnected unexpectedly. Maybe you have the "
+               "SSL or port options wrong?",
+               "Server disconnected")
+        except smtplib.SMTPSenderRefused as e:
+            eb("The server does not allow you to send email from the email "
+               "address you specified (%s). The full error is as "
+               "follows:\n\n%s" % (e.sender, e.smtp_error),
+               "Permission denied")
+        except smtplib.SMTPAuthenticationError as e:
+            eb("The server refused your login. Most likely you've mistyped "
+               "your username or password, or are trying to log in to the "
+               "wrong server. The server told us:\n\n%s" % (e.smtp_error),
+               "Incorrect username/password")
+        except smtplib.SMTPException as e:
+            ui.utils.tracebackBox("The server returned an unexpected error "
+                    "that we don't know how to handle. If the error message "
+                    "below is not enough to fix the problem, please copy and "
+                    "paste the complete error message and contact the "
+                    "developer for further assistance.\n\n%s" % (e.smtp_error),
+                    includeErrorBoilerplate=False)
 
     def endOfThread(self):
-        #print "EOT function run"
+        self.thread.finished.disconnect() # run end of thread only once
         self.thread.quit()
-        #print "thread quitted"
         self.doClose = True
         self.reject()
-        #print "reject completed"
+        if self.recipientErrors:
+            errors = "\n".join([str(i) for i in self.recipientErrors])
+            ui.utils.tracebackBox("Some email could not be delivered, probably "
+                    "because the email addresses were invalid. All email that "
+                    "could be delivered has been delivered. Below is a "
+                    "full description of the errors:\n\n%s" % (errors),
+                    "Invalid email addresses", includeErrorBoilerplate=False)
 
     def reject(self):
         if not self.doClose:
             self.thread.exiting = True
             self.form.progressLabel.setText("Canceling...")
         else:
-            super(SendingDialog, self).reject()
+            if self.hadError:
+                super(SendingDialog, self).reject()
+            else:
+                super(SendingDialog, self).accept()
 
 
 class WorkerThread(QtCore.QThread):
     serverContacted = QtCore.pyqtSignal(name="serverContacted")
     aboutToEmail = QtCore.pyqtSignal(name="aboutToEmail")
     emailFailed = QtCore.pyqtSignal(Exception, name="emailFailed")
+    recipientRefused = QtCore.pyqtSignal(Exception, name="recipientRefused")
 
     def __init__(self, parent=None):
         QtCore.QThread.__init__(self, parent)
@@ -86,16 +138,7 @@ class WorkerThread(QtCore.QThread):
         self.exiting = False
         self.cleanupDone = False
 
-    def __del__(self):
-        # I'm not sure we ever actually need a destructor, but since it's
-        # working right now, I'm just leaving it in. We can clean it up when
-        # I'm not so effing tired of threading problems.
-        #print "destructor run"
-        if not self.cleanupDone:
-            self.tearDown()
-
     def tearDown(self):
-        #print "teardown method run"
         if self.SMTPOpen:
             self.em.closeSMTPConnection()
         d.inter.closeAuxiliaryConnection()
@@ -132,7 +175,11 @@ class WorkerThread(QtCore.QThread):
             if self.exiting:
                 break
             self.aboutToEmail.emit()
-            self.em.sendEmail(stu)
+            try:
+                self.em.sendEmail(stu)
+            except smtplib.SMTPRecipientsRefused as e:
+                self.recipientRefused.emit(e)
+
         # done; clean up
         self.tearDown()
 
@@ -140,8 +187,10 @@ class WorkerThread(QtCore.QThread):
         try:
             self.processEmails()
         except Exception as err:
-            #print "error handler caught error"
             # if the destructor is run by another thread, we get an sqlite
             # error, so we need to tear down before we emit the signal
-            self.tearDown()
+            # TODO: update comment to see if swapping works (otherwise needed)
+            #DEBUG: ex_type, ex, tb = sys.exc_info()
+            #traceback.print_tb(tb)
             self.emailFailed.emit(err)
+            self.tearDown()

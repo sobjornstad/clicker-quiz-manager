@@ -12,7 +12,7 @@ import pickle
 class QuizTests(utils.DbTestCase):
     def testQuizItem(self):
         cls = db.classes.Class.createNew("Test Class")
-        st = db.sets.Set("Test Set", 1)
+        st = db.sets.Set.createNew("Test Set", 1)
         q = db.questions.Question("What is the answer?",
                 ["foo", "bar", "baz", "42"], "d", st, 1)
         item = QuizItem(q, cls)
@@ -49,12 +49,12 @@ class QuizTests(utils.DbTestCase):
 
     def testQuiz(self):
         cls = db.classes.Class.createNew("Test Class")
-        st = db.sets.Set("Test Set", 1)
+        st = db.sets.Set.createNew("Test Set", 1)
         q = db.questions.Question("What is the answer?",
                 ["foo", "bar", "baz", "42"], "d", st, 1)
         q4 = db.questions.Question("What is the answer ?",
                 ["foo", "bar", "baz", "42"], "d", st, 4)
-        st2 = db.sets.Set("Test Set", 1)
+        st2 = db.sets.Set.createNew("Test Set", 1)
         q2 = db.questions.Question("What is the answer to this?",
                 ["foo", "bar", "baz", "42"], "c", st2, 2)
         q3 = db.questions.Question("What is the answer to this question?",
@@ -140,9 +140,9 @@ class QuizTests(utils.DbTestCase):
 
 
     def testFindSets(self):
-        st1 = db.sets.Set("Test Set 1", 1)
-        st2 = db.sets.Set("Test Set 2", 2)
-        st3 = db.sets.Set("Test Set 3", 3)
+        st1 = db.sets.Set.createNew("Test Set 1", 1)
+        st2 = db.sets.Set.createNew("Test Set 2", 2)
+        st3 = db.sets.Set.createNew("Test Set 3", 3)
         q1 = db.questions.Question("Q1", ['a', 'b', 'c'], 'a', st1, 1)
         q2 = db.questions.Question("Q2", ['a', 'b', 'c'], 'b', st2, 1)
         q3 = db.questions.Question("Q3", ['a', 'b', 'c'], 'c', st3, 1)

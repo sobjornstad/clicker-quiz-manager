@@ -27,12 +27,13 @@ class PasswordSafeQLineEdit(QLineEdit):
         pass
 
 class EmailingDialog(QDialog):
-    def __init__(self, parent, cls, zid):
+    def __init__(self, parent, cls, zid, dbConf):
         QDialog.__init__(self)
         self.form = Ui_Dialog()
         self.form.setupUi(self)
         self.cls = cls
         self.zid = zid
+        self.dbConf = dbConf
 
         self.setWindowTitle("Email Results ~ Quiz %i, %s" % (
             HistoryItem(zid).seq, self.cls.getName()))
@@ -52,30 +53,35 @@ class EmailingDialog(QDialog):
     def fetchOptions(self):
         # do something to get the options from the conf part of the db; for now,
         # we just have them hard-coded as a sample
-        opts = {'fromName': 'Soren Bjornstad',
-                'fromAddr': 'redacted@example.com',
-                'subject': '[CQM $c] Results for Quiz $n',
-                'body': 'This is a test. Here are your results:\n$Q',
-                'hostname': 'mail.messagingengine.com',
-                'port': '465',
-                'ssl': 'SSL/TLS',
-                'username': 'sorenbjornstad@fastmail.com',
-                'password': 'NotMyRealPassword'
+        key = 'optionsForClass_' + self.cls.getName()
+        opts = self.dbConf.get(key)
+
+        #opts = {'fromName': 'Soren Bjornstad',
+                #'fromAddr': 'redacted@example.com',
+                #'subject': '[CQM $c] Results for Quiz $n',
+                #'body': 'This is a test. Here are your results:\n$Q',
+                #'hostname': 'mail.messagingengine.com',
+                #'port': '465',
+                #'ssl': 'SSL/TLS',
+                #'username': 'sorenbjornstad@fastmail.com',
+                #'password': 'NotMyRealPassword'
                 #TODO: keep username/password out of git control!
-               }
+               #}
 
-        self.form.fromNameBox.setText(opts['fromName'])
-        self.form.fromAddrBox.setText(opts['fromAddr'])
-        self.form.subjectBox.setText(opts['subject'])
-        self.form.bodyBox.setPlainText(opts['body'])
-        self.form.hostnameBox.setText(opts['hostname'])
-        self.form.portBox.setText(opts['port'])
-        comboIndex = self.form.SSLCombo.findText(opts['ssl'])
-        self.form.SSLCombo.setCurrentIndex(comboIndex)
-        self.form.usernameBox.setText(opts['username'])
-        self.form.passwordBox.setText(opts['password'])
-
-        self.passwordWasLoaded = True if opts['password'] else False
+        if opts is not None:
+            self.form.fromNameBox.setText(opts['fromName'])
+            self.form.fromAddrBox.setText(opts['fromAddr'])
+            self.form.subjectBox.setText(opts['subject'])
+            self.form.bodyBox.setPlainText(opts['body'])
+            self.form.hostnameBox.setText(opts['hostname'])
+            self.form.portBox.setText(opts['port'])
+            comboIndex = self.form.SSLCombo.findText(opts['ssl'])
+            self.form.SSLCombo.setCurrentIndex(comboIndex)
+            self.form.usernameBox.setText(opts['username'])
+            self.form.passwordBox.setText(opts['password'])
+            self.passwordWasLoaded = True if opts['password'] else False
+        else:
+            self.passwordWasLoaded = False
 
     def makeOptionsDict(self):
         opts = {}
@@ -91,8 +97,11 @@ class EmailingDialog(QDialog):
         self.opts = opts
 
     def putOptions(self):
-        # do something to save the options into the db; for now, we do nothing.
-        pass
+        self.makeOptionsDict()
+        key = 'optionsForClass_' + self.cls.getName()
+        self.dbConf.put(key, self.opts)
+        self.dbConf.sync()
+        #TODO: preview options
 
     def toggleShowPW(self):
         doShow = self.form.showPWCheck.isChecked()
@@ -127,10 +136,14 @@ class EmailingDialog(QDialog):
 
     def onSendMail(self):
         # have an option to preview the email
+        self.form.showPWCheck.setChecked(False) # don't show pw while running
         self.makeOptionsDict()
+        self.putOptions()
         busyDialog = ui.sendingmail.SendingDialog(
                 self, self.opts, self.cls, self.zid)
-        busyDialog.exec_()
+        sendWasSuccessful = busyDialog.exec_()
+        if sendWasSuccessful:
+            self.accept()
 
     def onSendTest(self):
         pass

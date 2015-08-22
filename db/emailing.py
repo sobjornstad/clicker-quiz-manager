@@ -67,7 +67,7 @@ class EmailManager(object):
 
         if self.connection is None:
             self.openSMTPConnection()
-        self.connection.sendmail(fromStr, toStr, msg.as_string())
+        return self.connection.sendmail(fromStr, toStr, msg.as_string())
 
     def getPreview(self):
         pass

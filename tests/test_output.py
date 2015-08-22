@@ -18,7 +18,7 @@ class OutputTests(utils.DbTestCase):
     def testRTFRender(self):
         fname = 'testfile.rtf'
         against_fname = 'tests/resources/test_format_against.rtf'
-        st = Set("Test Set", 2)
+        st = Set.createNew("Test Set", 2)
         questions = [Question("Hello [...]?", ["foo", "bar", "baz", "quux"],
             "c", st, 1)]
         renderRTF(questions, fname)
@@ -145,7 +145,7 @@ This \{is\} some text, which costs \$4 \& 50 cents, which is \#1 in annoyance fo
 
 def makeTestQuestions():
     # create some questions to render
-    st = Set("Test Set", 1)
+    st = Set.createNew("Test Set", 1)
     q1 = Question("Hello?", ["foo", "bar", "baz", "quux"], "c", st, 1)
     q2 = Question("'Goodbye' is a [...].",
             ["word", "tar", "taz", "tuux"], "a", st, 1)

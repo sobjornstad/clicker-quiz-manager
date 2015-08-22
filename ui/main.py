@@ -102,7 +102,7 @@ class MainWindow(QMainWindow):
         stw.exec_()
 
     def onHistory(self):
-        hiw = ui.history.HistoryDialog(self)
+        hiw = ui.history.HistoryDialog(self, self.databaseConfig)
         hiw.exec_()
 
     def closeEvent(self, event):
@@ -112,6 +112,7 @@ class MainWindow(QMainWindow):
         # save current database location to configuration
         self.config.writeConf('dbPath', self.dbpath)
         self.config.sync()
+        self.databaseConfig.sync()
         d.inter.close()
         sys.exit(0)
 

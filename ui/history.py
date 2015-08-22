@@ -18,10 +18,11 @@ import db.history
 import db.results
 
 class HistoryDialog(QDialog):
-    def __init__(self, parent):
+    def __init__(self, parent, dbConf):
         QDialog.__init__(self)
         self.form = Ui_Dialog()
         self.form.setupUi(self)
+        self.dbConf = dbConf
 
         self.form.closeButton.clicked.connect(self.reject)
         self.form.viewQuizButton.clicked.connect(self.onViewQuiz)
@@ -61,7 +62,7 @@ class HistoryDialog(QDialog):
 
         # email results available iff results is available
         # TODO: it may be better to allow emailing again, but give a warning
-        sf.emailResultsButton.setEnabled(obj.resultsFlag == 1)
+        sf.emailResultsButton.setEnabled(obj.resultsFlag != 0)
 
     def setupClassCombo(self):
         self.form.classCombo.clear()
@@ -99,9 +100,23 @@ class HistoryDialog(QDialog):
         d.exec_()
 
     def onEmailResults(self):
+        obj = self.tableModel.getObj(self.form.tableView.currentIndex())
+        if obj.resultsFlag == 2:
+            r = utils.questionBox("You have already successfully emailed the "
+                    "results of this quiz to all students. Do you really want "
+                    "to do it again?", " Really send email again?")
+            if r != QMessageBox.Yes:
+                return
+
         ew = ui.emailing.EmailingDialog(
-                self, self._currentClass(), self._currentZid())
-        ew.exec_()
+                self, self._currentClass(), self._currentZid(), self.dbConf)
+        success = ew.exec_()
+        if success:
+            utils.informationBox("The results were emailed successfully.",
+                                 "Email complete")
+            obj = self.tableModel.getObj(self.form.tableView.currentIndex())
+            obj.rewriteResultsFlag(2) # results emailed
+            # rewrite status
 
     def onImportResults(self):
         fname = QFileDialog.getOpenFileName(caption="Import Results",

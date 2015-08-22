@@ -5,7 +5,7 @@ import utils
 
 class ImportTests(utils.DbTestCase):
     def testProperImport(self):
-        ourSt = db.sets.Set("Maud's Set", 1)
+        ourSt = db.sets.Set.createNew("Maud's Set", 1)
 
         fname = 'tests/resources/test_qimport.txt'
         importer = db.qimport.Importer(fname, ourSt)
@@ -24,7 +24,7 @@ class ImportTests(utils.DbTestCase):
 
     def testImproperImport(self):
         # import with the wrong number of fields and an invalid answer choice
-        ourSt = db.sets.Set("Maud's Set", 1)
+        ourSt = db.sets.Set.createNew("Maud's Set", 1)
         fname = 'tests/resources/test_qimport_invalid_file.txt'
         importer = db.qimport.Importer(fname, ourSt)
         errs = importer.txtImport()

@@ -4,7 +4,7 @@ import db.sets
 class SetTests(utils.DbTestCase):
     def testDbWriteRead(self):
         # create a set in db; make sure it has a sid
-        s = db.sets.Set("Maud's Questions", 3)
+        s = db.sets.Set.createNew("Maud's Questions", 3)
         assert s.getSid() is not None, "sid unset after dump"
 
         # update the set; sid should not change
@@ -20,8 +20,8 @@ class SetTests(utils.DbTestCase):
 
     def testGets(self):
         # create two sets
-        s = db.sets.Set("First Set", 1)
-        s2 = db.sets.Set("Second Set", 2)
+        s = db.sets.Set.createNew("First Set", 1)
+        s2 = db.sets.Set.createNew("Second Set", 2)
 
         # pull list of sets and make sure it contains what we added
         sl = db.sets.getAllSets()
@@ -50,7 +50,7 @@ class SetTests(utils.DbTestCase):
 
     def testDupeCheck(self):
         # create a set in db to check against
-        s = db.sets.Set("First Set", 1)
+        s = db.sets.Set.createNew("First Set", 1)
 
         # name check
         assert db.sets.isDupe(name="First Set")
@@ -67,16 +67,16 @@ class SetTests(utils.DbTestCase):
         assert not db.sets.isDupe(num=9000)
 
     def testDelete(self):
-        s = db.sets.Set("Doomed Set", 1)
+        s = db.sets.Set.createNew("Doomed Set", 1)
         assert db.sets.isDupe(num=1)
         s.delete()
         assert not db.sets.isDupe(num=1)
 
     def testInsert(self):
-        s = db.sets.Set("First Set", 1)
-        s2 = db.sets.Set("Second Set", 2)
-        s3 = db.sets.Set("Third Set", 3)
-        s4 = db.sets.Set("Fourth Set", 4)
+        s = db.sets.Set.createNew("First Set", 1)
+        s2 = db.sets.Set.createNew("Second Set", 2)
+        s3 = db.sets.Set.createNew("Third Set", 3)
+        s4 = db.sets.Set.createNew("Fourth Set", 4)
 
         db.sets.insertSet(s3, 1)
         assert s3.getNum() == 1
@@ -93,10 +93,10 @@ class SetTests(utils.DbTestCase):
     def testInsert2(self):
         # let's do another test for moving to the end 
         # (a new function for clean db)
-        s = db.sets.Set("First Set", 1)
-        s2 = db.sets.Set("Second Set", 2)
-        s3 = db.sets.Set("Third Set", 3)
-        s4 = db.sets.Set("Fourth Set", 4)
+        s = db.sets.Set.createNew("First Set", 1)
+        s2 = db.sets.Set.createNew("Second Set", 2)
+        s3 = db.sets.Set.createNew("Third Set", 3)
+        s4 = db.sets.Set.createNew("Fourth Set", 4)
 
         sets = db.sets.getAllSets()
 
@@ -117,8 +117,8 @@ class SetTests(utils.DbTestCase):
 
 
     def testSwap(self):
-        s = db.sets.Set("First Set", 1)
-        s2 = db.sets.Set("Second Set", 2)
+        s = db.sets.Set.createNew("First Set", 1)
+        s2 = db.sets.Set.createNew("Second Set", 2)
 
         db.sets.swapRows(s, s2)
         assert s.getNum() == 2, s.getNum()

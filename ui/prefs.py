@@ -79,7 +79,7 @@ class DatabaseConfManager(QtCore.QObject):
         Write current dictionary state out to the database.
         """
         d.inter.exQuery('UPDATE conf SET conf=?', (pickle.dumps(self.conf),))
-        d.checkAutosave()
+        d.inter.checkAutosave()
 
 
 class PrefsDialog(QDialog):
