@@ -33,7 +33,7 @@ class MainWindow(QMainWindow):
         self.form.verLabel.setText("Clicker Quiz Manager " + APPLICATION_VERSION)
 
         # load configuration options
-        self.config = ConfigurationManager()
+        self.config = ui.prefs.ConfigurationManager()
         self._loadConf()
 
         # try to open last-used database; if none or doesn't exist, ask user 
@@ -42,6 +42,7 @@ class MainWindow(QMainWindow):
         if (not name) or (not os.path.isfile(name)):
             name = unicode(getDbLocation())
         self._connectDb(name)
+        self.databaseConfig = ui.prefs.DatabaseConfManager(self)
 
         # connect menus and buttons
         self.form.actionNew.triggered.connect(self.onNewDB)
@@ -226,33 +227,6 @@ class MainWindow(QMainWindow):
         tbtext = ''.join(traceback.format_exception(exctype, value, tb))
         utils.tracebackBox(tbtext, isDebug=self.isDebugMode)
         return
-
-
-class ConfigurationManager(object):
-    def __init__(self):
-        self.qs = QtCore.QSettings("562 Software", "CQM")
-    def sync(self):
-        self.qs.sync()
-
-    def writeConf(self, key, value):
-        "Write a *value* to the persistent config under key *key*."
-        self.qs.setValue(key, value)
-    def readConf(self, key):
-        """
-        Return a value from the persistent config stored under key *key*. In
-        order to use the value usefully, you need to call its .toInt() or
-        .toString() method (other conversions are available where appropriate --
-        see docs or do dir(returnval)).
-
-        If the key does not exist, a value of 0 or an empty string will be
-        returned, respectively; keep that in mind when designing the values.
-        """
-        return self.qs.value(key)
-
-    def allKeys(self):
-        "Return Python list of all keys in existence."
-        keys = self.qs.allKeys()
-        return [str(i) for i in keys]
 
 
 def start():
