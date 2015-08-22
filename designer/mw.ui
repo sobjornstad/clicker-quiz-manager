@@ -159,6 +159,8 @@
      <string>&amp;Tools</string>
     </property>
     <addaction name="actionBackup"/>
+    <addaction name="actionClear_Saved_Passwords"/>
+    <addaction name="separator"/>
     <addaction name="actionPreferences"/>
    </widget>
    <addaction name="menuFile"/>
@@ -216,6 +218,11 @@
   <action name="actionVersion">
    <property name="text">
     <string>&amp;Version...</string>
+   </property>
+  </action>
+  <action name="actionClear_Saved_Passwords">
+   <property name="text">
+    <string>&amp;Clear Saved Passwords</string>
    </property>
   </action>
  </widget>

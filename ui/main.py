@@ -8,7 +8,7 @@ import shutil
 import sys
 
 from PyQt4 import QtGui, QtCore
-from PyQt4.QtGui import QApplication, QMainWindow, QFileDialog, QDesktopServices, QAction, QInputDialog
+from PyQt4.QtGui import QApplication, QMainWindow, QFileDialog, QDesktopServices, QAction, QInputDialog, QMessageBox
 from forms.mw import Ui_MainWindow
 
 import db.database as d
@@ -52,6 +52,7 @@ class MainWindow(QMainWindow):
         self.form.actionManual.triggered.connect(self.onManual)
         self.form.actionPreferences.triggered.connect(self.onPrefs)
         self.form.actionVersion.triggered.connect(self.onVersion)
+        self.form.actionClear_Saved_Passwords.triggered.connect(self.onClearPW)
 
         self.form.quitButton.clicked.connect(self.quit)
         self.form.classesButton.clicked.connect(self.onClasses)
@@ -102,7 +103,7 @@ class MainWindow(QMainWindow):
         stw.exec_()
 
     def onHistory(self):
-        hiw = ui.history.HistoryDialog(self, self.databaseConfig)
+        hiw = ui.history.HistoryDialog(self, self.databaseConfig, self.config)
         hiw.exec_()
 
     def closeEvent(self, event):
@@ -177,6 +178,13 @@ class MainWindow(QMainWindow):
 
     def onVersion(self):
         utils.informationBox(APPLICATION_VERSION, "Version")
+
+    def onClearPW(self):
+        r = utils.questionBox("Do you really want to clear all saved email "
+                              "passwords for all classes?", "Clear passwords?")
+        if r == QMessageBox.Yes:
+            ui.prefs.wipeAllPasswords(self.databaseConfig)
+        utils.informationBox("All saved passwords have been cleared.", "Success")
 
     def _configureDebugMode(self):
         debugMenu = self.form.menuBar.addMenu('&Debug');

@@ -2,6 +2,8 @@
 # This file is part of Clicker Quiz Generator.
 # Copyright 2015 Soren Bjornstad. All rights reserved.
 
+from copy import deepcopy
+
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QDialog, QInputDialog, QMessageBox, QShortcut, \
      QKeySequence, QFileDialog, QLineEdit
@@ -27,13 +29,14 @@ class PasswordSafeQLineEdit(QLineEdit):
         pass
 
 class EmailingDialog(QDialog):
-    def __init__(self, parent, cls, zid, dbConf):
+    def __init__(self, parent, cls, zid, dbConf, qConf):
         QDialog.__init__(self)
         self.form = Ui_Dialog()
         self.form.setupUi(self)
         self.cls = cls
         self.zid = zid
         self.dbConf = dbConf
+        self.qConf = qConf
 
         self.setWindowTitle("Email Results ~ Quiz %i, %s" % (
             HistoryItem(zid).seq, self.cls.getName()))
@@ -51,22 +54,8 @@ class EmailingDialog(QDialog):
         self.makeOptionsDict()
 
     def fetchOptions(self):
-        # do something to get the options from the conf part of the db; for now,
-        # we just have them hard-coded as a sample
         key = 'optionsForClass_' + self.cls.getName()
         opts = self.dbConf.get(key)
-
-        #opts = {'fromName': 'Soren Bjornstad',
-                #'fromAddr': 'redacted@example.com',
-                #'subject': '[CQM $c] Results for Quiz $n',
-                #'body': 'This is a test. Here are your results:\n$Q',
-                #'hostname': 'mail.messagingengine.com',
-                #'port': '465',
-                #'ssl': 'SSL/TLS',
-                #'username': 'sorenbjornstad@fastmail.com',
-                #'password': 'NotMyRealPassword'
-                #TODO: keep username/password out of git control!
-               #}
 
         if opts is not None:
             self.form.fromNameBox.setText(opts['fromName'])
@@ -98,8 +87,11 @@ class EmailingDialog(QDialog):
 
     def putOptions(self):
         self.makeOptionsDict()
+        opts = deepcopy(self.opts)
+        if not self.qConf.readConf('savePasswords').toBool():
+            opts['password'] = ''
         key = 'optionsForClass_' + self.cls.getName()
-        self.dbConf.put(key, self.opts)
+        self.dbConf.put(key, opts)
         self.dbConf.sync()
         #TODO: preview options
 

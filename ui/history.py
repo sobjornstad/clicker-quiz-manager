@@ -18,11 +18,12 @@ import db.history
 import db.results
 
 class HistoryDialog(QDialog):
-    def __init__(self, parent, dbConf):
+    def __init__(self, parent, dbConf, qConf):
         QDialog.__init__(self)
         self.form = Ui_Dialog()
         self.form.setupUi(self)
         self.dbConf = dbConf
+        self.qConf = qConf
 
         self.form.closeButton.clicked.connect(self.reject)
         self.form.viewQuizButton.clicked.connect(self.onViewQuiz)
@@ -108,8 +109,8 @@ class HistoryDialog(QDialog):
             if r != QMessageBox.Yes:
                 return
 
-        ew = ui.emailing.EmailingDialog(
-                self, self._currentClass(), self._currentZid(), self.dbConf)
+        ew = ui.emailing.EmailingDialog(self, self._currentClass(),
+                self._currentZid(), self.dbConf, self.qConf)
         success = ew.exec_()
         if success:
             utils.informationBox("The results were emailed successfully.",

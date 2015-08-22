@@ -74,6 +74,9 @@ class DatabaseConfManager(QtCore.QObject):
             # no configuration initialized
             self.conf = {}
 
+    def allKeys(self):
+        return self.conf.keys()
+
     def sync(self):
         """
         Write current dictionary state out to the database.
@@ -104,11 +107,14 @@ class PrefsDialog(QDialog):
         self.options['debugMode'] = conf.readConf('debugMode').toBool()
         self.options['autoAnsA'] = conf.readConf('autoAnsA').toBool()
         self.options['saveInterval'] = conf.readConf('saveInterval').toInt()[0]
+        self.options['savePasswords'] = conf.readConf('savePasswords').toBool()
 
         # note: don't use setCheckState(), that makes a tri-state box!
         self.form.debugMode.setChecked(self.options['debugMode'])
         self.form.autoAnsA.setChecked(self.options['autoAnsA'])
         self.form.saveInterval.setValue(self.options['saveInterval'])
+        self.form.savePasswords.setChecked(self.options['savePasswords'])
+        self.form.savePasswords.toggled.connect(self.onPasswordCheck)
 
     def dumpPrefsState(self):
         conf = self.mw.config
@@ -128,7 +134,43 @@ class PrefsDialog(QDialog):
             self.markRestartRequired() # not really, if this were coded properly
             conf.writeConf('autoAnsA', newAutoAnsA)
 
+        newSavePasswords = self.form.savePasswords.isChecked()
+        if newSavePasswords != self.options['savePasswords']:
+            conf.writeConf('savePasswords', newSavePasswords)
+
         self.accept()
         if self.restartSuggested:
             utils.informationBox("The changes will take effect when you " \
                     "restart CQM.", "Restart Required")
+
+    def onPasswordCheck(self):
+        if self.form.savePasswords.isChecked():
+            utils.warningBox("Please note: saving passwords may be too "
+                    "insecure for some users. While saved passwords are never "
+                    "accessible from CQM's interface, passwords are stored in "
+                    "plain text, so it is possible for a "
+                    "knowledgeable user with a copy of your database file to "
+                    "extract the password from there. If this makes you "
+                    "uncomfortable, please do not use this option.\n\n"
+                    "You can clear saved passwords at any time by running "
+                    "Tools -> Clear Saved Passwords.",
+                    "Security advisory")
+        else:
+            utils.warningBox("Disabling password saving does not immediately "
+                    "clear any passwords that are already saved. To do so, "
+                    "please choose Tools -> Clear Saved Passwords.",
+                    "Security advisory")
+
+def wipeAllPasswords(manager):
+    """
+    Search through all keys available in DatabaseConfManager /manager/ for
+    keys beginning with 'optionsForClass_' (indicating class email options),
+    wipe any saved passwords from them, and sync and save the database.
+    """
+    for key in manager.allKeys():
+        if key.startswith('optionsForClass_'):
+            oldVals = manager.get(key)
+            oldVals['password'] = ''
+            manager.put(key, oldVals)
+    manager.sync()
+    d.inter.forceSave()
