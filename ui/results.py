@@ -78,7 +78,6 @@ class ResultsDialog(QDialog):
         self.form.stuNameLabel.setText("%s, %s" % (
             selectedStudent.getLn(), selectedStudent.getFn()))
 
-        #TODO: This will break with None
         results = db.results.readResults(selectedStudent, self.zid)
         self.tableModel.replaceContents(results)
         numCorrect, numTotal, percent = db.results.calcCorrectValues(results)
