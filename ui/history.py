@@ -117,7 +117,6 @@ class HistoryDialog(QDialog):
                                  "Email complete")
             obj = self.tableModel.getObj(self.form.tableView.currentIndex())
             obj.rewriteResultsFlag(2) # results emailed
-            # rewrite status
 
     def onImportResults(self):
         fname = QFileDialog.getOpenFileName(caption="Import Results",
@@ -132,6 +131,7 @@ class HistoryDialog(QDialog):
                     resp, self._currentClass(), self._currentZid())
         obj = self.tableModel.getObj(self.form.tableView.currentIndex())
         obj.rewriteResultsFlag(1) # results imported, not yet sent
+        self.checkButtonEnablement()
 
     def onViewResults(self):
         zid = self._currentZid()
