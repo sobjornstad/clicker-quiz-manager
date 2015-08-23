@@ -62,6 +62,7 @@ def readResults(stu, zid):
     questions = pickle.loads(c.fetchall()[0][0])
 
     returnVals = []
+    print answers
     for (qNum, studentsAnswer) in answers:
         # As detailed in the long comment in writeResults(), we need to fetch
         # based on the question number given in the actual answers stored in

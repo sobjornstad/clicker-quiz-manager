@@ -84,6 +84,8 @@ class EmailManager(object):
         Format strings available in subject or body:
             $c: name of current class
             $n: number of current quiz
+            $f: first name of student email is being sent to
+            $l: last name of student email is being sent to
             $s: name of student email is being sent to, as Firstname Lastname
             $S: name of student email is being sent to, as Lastname, Firstname
             $r: number correct
@@ -109,6 +111,8 @@ class EmailManager(object):
         text = text.replace('$n', "%i" % self.historyItem.seq)
         fn = student.getFn()
         ln = student.getLn()
+        text = text.replace('$f', fn)
+        text = text.replace('$l', ln)
         text = text.replace('$s', "%s %s" % (fn, ln))
         text = text.replace('$S', "%s, %s" % (ln, fn))
 
