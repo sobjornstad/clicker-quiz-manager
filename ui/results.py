@@ -116,8 +116,10 @@ class AnswersTableModel(QAbstractTableModel):
         if col == 0:
             return robj[0]
         elif col == 1:
-            #TODO: I think this will break with None
-            return robj[1].upper() + (" (!)" if robj[1] != robj[2] else "")
+            try:
+                return robj[1].upper() + (" (!)" if robj[1] != robj[2] else "")
+            except AttributeError:
+                return "None (!)"
         elif col == 2:
             return robj[2].upper()
 
