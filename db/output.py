@@ -114,6 +114,8 @@ def genPlainText(questions, forQuiz=False, includeStudentResults=None):
     letters = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e'}
     if includeStudentResults is not None:
         forQuiz = False # by implication
+        # dictionary from question number to results tuple
+        lookupTable = {qTuple[0]: qTuple for qTuple in includeStudentResults}
 
     prev = []
     qNum = 1
@@ -134,16 +136,27 @@ def genPlainText(questions, forQuiz=False, includeStudentResults=None):
             prev.append("\t%s. %s" % (letters[letterNum], ans))
             letterNum += 1
 
+        stuAnswer = None
         if includeStudentResults is not None:
             correctAnswerText = a[indices[question.getCorrectAnswer()]]
             try:
-                studentAnswerText = a[indices[includeStudentResults[qNum-1][1]]]
+                answer = lookupTable[qNum][1]
             except KeyError:
-                studentAnswerText = "None"
+                # nobody in the class answered this question
+                stuAnswer = "[This question was not polled and is not "\
+                            "counted in your score.]"
+            else:
+                try:
+                    studentAnswerText = a[indices[lookupTable[qNum][1]]]
+                except KeyError:
+                    # class answered, but student didn't
+                    stuAnswer = "[You did not answer this question.] (!)"
+
             ca = "Answer: (%s) %s" % (ca, correctAnswerText)
-            stuAnswer = "Your answer: (%s) %s %s" % (
-                    includeStudentResults[qNum-1][1], studentAnswerText,
-                    "(!)" if studentAnswerText != correctAnswerText else "")
+            if stuAnswer is None:
+                stuAnswer = "Your answer: (%s) %s %s" % (
+                        answer, studentAnswerText,
+                        "(!)" if studentAnswerText != correctAnswerText else "")
             prev.append(ca + '\n' + stuAnswer + '\n')
         elif not forQuiz:
             correctAnswerText = a[indices[question.getCorrectAnswer()]]

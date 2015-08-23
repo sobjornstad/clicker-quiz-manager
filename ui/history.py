@@ -151,7 +151,9 @@ class HistoryDialog(QDialog):
     def onViewResults(self):
         zid = self._currentZid()
         rw = ui.results.ResultsDialog(self, self._currentClass(), zid)
-        rw.exec_()
+        needsRefresh = rw.exec_() # accept means refresh required
+        if needsRefresh:
+            self.reFillHistory()
 
     def _currentZid(self):
         obj = self.tableModel.getObj(self.form.tableView.currentIndex())

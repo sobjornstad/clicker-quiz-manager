@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
+    <width>650</width>
     <height>650</height>
    </rect>
   </property>
@@ -331,9 +331,16 @@
         </spacer>
        </item>
        <item>
+        <widget class="QPushButton" name="deleteResultsButton">
+         <property name="text">
+          <string>&amp;Delete results</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="viewQuizButton">
          <property name="text">
-          <string>View &amp;Quiz</string>
+          <string>View &amp;quiz</string>
          </property>
         </widget>
        </item>

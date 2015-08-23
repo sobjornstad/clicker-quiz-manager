@@ -35,6 +35,7 @@ class ResultsDialog(QDialog):
 
         self.form.closeButton.clicked.connect(self.reject)
         self.form.viewQuizButton.clicked.connect(self.onViewQuiz)
+        self.form.deleteResultsButton.clicked.connect(self.onDeleteResults)
 
         self.tableModel = AnswersTableModel(self)
         self.form.stuAnswersTable.setModel(self.tableModel)
@@ -87,7 +88,17 @@ class ResultsDialog(QDialog):
     def onViewQuiz(self):
         self.parent.onViewQuiz()
 
-
+    def onDeleteResults(self):
+        r = utils.questionBox("Are you sure you want to delete these results? "
+                             "You will no longer be able to view them, but if "
+                             "you still have the TurningPoint statistics, you "
+                             "can import them again.")
+        if not r:
+            return
+        db.results.delResults(self.zid)
+        historyItem = HistoryItem(self.zid)
+        historyItem.rewriteResultsFlag(0)
+        self.accept() # interpreted by caller as needing a table refresh
 
 
 class AnswersTableModel(QAbstractTableModel):

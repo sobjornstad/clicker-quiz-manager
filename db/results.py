@@ -141,7 +141,6 @@ def writeResults(response, cls, zid, suppressCheck=False):
             # if it can't be turned lowercase, it should be None, which is also
             # perfectly valid here
             assert i[IDX_ANSWER] is None
-            print type(i[IDX_QNUM])
             answer = (i[IDX_QNUM], i[IDX_ANSWER])
         answers.append(answer)
     q = '''INSERT INTO results (rid, zid, stid, answers)

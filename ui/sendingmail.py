@@ -69,11 +69,11 @@ class SendingDialog(QtGui.QDialog):
         self.recipientErrors.append(err.recipients.values()[0])
         self.hadError = True
 
-    def onError(self, err):
+    def onError(self, err, tbList):
         self.hadError = True
         eb = ui.utils.errorBox
         try:
-            raise err
+            ui.utils.tracebackBox("%r\n%s" % (err, str(tbList)))
         except socket.gaierror as e:
             if 'Name or service not known' in e:
                 eb("Could not connect to the SMTP server specified. Please "
@@ -129,7 +129,7 @@ class SendingDialog(QtGui.QDialog):
 class WorkerThread(QtCore.QThread):
     serverContacted = QtCore.pyqtSignal(name="serverContacted")
     aboutToEmail = QtCore.pyqtSignal(name="aboutToEmail")
-    emailFailed = QtCore.pyqtSignal(Exception, name="emailFailed")
+    emailFailed = QtCore.pyqtSignal(Exception, list, name="emailFailed")
     recipientRefused = QtCore.pyqtSignal(Exception, name="recipientRefused")
 
     def __init__(self, parent=None):
@@ -190,7 +190,7 @@ class WorkerThread(QtCore.QThread):
             # if the destructor is run by another thread, we get an sqlite
             # error, so we need to tear down before we emit the signal
             # TODO: update comment to see if swapping works (otherwise needed)
-            #DEBUG: ex_type, ex, tb = sys.exc_info()
             #traceback.print_tb(tb)
-            self.emailFailed.emit(err)
+            ex_type, ex, tb = sys.exc_info()
+            self.emailFailed.emit(err, traceback.extract_tb(tb))
             self.tearDown()
