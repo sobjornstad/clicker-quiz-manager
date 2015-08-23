@@ -18,13 +18,13 @@ class WrongQuizError(Exception):
     def __init__(self, emsg):
         self.emsg = emsg
     def __str__(self):
-        return repr(self.emsg)
+        return self.emsg
 
 class MissingStudentError(Exception):
     def __init__(self, emsg):
         self.emsg = emsg
     def __str__(self):
-        return repr(self.emsg)
+        return self.emsg
 
 def readResults(stu, zid):
     """
@@ -99,7 +99,7 @@ def writeResults(response, cls, zid, suppressCheck=False):
     stu = findStudentByTpid(response.tpid, cls)
     if stu is None:
         raise MissingStudentError("No student by ID %s is in the students table!"
-                " Please check and correct the list." % response.tpid)
+                % response.tpid)
 
     c = d.inter.exQuery('SELECT qPickle FROM quizzes WHERE zid=?', (zid,))
     qPickle = c.fetchall()[0][0]
@@ -116,10 +116,14 @@ def writeResults(response, cls, zid, suppressCheck=False):
             if i[IDX_QUESTION].strip() not in quizQuestionList:
                 failures.append(i[IDX_QUESTION].strip())
         if len(failures) > 0:
-            raise WrongQuizError("Heads up! It looks like you might be "
-                    "importing results from the wrong quiz. The following "
+            raise WrongQuizError("It looks like you're trying to import "
+                    "results from the wrong quiz. The following "
                     "%i questions in the responses you imported do not exist "
-                    "in the quiz you're importing into:\n\n%s"
+                    "in the quiz you're importing into:\n\n%s\n\nPlease check "
+                    "the file you're importing and the quiz you're importing "
+                    "into. If they are really the same, then there is probably "
+                    "a bug in the results parser; please contact the developer "
+                    "for help."
                     % (len(failures), '\n'.join(failures)))
 
     answers = []
@@ -137,12 +141,28 @@ def writeResults(response, cls, zid, suppressCheck=False):
             # if it can't be turned lowercase, it should be None, which is also
             # perfectly valid here
             assert i[IDX_ANSWER] is None
+            print type(i[IDX_QNUM])
             answer = (i[IDX_QNUM], i[IDX_ANSWER])
         answers.append(answer)
     q = '''INSERT INTO results (rid, zid, stid, answers)
            VALUES (null, ?, ?, ?)'''
     vals = (zid, stu.getStid(), json.dumps(answers))
     d.inter.exQuery(q, vals)
+
+def delResults(zid):
+    """
+    Remove a set of results from the database. This could be useful if an
+    error occurred in the middle of an import (damn transactions not being
+    usable with this database framework) or if the user discovers she did
+    something wrong or wants to completely redo the results set.
+
+    As far as I can think of, nothing relies on results besides results (and
+    emailing results, but that doesn't leave any state in the database), so
+    deleting results should be perfectly safe at any time.
+    """
+
+    d.inter.exQuery('DELETE FROM results WHERE zid=?', (zid,))
+    d.inter.checkAutosave()
 
 
 ### TurningPoint statistics parser ###

@@ -127,11 +127,26 @@ class HistoryDialog(QDialog):
             html = f.read()
         responses = db.results.parseHtmlString(html)
         for resp in responses:
-            db.results.writeResults(
-                    resp, self._currentClass(), self._currentZid())
+            try:
+                db.results.writeResults(
+                        resp, self._currentClass(), self._currentZid())
+            except db.results.WrongQuizError as e:
+                utils.errorBox(unicode(e))
+                return False
+            except db.results.MissingStudentError as e:
+                db.results.delResults(self._currentZid())
+                extra = " The student ID numbers in the students dialog for"\
+                        " this class must match the ID numbers in"\
+                        " TurningPoint so that CQM can match responses with"\
+                        " students. No results have been imported; please"\
+                        " check and correct the list, then try importing again."
+                utils.errorBox(unicode(e) + extra)
+                return False
+
         obj = self.tableModel.getObj(self.form.tableView.currentIndex())
         obj.rewriteResultsFlag(1) # results imported, not yet sent
         self.checkButtonEnablement()
+        return True
 
     def onViewResults(self):
         zid = self._currentZid()

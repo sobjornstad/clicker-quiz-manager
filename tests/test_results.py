@@ -60,6 +60,12 @@ class ResultsTests(utils.DbTestCase):
                 " (6, u'd', 'd'), (7, u'c', 'b'), (8, u'c', 'd')," \
                 " (9, u'd', 'c'), (10, u'b', 'a')]"
 
+        # delete
+        delResults(1)
+        assert readResults(soren, 1) is None
+        assert readResults(mama, 1) is None
+
+
     def testWrongQuizError(self):
         # dupe of first part of above test, except with the wrong questions
         cls = Class.createNew("MyClass")
