@@ -62,10 +62,13 @@ def readResults(stu, zid):
     questions = pickle.loads(c.fetchall()[0][0])
 
     returnVals = []
-    for i in range(len(answers)):
-        qNum = answers[i][0]
-        studentsAnswer = answers[i][1]
-        questionText = questions[i].getCorrectAnswer()
+    for (qNum, studentsAnswer) in answers:
+        # As detailed in the long comment in writeResults(), we need to fetch
+        # based on the question number given in the actual answers stored in
+        # the results table, not how far we've gone through the loop, because
+        # it's possible that a question in the quiz doesn't actually have any
+        # results.
+        questionText = questions[qNum-1].getCorrectAnswer()
         returnVals.append((qNum, studentsAnswer, questionText))
     return returnVals
 
@@ -98,12 +101,15 @@ def writeResults(response, cls, zid, suppressCheck=False):
         raise MissingStudentError("No student by ID %s is in the students table!"
                 " Please check and correct the list." % response.tpid)
 
-    # do a quick check to make sure we're not clearly importing results into
-    # the wrong quiz
+    c = d.inter.exQuery('SELECT qPickle FROM quizzes WHERE zid=?', (zid,))
+    qPickle = c.fetchall()[0][0]
+    ql = pickle.loads(qPickle)
+
+    # Make sure the all the questions in the results we're importing actually
+    # exist in the quiz we've matched it to, mod leading/trailing whitespace.
+    # If not, we're probably importing the wrong file (and it will be
+    # impossible to figure out what to match that question to, anyway).
     if not suppressCheck:
-        c = d.inter.exQuery('SELECT qPickle FROM quizzes WHERE zid=?', (zid,))
-        qPickle = c.fetchall()[0][0]
-        ql = pickle.loads(qPickle)
         quizQuestionList = [i.getQuestion().strip() for i in ql]
         failures = []
         for i in response.responseList:
@@ -118,8 +124,15 @@ def writeResults(response, cls, zid, suppressCheck=False):
 
     answers = []
     for i in response.responseList:
+        # We use this dictionary to find the question number *based on the
+        # question text* rather than the number that TP gives us, which can be
+        # flawed even with the duplicate checking routine
+        # ResponsesForUser.checkForRepolls() (for instance, if we
+        # unintentionally skip a question entirely). We must add one to the
+        # value because quiz question numbering starts from 1, not 0.
+        lookupTable = {ql[i].getQuestion().strip(): i+1 for i in range(len(ql))}
         try:
-            answer = (i[IDX_QNUM], i[IDX_ANSWER].lower())
+            answer = (lookupTable[i[IDX_QUESTION]], i[IDX_ANSWER].lower())
         except AttributeError:
             # if it can't be turned lowercase, it should be None, which is also
             # perfectly valid here
