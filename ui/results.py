@@ -86,7 +86,7 @@ class ResultsDialog(QDialog):
         self.form.stuScoreLabel.setText(scoreStr)
 
     def onViewQuiz(self):
-        pass
+        self.parent.onViewQuiz()
 
 
 
