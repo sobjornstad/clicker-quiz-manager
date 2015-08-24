@@ -38,6 +38,29 @@ QGroupBox::title {
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="4" column="1">
          <widget class="QPlainTextEdit" name="bodyBox">
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the body text of the email to be sent. You may use &lt;span style=&quot; font-style:italic;&quot;&gt;format parameters&lt;/span&gt;, which are replaced with the appropriate text when the email is actually sent. The following is a listing and brief description of the available parameters; more details are available in the manual.&lt;br&gt;&lt;br&gt;
+
+Available in the subject or body fields:&lt;br&gt;
+&lt;b&gt;$c&lt;/b&gt;: class name&lt;br&gt;
+&lt;b&gt;$n&lt;/b&gt;: quiz number&lt;br&gt;
+&lt;b&gt;$f&lt;/b&gt;: student's first name&lt;br&gt;
+&lt;b&gt;$l&lt;/b&gt;: student's last name (lowercase ell)&lt;br&gt;
+&lt;b&gt;$s&lt;/b&gt;: Firstname Lastname&lt;br&gt;
+&lt;b&gt;$S&lt;/b&gt;: Lastname, Firstname&lt;br&gt;
+&lt;b&gt;$r&lt;/b&gt;: number of questions the student got correct&lt;br&gt;
+&lt;b&gt;$t&lt;/b&gt;: total number of questions on the quiz&lt;br&gt;
+&lt;b&gt;$p&lt;/b&gt;: student's percentage grade&lt;br&gt;
+&lt;b&gt;$R&lt;/b&gt;: class average number correct&lt;br&gt;
+&lt;b&gt;$P&lt;/b&gt;: class average percentage&lt;br&gt;&lt;br&gt;
+
+Available only in the body field:&lt;br&gt;
+&lt;b&gt;$a&lt;/b&gt;: table of the student's answer choices (A-E) and the correct choices&lt;br&gt;
+&lt;b&gt;$q&lt;/b&gt;: listing of the quiz, with only the correct answers&lt;br&gt;
+&lt;b&gt;$Q&lt;/b&gt;: listing of the quiz, with the correct answers and the student's answers&lt;br&gt;&lt;br&gt;
+
+If you want to include an actual dollar sign in the text of your email, write &lt;b&gt;$$&lt;/b&gt;.</string>
+          </property>
           <property name="tabChangesFocus">
            <bool>true</bool>
           </property>
@@ -77,12 +100,18 @@ QGroupBox::title {
           <property name="toolTip">
            <string/>
           </property>
+          <property name="whatsThis">
+           <string>Enter the name you want to appear as the sender of this email (e.g., &lt;b&gt;Jane Doe&lt;/b&gt;).</string>
+          </property>
          </widget>
         </item>
         <item row="2" column="1">
          <widget class="QLineEdit" name="fromAddrBox">
           <property name="toolTip">
            <string/>
+          </property>
+          <property name="whatsThis">
+           <string>Enter the email address to send this mail from (e.g., &lt;b&gt;janedoe@example.com&lt;/b&gt;). You must have permission to send email from this address.</string>
           </property>
          </widget>
         </item>
@@ -110,7 +139,11 @@ QGroupBox::title {
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QLineEdit" name="subjectBox"/>
+         <widget class="QLineEdit" name="subjectBox">
+          <property name="whatsThis">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the subject line to use for this email. You may use &lt;span style=&quot; font-style:italic;&quot;&gt;format parameters&lt;/span&gt; in this field: see the help text for the Body field for more information.&lt;br&gt;&lt;br&gt;It is recommended that you include a recognizable prefix (e.g., &lt;span style=&quot; font-weight:600;&quot;&gt;[CQM]&lt;/span&gt;) in your subject lines so that recipients can easily filter your emails in their email preferences.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
         </item>
         <item row="3" column="0">
          <widget class="QLabel" name="label">
@@ -164,6 +197,9 @@ QGroupBox::title {
           <property name="contextMenuPolicy">
            <enum>Qt::CustomContextMenu</enum>
           </property>
+          <property name="whatsThis">
+           <string>Enter your email password. This password will be saved for next time if you have the “save email passwords” option enabled in the preferences.</string>
+          </property>
           <property name="echoMode">
            <enum>QLineEdit::Password</enum>
           </property>
@@ -180,13 +216,25 @@ QGroupBox::title {
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QComboBox" name="SSLCombo"/>
+         <widget class="QComboBox" name="SSLCombo">
+          <property name="whatsThis">
+           <string>Choose the type of security (SSL encryption) your SMTP server uses.</string>
+          </property>
+         </widget>
         </item>
         <item row="4" column="1">
-         <widget class="QLineEdit" name="usernameBox"/>
+         <widget class="QLineEdit" name="usernameBox">
+          <property name="whatsThis">
+           <string>Enter your email username.</string>
+          </property>
+         </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QLineEdit" name="portBox"/>
+         <widget class="QLineEdit" name="portBox">
+          <property name="whatsThis">
+           <string>Enter the port your SMTP server uses. Usually this is &lt;b&gt;25&lt;/b&gt; if connecting with no security (&lt;b&gt;SSL&lt;/b&gt; option), &lt;b&gt;465&lt;/b&gt; if connecting with SSL/TLS, and &lt;b&gt;587&lt;/b&gt; if using STARTTLS. If unsure, consult your email provider's documentation.</string>
+          </property>
+         </widget>
         </item>
         <item row="3" column="0">
          <widget class="QLabel" name="label_6">
@@ -200,6 +248,13 @@ QGroupBox::title {
         </item>
         <item row="5" column="2">
          <widget class="QCheckBox" name="showPWCheck">
+          <property name="toolTip">
+           <string>Show the password so that you can confirm you're typing it correctly.
+Do not choose this option if someone might be looking over your shoulder!</string>
+          </property>
+          <property name="whatsThis">
+           <string/>
+          </property>
           <property name="text">
            <string>Sho&amp;w password</string>
           </property>
@@ -229,6 +284,9 @@ QGroupBox::title {
          <widget class="QLineEdit" name="hostnameBox">
           <property name="toolTip">
            <string/>
+          </property>
+          <property name="whatsThis">
+           <string>Enter the hostname of your SMTP server (e.g., &lt;b&gt;smtp.gmail.com&lt;/b&gt;).</string>
           </property>
          </widget>
         </item>

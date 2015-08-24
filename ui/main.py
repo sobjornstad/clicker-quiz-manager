@@ -141,6 +141,7 @@ class MainWindow(QMainWindow):
 
         if db.database.inter is not None: # could be no db open yet
             db.database.inter.close()
+        # trying to create over an existing db causes lots of errors
         try:
             os.remove(fname)
         except OSError:

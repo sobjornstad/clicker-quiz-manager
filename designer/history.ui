@@ -48,6 +48,9 @@
            <height>16777215</height>
           </size>
          </property>
+         <property name="whatsThis">
+          <string/>
+         </property>
         </widget>
        </item>
        <item>
@@ -88,6 +91,9 @@
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QPushButton" name="viewQuizButton">
+         <property name="toolTip">
+          <string>Show the text of the quiz that was presented on this date, and optionally save it to a file.</string>
+         </property>
          <property name="text">
           <string>View &amp;quiz</string>
          </property>
@@ -98,6 +104,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="importResultsButton">
+         <property name="toolTip">
+          <string>Import an exported TurningPoint HTML results file; see the manual for more information.</string>
+         </property>
          <property name="text">
           <string>&amp;Import results</string>
          </property>
@@ -108,6 +117,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="viewResultsButton">
+         <property name="toolTip">
+          <string>Show how your students did (after you've imported the results).</string>
+         </property>
          <property name="text">
           <string>View &amp;results</string>
          </property>
@@ -118,6 +130,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="emailResultsButton">
+         <property name="toolTip">
+          <string>Send email to your students showing them their results.</string>
+         </property>
          <property name="text">
           <string>&amp;Email results</string>
          </property>

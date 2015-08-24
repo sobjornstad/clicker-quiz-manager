@@ -24,9 +24,10 @@
    <item row="3" column="2">
     <widget class="QSpinBox" name="saveInterval">
      <property name="toolTip">
-      <string>When making a change, if this many minutes have elapsed since the last save,
-CQM will save (causing a slight delay in completing the action). Changes are
-always saved on program exit.</string>
+      <string/>
+     </property>
+     <property name="whatsThis">
+      <string>When making a change, if this many minutes have elapsed since the last save, CQM will save (causing a slight delay in completing the action). Changes are always saved on program exit.</string>
      </property>
      <property name="minimum">
       <number>1</number>
@@ -39,7 +40,7 @@ always saved on program exit.</string>
    <item row="0" column="0" colspan="2">
     <widget class="QCheckBox" name="debugMode">
      <property name="toolTip">
-      <string>Show debug menu and functions, for use in active development.</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show debug menu and functions, for use in active development.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
       <string>&amp;Debug mode</string>
@@ -82,7 +83,7 @@ always saved on program exit.</string>
    <item row="1" column="0" colspan="2">
     <widget class="QCheckBox" name="autoAnsA">
      <property name="toolTip">
-      <string>When adding new questions, start with A selected as the correct answer rather than a blank.</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When adding new questions, start with A selected as the correct answer rather than a blank.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
       <string>&amp;Auto-select answer A</string>
@@ -92,8 +93,7 @@ always saved on program exit.</string>
    <item row="2" column="0" colspan="2">
     <widget class="QCheckBox" name="savePasswords">
      <property name="toolTip">
-      <string>Save entered SMTP server passwords in the database.
-Passwords are stored in plaintext but are not viewable except by directly accessing the database.</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Save entered SMTP server passwords in the database. Passwords are stored in plaintext but are not viewable except by directly accessing the database.&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
       <string>Save email &amp;passwords</string>

@@ -72,7 +72,7 @@ QGroupBox::title {
             <item row="0" column="3">
              <widget class="QPushButton" name="importButton">
               <property name="toolTip">
-               <string/>
+               <string>Import questions from a CSV file. See the manual for more information about the file format.</string>
               </property>
               <property name="text">
                <string>&amp;Import</string>
@@ -92,7 +92,7 @@ QGroupBox::title {
             <item row="1" column="0">
              <widget class="QPushButton" name="moveUpButton">
               <property name="toolTip">
-               <string>Move selected question up in the list. You can also drag and drop questions.</string>
+               <string>Move the selected question up in the list. You can also drag and drop questions.</string>
               </property>
               <property name="text">
                <string>Move &amp;Up</string>
@@ -112,7 +112,10 @@ QGroupBox::title {
             <item row="1" column="4">
              <widget class="QPushButton" name="randomizeButton">
               <property name="toolTip">
-               <string>Randomize the order of the answer choices for all questions in the list.</string>
+               <string>Scramble the order of the answer choices for all questions in the list.</string>
+              </property>
+              <property name="whatsThis">
+               <string/>
               </property>
               <property name="text">
                <string>&amp;Randomize Answers</string>
@@ -138,7 +141,7 @@ QGroupBox::title {
             <item row="0" column="4">
              <widget class="QPushButton" name="genQuizButton">
               <property name="toolTip">
-               <string>Create a quiz with this set as the new set.</string>
+               <string>Create a quiz which uses this question set for its new questions.</string>
               </property>
               <property name="text">
                <string>&amp;Generate Quiz</string>
@@ -157,6 +160,9 @@ QGroupBox::title {
             </property>
             <property name="toolTip">
              <string/>
+            </property>
+            <property name="whatsThis">
+             <string>This list shows all the questions in the current set. Select one to view or edit it in the right pane.</string>
             </property>
             <property name="dragDropMode">
              <enum>QAbstractItemView::InternalMove</enum>
@@ -233,7 +239,7 @@ QGroupBox::title {
              <string/>
             </property>
             <property name="whatsThis">
-             <string/>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the text to use for this question. You can use the following markup:&lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;//&lt;/span&gt;: Separate two sections of text, such as foreign-language text and an English translation. In formatted output (such as a paper quiz or HTML), the text after this mark will be moved to a new line and placed in italics. &lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[...]&lt;/span&gt;: Replace with a blank (________) of an appropriate length in formatted output. &lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="tabChangesFocus">
              <bool>true</bool>
@@ -334,6 +340,9 @@ QGroupBox::title {
                <property name="toolTip">
                 <string/>
                </property>
+               <property name="whatsThis">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Multiple-choice option B. You must always fill this box (there must be at least two answer choices for every question).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
               </widget>
              </item>
              <item row="1" column="0">
@@ -347,6 +356,9 @@ QGroupBox::title {
               <widget class="QLineEdit" name="answerB">
                <property name="toolTip">
                 <string/>
+               </property>
+               <property name="whatsThis">
+                <string>Multiple-choice option B. You must always fill this box (there must be at least two answer choices for every question).</string>
                </property>
               </widget>
              </item>
@@ -362,6 +374,9 @@ QGroupBox::title {
                <property name="toolTip">
                 <string/>
                </property>
+               <property name="whatsThis">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Multiple-choice option C. Filling this box is optional (at least two choices, A and B, are required).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
               </widget>
              </item>
              <item row="3" column="0">
@@ -376,6 +391,9 @@ QGroupBox::title {
                <property name="toolTip">
                 <string/>
                </property>
+               <property name="whatsThis">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Multiple-choice option D. Filling this box is optional (at least two choices, A and B, are required).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
               </widget>
              </item>
              <item row="4" column="0">
@@ -389,6 +407,9 @@ QGroupBox::title {
               <widget class="QLineEdit" name="answerE">
                <property name="toolTip">
                 <string/>
+               </property>
+               <property name="whatsThis">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Multiple-choice option E. Filling this box is optional (at least two choices, A and B, are required).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
@@ -412,7 +433,10 @@ QGroupBox::title {
              <item row="0" column="1">
               <widget class="QComboBox" name="correctAnswerCombo">
                <property name="toolTip">
-                <string/>
+                <string>(What's This help is available; click and press &lt;b&gt;Shift-F1&lt;/b&gt; to show it.)</string>
+               </property>
+               <property name="whatsThis">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Choose which of the above answer choices is the correct answer. If you don't like choosing this every time, you can put the correct answer in box A and use the &lt;span style=&quot; font-weight:600;&quot;&gt;auto-select answer A&lt;/span&gt; option in the preferences, then use the &lt;span style=&quot; font-weight:600;&quot;&gt;Randomize Answers&lt;/span&gt; button after entering all the questions.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
               </widget>
              </item>
@@ -471,6 +495,10 @@ QGroupBox::title {
              </size>
             </property>
             <property name="toolTip">
+             <string>Save this question and return to the question list.
+(To activate this button quickly, press Ctrl-S or Alt-S.)</string>
+            </property>
+            <property name="whatsThis">
              <string/>
             </property>
             <property name="text">
@@ -490,6 +518,10 @@ QGroupBox::title {
              </size>
             </property>
             <property name="toolTip">
+             <string>Discard any changes you made on this side of the dialog.
+If this is a new question, throw it away entirely.</string>
+            </property>
+            <property name="whatsThis">
              <string/>
             </property>
             <property name="text">
@@ -574,6 +606,9 @@ QGroupBox::title {
         </property>
         <property name="toolTip">
          <string>Select another set of questions to edit.</string>
+        </property>
+        <property name="whatsThis">
+         <string>Choose a different question set to edit.</string>
         </property>
        </widget>
       </item>

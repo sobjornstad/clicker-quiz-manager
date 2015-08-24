@@ -27,6 +27,9 @@
           </size>
          </property>
          <property name="toolTip">
+          <string/>
+         </property>
+         <property name="whatsThis">
           <string>Select one or more sets to introduce for the first time on this quiz (use Ctrl-click to select multiple).</string>
          </property>
          <property name="selectionMode">
@@ -76,7 +79,10 @@
        <item row="4" column="2">
         <widget class="QSpinBox" name="newSpin">
          <property name="toolTip">
-          <string>The number of questions that come from the New Sets.</string>
+          <string/>
+         </property>
+         <property name="whatsThis">
+          <string>Choose how many questions on this quiz should come from the New Sets.</string>
          </property>
         </widget>
        </item>
@@ -94,7 +100,11 @@
         </widget>
        </item>
        <item row="0" column="1" colspan="3">
-        <widget class="QComboBox" name="classCombo"/>
+        <widget class="QComboBox" name="classCombo">
+         <property name="toolTip">
+          <string>Select which class this quiz is for.</string>
+         </property>
+        </widget>
        </item>
        <item row="5" column="2">
         <widget class="QSpinBox" name="revSpin">
@@ -111,7 +121,10 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>The number of questions that will be randomly selected from previously introduced sets.</string>
+          <string/>
+         </property>
+         <property name="whatsThis">
+          <string>Choose the number of questions that will be randomly selected from previously introduced (&lt;i&gt;review&lt;/i&gt;) sets.</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>

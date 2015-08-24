@@ -7,32 +7,28 @@ Table of Contents
 
 
 <a id="introduction"></a>
-Introduction
-============
+Introduction & How To Get Help
+==============================
 
-This is the manual for the **Clicker Quiz Manager**, version 1.0.0. The application
-allows you to manage classes, sets of questions, and review history in order to
-generate daily clicker quizzes for your students.
+This is the manual for the **Clicker Quiz Manager**, version 1.1.0. The
+application allows you to manage classes, sets of questions, and review history
+in order to generate daily clicker quizzes for your students.
 
+In addition to the documentation in this manual, context-sensitive help is
+available – that is, you can get help on specific interface elements directly
+within the program. This documentation is available for most buttons and input
+fields that are not self-explanatory.
 
-<a id="creating_a_database"></a>
-Creating a database
-===================
-
-Before you can use CQM, you must create a new database. Currently this must be
-done manually by running the script ```db/tools/create_database.py```. On
-Windows, if you have Python installed, you should be able to run this by
-double-clicking on it; on other operating systems, run the script using
-whatever method is usual.
-
-You will be prompted for a filename; after entering it and pressing Enter, the
-script will place a file of that name in your current directory and then exit.
-If you double-clicked on the script from within the
-```db/tools/create_database``` folder, the file will be in that folder.
-Otherwise, if you ran it from a different directory in your terminal, it will
-be in the directory you ran the script from.
-
-Once the file is created, you may move it anywhere you like.
+This help is made available in the form of tooltips or “what’s this?” help text,
+depending on the type of interface element. For buttons, checkboxes, and other
+items where clicking immediately takes action, tooltips are used: simply hover
+the mouse cursor over the item to see the help text. For elements like text
+boxes, spin boxes, and lists, which you can select without changing a value or
+taking an action, “what’s this” help is used: select the item and press
+**Shift+F1** to view the help text. (Depending on your computer system, there
+may also be a question-mark button in the title bar of the window. If you have
+this button, you can click it and then click the item you want help on.)  If in
+doubt about which method to use, simply try both methods.
 
 
 Starting the application

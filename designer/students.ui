@@ -87,6 +87,15 @@ a new entry, and you will not be asked to confirm deletions.</string>
        <property name="toolTip">
         <string/>
        </property>
+       <property name="whatsThis">
+        <string>This table allows you to view and edit information about your students. To &lt;i&gt;edit&lt;/i&gt; a value, double-click on it or select it and press &lt;b&gt;F2&lt;/b&gt;.&lt;br&gt;&lt;br&gt;
+
+The columns are as follows:&lt;br&gt;
+&lt;b&gt;Last, First&lt;/b&gt;: The student's last and first name.&lt;br&gt;
+&lt;b&gt;TP ID&lt;/b&gt;: This unique ID value is used to match the students listed in this dialog with the participants listed in TurningPoint. It &lt;i&gt;must&lt;/i&gt; match the IDs used in TurningPoint or you will be unable to import results; see the manual for more information. Using numbers beginning at 1 is recommended, but the content can be anything as long as it is unique and matches the value in TurningPoint.&lt;br&gt;
+&lt;b&gt;TP Device&lt;/b&gt;: This string of six hexadecimal digits (0-9 or A-F) lists the device ID number of the clicker this student normally uses.&lt;br&gt;
+&lt;b&gt;Email&lt;/b&gt;: This email address is used to send results to students.</string>
+       </property>
        <property name="editTriggers">
         <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
        </property>
@@ -142,7 +151,10 @@ a new entry, and you will not be asked to confirm deletions.</string>
        <item>
         <widget class="QPushButton" name="importButton">
          <property name="toolTip">
-          <string>Import students from a CSV file.</string>
+          <string>Import student data from a CSV file. See the manual for information on the format.</string>
+         </property>
+         <property name="whatsThis">
+          <string/>
          </property>
          <property name="text">
           <string>&amp;Import</string>
@@ -155,7 +167,7 @@ a new entry, and you will not be asked to confirm deletions.</string>
        <item>
         <widget class="QPushButton" name="exportButton">
          <property name="toolTip">
-          <string>Export the list of students to a CSV file.</string>
+          <string>Export the list of students to a CSV file, perhaps for export to TurningPoint.</string>
          </property>
          <property name="text">
           <string>&amp;Export</string>

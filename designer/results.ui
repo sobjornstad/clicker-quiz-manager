@@ -332,6 +332,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="deleteResultsButton">
+         <property name="toolTip">
+          <string>Make CQM forget that you have ever imported these results.</string>
+         </property>
          <property name="text">
           <string>&amp;Delete results</string>
          </property>
@@ -339,8 +342,11 @@
        </item>
        <item>
         <widget class="QPushButton" name="viewQuizButton">
+         <property name="toolTip">
+          <string>Show the questions of the quiz you're viewing the results of.</string>
+         </property>
          <property name="text">
-          <string>View &amp;quiz</string>
+          <string>Show &amp;quiz</string>
          </property>
         </widget>
        </item>

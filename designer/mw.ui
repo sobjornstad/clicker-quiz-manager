@@ -54,6 +54,9 @@
           <height>0</height>
          </size>
         </property>
+        <property name="whatsThis">
+         <string/>
+        </property>
         <property name="text">
          <string>&amp;Classes</string>
         </property>
@@ -203,6 +206,9 @@
    <property name="text">
     <string>&amp;Back Up Database...</string>
    </property>
+   <property name="whatsThis">
+    <string>Create a backup copy of the currently open database in a location of your choice.</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+B</string>
    </property>
@@ -222,7 +228,10 @@
   </action>
   <action name="actionClear_Saved_Passwords">
    <property name="text">
-    <string>&amp;Clear Saved Passwords</string>
+    <string>&amp;Forget Saved Passwords</string>
+   </property>
+   <property name="whatsThis">
+    <string>Clear any saved email passwords from the database.</string>
    </property>
   </action>
  </widget>
