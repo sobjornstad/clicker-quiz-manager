@@ -193,7 +193,7 @@
   </action>
   <action name="actionManual">
    <property name="text">
-    <string>&amp;Manual...</string>
+    <string>&amp;Manual</string>
    </property>
    <property name="shortcut">
     <string>F1</string>
