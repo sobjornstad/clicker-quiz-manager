@@ -1,3 +1,12 @@
+Table of Contents
+=================
+
+- [Introduction](#introduction)
+- [Creating a database](#creating_a_database)
+    - [Subitem](http://www.google.com)
+
+
+<a id="introduction"></a>
 Introduction
 ============
 
@@ -6,6 +15,7 @@ allows you to manage classes, sets of questions, and review history in order to
 generate daily clicker quizzes for your students.
 
 
+<a id="creating_a_database"></a>
 Creating a database
 ===================
 
