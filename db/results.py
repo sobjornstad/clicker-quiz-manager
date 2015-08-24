@@ -62,7 +62,6 @@ def readResults(stu, zid):
     questions = pickle.loads(c.fetchall()[0][0])
 
     returnVals = []
-    print answers
     for (qNum, studentsAnswer) in answers:
         # As detailed in the long comment in writeResults(), we need to fetch
         # based on the question number given in the actual answers stored in
@@ -144,6 +143,7 @@ def writeResults(response, cls, zid, suppressCheck=False):
             assert i[IDX_ANSWER] is None
             answer = (i[IDX_QNUM], i[IDX_ANSWER])
         answers.append(answer)
+    answers.sort(key=lambda i: i[0])
     q = '''INSERT INTO results (rid, zid, stid, answers)
            VALUES (null, ?, ?, ?)'''
     vals = (zid, stu.getStid(), json.dumps(answers))
@@ -181,15 +181,27 @@ class ResponsesForUser(object):
         """
         If a question is repolled, a duplicate entry is created; we of course
         want to only keep the results from the most recent run.
+
+        Note that the results list generated is not guaranteed to be in the
+        correct order: say we repoll question 4 in position 6. It is not
+        possible for this function to know from the response list that the
+        question in position 6 ought to be moved before position 5. This should
+        not be a problem if other functions select from the responseList
+        (unordered) by the question text, which they should be doing anyway.
         """
         # first knock out the dupes
-        lastQuestion = None
+        usedQuestions = {}
         killIndices = []
         for i in range(len(self.responseList)):
             curQuestion = self.responseList[i][IDX_QUESTION]
-            if lastQuestion == curQuestion:
-                killIndices.append(i-1)
-            lastQuestion = curQuestion
+            if curQuestion in usedQuestions:
+                killIndices.append(usedQuestions[curQuestion])
+            # Notice that the following overwrites a current entry if there is
+            # one; that's okay because we just added it to killIndices, so
+            # doing this repeatedly will still result in all of the indices
+            # except the last getting killed.
+            usedQuestions[curQuestion] = i
+
         # http://stackoverflow.com/questions/31267493/
         # remove-list-of-indices-from-a-list-in-python
         map(self.responseList.__delitem__, sorted(killIndices, reverse=True))
