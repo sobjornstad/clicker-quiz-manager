@@ -44,6 +44,22 @@ def questionBox(text, title=None):
         msgBox.setWindowTitle(title)
     return msgBox.exec_()
 
+def onStartBox():
+    text = "Welcome to the Clicker Quiz Manager! Either you've"\
+           " never opened a database on this computer or your database"\
+           " has been moved since you last used CQM. What would you"\
+           " like to do?"
+    title = "Database not found"
+    msgBox = QMessageBox()
+    msgBox.setText(text)
+    msgBox.setIcon(QMessageBox.Question)
+    defaultButton = msgBox.addButton("&Create new database", QMessageBox.YesRole)
+    msgBox.addButton("&Open existing database", QMessageBox.NoRole)
+    msgBox.addButton("&Quit", QMessageBox.RejectRole)
+    msgBox.setDefaultButton(defaultButton)
+    msgBox.setWindowTitle(title)
+    return msgBox.exec_()
+
 def confirmDeleteBox(item, additional=''):
     msgBox = QMessageBox()
     s = "Are you sure you want to delete this %s? %s" % (item, additional)

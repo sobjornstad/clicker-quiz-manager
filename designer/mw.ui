@@ -201,7 +201,7 @@
   </action>
   <action name="actionBackup">
    <property name="text">
-    <string>&amp;Back up DB...</string>
+    <string>&amp;Back Up Database...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+B</string>

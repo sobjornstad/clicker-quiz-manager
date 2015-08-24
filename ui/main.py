@@ -7,6 +7,7 @@ import traceback
 import shutil
 import sys
 
+from sqlite3 import OperationalError
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QApplication, QMainWindow, QFileDialog, QDesktopServices, QAction, QInputDialog, QMessageBox
 from forms.mw import Ui_MainWindow
@@ -40,8 +41,18 @@ class MainWindow(QMainWindow):
         # what file to open
         name = unicode(self.config.readConf('dbPath').toString())
         if (not name) or (not os.path.isfile(name)):
-            name = unicode(getDbLocation())
-        self._connectDb(name)
+            doWhat = utils.onStartBox()
+            if doWhat == 0:
+                self.onNewDB()
+            elif doWhat == 1:
+                # open database
+                name = unicode(getDbLocation())
+                self._connectDb(name)
+            elif doWhat == 2:
+                sys.exit(0)
+        else:
+            self._connectDb(name)
+
         self.databaseConfig = ui.prefs.DatabaseConfManager(self)
 
         # connect menus and buttons
@@ -122,17 +133,24 @@ class MainWindow(QMainWindow):
                 filter="Quiz Databases (*.db);;All files (*)")
         fname = unicode(fname)
         if not fname: # canceled
-            self._connectDb(self.dbpath)
             return
-        # on linux, ext is not necessarily appended
-        if not fname.endswith('.db'):
-            fname += '.db'
+        fname = utils.forceExtension(fname, 'db')
+        if fname is None:
+            # see docstring of forceExtension
+            return
+
+        if db.database.inter is not None: # could be no db open yet
+            db.database.inter.close()
+        try:
+            os.remove(fname)
+        except OSError:
+            pass
         connection = db.tools.create_database.makeDatabase(fname)
         connection.close()
         self._connectDb(fname)
 
     def onOpenDB(self):
-        db.database.close()
+        db.database.inter.close()
         name = unicode(getDbLocation())
         if not name:
             self._connectDb(self.dbpath)
@@ -145,10 +163,11 @@ class MainWindow(QMainWindow):
         copyto = unicode(copyto)
         if not copyto: # canceled
             return
-        # on linux, ext is not necessarily appended
-        if not copyto.endswith('.db'):
-            copyto += '.db'
-        db.database.close() # make sure everything's been saved & taken care of
+        copyto = utils.forceExtension(copyto, 'db')
+        if copyto is None:
+            # see docstring of forceExtension
+            return
+        db.database.inter.close() # make sure everything's been saved
         try:
             shutil.copyfile(self.dbpath, copyto)
         except shutil.Error:
