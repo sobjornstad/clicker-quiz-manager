@@ -62,7 +62,6 @@ class SetEditor(QDialog):
         self.form.answerC.textEdited.connect(self._disableList)
         self.form.answerD.textEdited.connect(self._disableList)
         self.form.answerE.textEdited.connect(self._disableList)
-        self.form.difficultySpinner.valueChanged.connect(self._disableList)
         self.form.correctAnswerCombo.activated.connect(self._disableList)
 
     def setupQuestions(self):
@@ -209,9 +208,6 @@ class SetEditor(QDialog):
         Don't touch question, as we'll need to set that to the new or existing
         question value anyway."""
 
-        old = self.form.difficultySpinner.blockSignals(True)
-        self.form.difficultySpinner.setValue(1)
-        self.form.difficultySpinner.blockSignals(old)
         for i in self.ansChoices:
             i.setText("")
         self.populateCorrectAnswer(True)
