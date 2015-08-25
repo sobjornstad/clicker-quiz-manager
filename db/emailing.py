@@ -121,6 +121,7 @@ class EmailManager(object):
         resultsStats = db.results.calcCorrectValues(results)
         text = text.replace('$r', "%i" % resultsStats[0])
         text = text.replace('$t', "%i" % resultsStats[1])
+        text = text.replace('$T', "%i" % resultsStats[1]) # accept typo
         text = text.replace('$p', "%.01f" % resultsStats[2])
 
         # classAverages could be a performance hit, so only calculate it if
