@@ -60,7 +60,7 @@ You must save the quiz in at least one format first.</string>
           <string>Reschedule</string>
          </property>
          <property name="default">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
         </widget>
        </item>

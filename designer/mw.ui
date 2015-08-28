@@ -34,6 +34,9 @@
         <property name="text">
          <string>&amp;Generate Quiz</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
       <item row="1" column="0" colspan="2">
@@ -60,6 +63,9 @@
         <property name="text">
          <string>&amp;Classes</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
       <item row="5" column="0">
@@ -75,6 +81,9 @@
         </property>
         <property name="text">
          <string>Question &amp;Sets</string>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -106,6 +115,9 @@
         <property name="text">
          <string>St&amp;udents</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
       <item row="6" column="1">
@@ -119,12 +131,18 @@
         <property name="text">
          <string>&amp;Quit</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
       <item row="5" column="1">
        <widget class="QPushButton" name="historyButton">
         <property name="text">
          <string>Quiz &amp;History</string>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -235,6 +253,14 @@
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>classesButton</tabstop>
+  <tabstop>setsButton</tabstop>
+  <tabstop>studentsButton</tabstop>
+  <tabstop>quizButton</tabstop>
+  <tabstop>historyButton</tabstop>
+  <tabstop>quitButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -337,16 +337,6 @@ Do not choose this option if someone might be looking over your shoulder!</strin
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="sendTestButton">
-       <property name="toolTip">
-        <string>Send a test email using these settings to yourself.</string>
-       </property>
-       <property name="text">
-        <string>Send &amp;test</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="cancelButton">
        <property name="text">
         <string>&amp;Cancel</string>

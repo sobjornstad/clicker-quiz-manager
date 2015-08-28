@@ -44,7 +44,7 @@ class EmailingDialog(QDialog):
 
         self.form.cancelButton.clicked.connect(self.reject)
         self.form.sendMailButton.clicked.connect(self.onSendMail)
-        self.form.sendTestButton.clicked.connect(self.onSendTest)
+        #self.form.sendTestButton.clicked.connect(self.onSendTest)
         self.form.showPWCheck.toggled.connect(self.toggleShowPW)
         self.form.passwordBox.textEdited.connect(self.unsetPasswordWasLoaded)
         self.form.passwordBox.customContextMenuRequested.connect(

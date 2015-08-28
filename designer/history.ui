@@ -108,7 +108,7 @@
           <string>View &amp;quiz</string>
          </property>
          <property name="autoDefault">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -121,7 +121,7 @@
           <string>&amp;Import results</string>
          </property>
          <property name="autoDefault">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -134,7 +134,7 @@
           <string>View &amp;results</string>
          </property>
          <property name="autoDefault">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -147,7 +147,7 @@
           <string>&amp;Email results</string>
          </property>
          <property name="autoDefault">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -157,7 +157,7 @@
           <string>Cl&amp;ose</string>
          </property>
          <property name="autoDefault">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
         </widget>
        </item>
