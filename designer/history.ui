@@ -70,6 +70,16 @@
      </item>
      <item>
       <widget class="QTableView" name="tableView">
+       <property name="whatsThis">
+        <string>This table shows the following columns:&lt;br&gt;&lt;br&gt;
+
+&lt;b&gt;Quiz #&lt;/b&gt;: The order in which you generated the quizzes, starting from 1.&lt;br&gt;
+&lt;b&gt;Date&lt;/b&gt;: The date on which you generated this quiz.&lt;br&gt;
+&lt;b&gt;New Set(s)&lt;/b&gt;: The new set(s) which you introduced on this quiz.&lt;br&gt;
+&lt;b&gt;New #&lt;/b&gt;: How many questions on this quiz were from new sets.&lt;br&gt;
+&lt;b&gt;Rev #&lt;/b&gt;: How many questions on this quiz  were from review sets.&lt;br&gt;
+&lt;b&gt;Results&lt;/b&gt;: &lt;i&gt;Not imported&lt;/i&gt; if you have not added any results from TurningPoint; &lt;i&gt;Available&lt;/i&gt; if you have imported results, or &lt;i&gt;Sent&lt;/i&gt; if you have imported results and also emailed them to your students. Usually you click &lt;i&gt;Import results&lt;/i&gt; to move to Available and &lt;i&gt;Email results&lt;/i&gt; to move to Sent. If you want to move back from Available or Sent to Not imported, you can click the &lt;i&gt;View results&lt;/i&gt; button and then &lt;i&gt;Delete results&lt;/i&gt;.</string>
+       </property>
        <property name="editTriggers">
         <set>QAbstractItemView::NoEditTriggers</set>
        </property>
