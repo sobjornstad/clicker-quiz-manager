@@ -12,14 +12,23 @@ copyright 2014-2015 Soren Bjornstad.
     - [Subitem](http://www.google.com)
 
 
-<a id="introduction"></a>
-# Introduction & How To Get Help
+# Introduction
 
 This is the manual for the **Clicker Quiz Manager**, version 1.1.0. The
 application allows you to manage classes, sets of questions, and review history
-in order to generate daily clicker quizzes for your students. CQM interfaces
-with Turning Technologies’ *TurningPoint* software (hereafter referred to as
-“TurningPoint”), exporting questions and importing the results.
+in order to generate daily quizzes for your students. CQM interfaces with
+Turning Technologies’ *TurningPoint* clicker response software (hereafter
+referred to as “TurningPoint”), exporting questions and importing the resulting
+scores and statistics. If you do not have a clicker system or want to use both
+clickers and another method of giving quizzes at different times, CQM can also
+export quizzes in HTML, plain text, or (with the LaTeX document formatter set
+up on your system) a print-ready PDF format.
+
+All instructions in the manual that refer to TurningPoint were written for
+version 5.3.1. Future versions will probably be similar, but details may change, and changes in report and file formats may require updates to CQM.
+
+
+# Getting Help
 
 In addition to the documentation in this manual, context-sensitive help is
 available – that is, you can get help on specific interface elements directly
@@ -408,22 +417,22 @@ example.
 With answers and set names:
 
 <pre>
-1. die Lieblingsfarbe (Namen)
-    a. course
-    b. pencil
-    c. favorite color
-    d. first name, given name
-Answer: (c) favorite color
+1. What is the most usual color for grass? (Colors)
+   a. blue
+   b. orange
+   c. green
+   d. teal
+Answer: (c) green
 </pre>
 
 Without answers and set names:
 
 <pre>
-1. die Tafel
-	a. blackboard/whiteboard
-	b. favorite color
-	c. course
-	d. door
+1. What is the most usual color for grass?
+   a. blue
+   b. orange
+   c. green
+   d. teal
 </pre>
 
 As you can see, one format is suitable for handing out as a quiz, while the
@@ -438,6 +447,240 @@ formats again later.
 If you decide you don’t want to use the quiz after all, you can click the
 **Return to Settings** button and answer the confirmation dialog.
 
+## Importing a quiz into TurningPoint
+
+Once you’ve exported an RTF file in the appropriate format, you can create a
+question set in TurningPoint from it:
+
+1. Start TurningPoint and click the **Content** tab.
+2. Click the drop-down box titled **Content** in the upper-left corner and
+   choose **New -> Question List**.
+3. Give the questions a name and description and select the “preset” you have
+   set up (WRITE ABOUT THIS) from the **Use Preset** drop-down. This will
+   adjust all the options under “Preferences” for you.
+4. In the new question list, click the **Question** button in the upper-left
+   corner, then choose **Import**.
+5. Select the RTF file you want to import and click OK. In the resulting
+   “Import Questions” dialog box, leave everything at the default options and
+   click the **Import** button.
+6. Delete the topmost question, which is automatically created by TurningPoint
+   and contains only dummy text.
+7. In the lower-right corner, click **Save and Close**.
+
+## Polling
+
+After importing a quiz into TurningPoint, you are ready to create the
+PowerPoint and start the quiz:
+
+1. Click the **Polling** tab at the top.
+2. Select your class in the **Participants** list and the question list you
+   just created in the **Content** class.
+3. Click the **PowerPoint Polling** section on the right. PowerPoint will load
+   and import the questions. Along with the new PowerPoint, an empty PowerPoint
+   will open; you should close this without saving it.
+4. Begin the slideshow to start polling.
+
+When you finish, don’t forget to *save your session data* so that you can
+import the results back into CQM. TurningPoint will prompt you to do this when
+you close PowerPoint; you don’t need to save the PowerPoint file, but you do
+need to save the session data. You can put the data anywhere convenient; you
+will need to open it when you export it to CQM.
+
+
+# The Quiz History window
+
+The quiz history window lets you see the quizzes you’ve given in the past. For
+information about the columns presented in the quiz table, see the “What’s
+this?” help.
+
+## Viewing a quiz
+
+The **View quiz** button shows the same dialog that is used to preview a quiz
+when you’re generating it. All of the functions work the same way, with the
+exception that there is no “reschedule” button now, since the sets have already
+been rescheduled.
+
+## Importing results
+
+The **Import results** button allows you to import results from TurningPoint.
+In order to get the results into CQM, you first need to save the session data
+when you’re finished polling; TurningPoint will prompt you to do this. It’s
+difficult to rename the session later, so it’s best to give it a helpful name
+like “My Class Quiz 1”. Once you have the session file, follow these steps to
+import it into TurningPoint and convert it to a format that CQM can use:
+
+1. Click the **Manage** tab in TurningPoint.
+2. In the left pane, choose your class’s participants list.
+3. From the **Session** drop-down, choose **Import**. Select the session file
+   and click OK.
+4. If necessary, click the arrow next to your class to expand the list, then
+   choose the session you just imported.
+5. At the bottom-right of this window, click the **Reports** button.
+6. In the upper-right of the reports screen, choose **Results by Participant**
+   from the drop-down.
+7. Click the **Export** button in the upper-left, then choose **HTML**. Save
+   the HTML file.
+8. In CQM, open the history window, select the appropriate quiz, click the
+   **Import results** button, and select the HTML file you exported in step 7.
+
+Imported results will appear in the Results window, described next.
+
+## Viewing results
+
+The Results window, accessed by clicking the **View results** button in the
+history window, lets you review how each of your students did on a given quiz.
+Before you can use the results window, you need to import your results from
+TurningPoint (link to above).
+
+Like the question editor, this window has two main panes; choosing a student on
+the left will show that student’s scores and results on the right. The
+student’s score is displayed at the top of the pane, and the student’s answer
+to each question is shown in the table along with the correct answer. An
+exclamation point in parentheses (`(!)`) is used to highlight the answers that
+were wrong.
+
+The class average is listed at the top of the window, so you can compare a
+student’s score with the average or just get a general idea of how the class
+did.
+
+If you want more complex statistics, you can make sure to save your session
+files in TurningPoint and use the statistics functions there, which are quite
+extensive. However, you should be aware that repolling will result in
+TurningPoint calculating your students’ scores incorrectly -- a repolled
+question will result in two questions showing up in the list, and both of them
+will be counted in students’ scores. CQM specially filters out these
+duplicates, counting only the last poll for a question, so the scores in CQM
+should always be accurate.
+
+If you’d like to match up the answers listed in the results with the quiz
+questions, you can click the **Show quiz** button at the bottom of the window
+to open the quiz preview.
+
+If you imported the results incorrectly or just don’t want to keep them in CQM
+for some reason, you can delete them from the database by clicking **Delete
+results**.
+
+## Emailing results
+
+With a paper quiz, you can easily hand graded quizzes back to your students,
+letting them know how they individually did without sharing the information
+with the rest of the class. With a clicker quiz taken through TurningPoint,
+however, it is not obvious how to accomplish this. CQM solves this problem by
+providing a function to email students their results. Each student will receive
+only his or her own score and answers (and information about the class average,
+if you wish). The precise format of the email and what is sent in it are very
+customizable.
+
+You can access the email function by clicking the **Email results** button.
+
+## Email options
+
+The Email Results dialog is a somewhat complicated form. For this reason, the
+values you fill in will be saved until the next time you use the email function
+in the same class. (Different classes have separate options, but if you want to
+use exactly the same ones, you can always copy the options into a document and
+paste them into the other class’s options dialog.)
+
+### The Email section
+
+In the top section of the dialog, you see most of the same fields that you
+normally see when you write an email. The exception is that you tell CQM who
+the email is coming *from* rather than who it’s going *to*. (The email
+addresses the message is being sent *to* are pulled from the Email column of
+the Students table for that class; before sending email for the first time,
+it’s a good idea to be sure that this column is accurate.) You can fill
+anything you like in for the **From name** field, but you should use the email
+address you’re sending from in the **From address** field; some services will
+allow you to send email from a different address than the one you actually have
+with their service, but this doesn’t always work, and it may increase the
+chances of your emails being flagged as spam.
+
+In the **subject** and **body** fields, you can write any normal text you like,
+such as a greeting or information about the class, but you should also include
+some *format parameters*, which are special strings beginning with a dollar
+sign that are replaced with appropriate content when the email is sent out. For
+example, if you write `$n` (representing the quiz number) in your subject or
+body when sending the results for quiz 2, CQM will replace it with a `2` when
+the email is sent out. Some parameters, like this one, are the same for the
+whole class; others, such as `$f` (first name) and `$p` (student’s percent
+correct) are specific to individual students and will have a different value in
+the email that each student receives.
+
+A full listing of format parameters follows. These parameters are available in
+both the subject and the body fields:
+
+* **$$**: a literal dollar sign (that is, if you actually want a dollar sign to
+  appear in the text of your final email, instead of having it form part of a
+  format parameter, write `$$` instead of `$`)
+* **$c**: name of the current class
+* **$n**: the number of this quiz
+* **$f**: the student’s first name
+* **$l**: the student’s last name (lowercase ell)
+* **$s**: student’s name formatted as *Firstname Lastname*
+* **$S**: student’s name formatted as *Lastname, Firstname*
+* **$r**: the number of questions the student got correct on this quiz
+* **$t**: the total number of questions on this quiz
+* **$p**: the student’s percentage grade on this quiz (equivalent to 100 times
+  `$r` divided by `$t`, to two decimal places)
+* **$R**: the class’s average number of questions correct
+* **$T**: alias for `$t` (this is primarily supported in case you type it by
+  mistake)
+* **$P**: the class’s average percentage
+
+These parameters are available only in the body field, because they are
+multiple lines long and would not make sense in the subject field:
+
+* **$a**: A table of the student’s answer choices and the correct choices. This
+  is basically the same as the table shown in the Results dialog.
+* **$q**: A listing of the questions on the quiz; this looks the same as the
+  quiz preview accessible in the quiz history or generate quiz windows.
+* **$Q**: Like `$q`, but includes the student’s answers along with the correct answers.
+
+Format parameters that don’t match any of these sequences will be sent on in
+the email exactly as they are (so if you write `$g`, your email will contain an
+actual `$g` at the end).
+
+If you don’t want to memorize all these format parameters, you’ll be happy to
+know that a quick reference is available in the “What’s this?” help of the Body
+field (press **Shift-F1** while editing).
+
+Here’s an example of 
+
+INSERT EXAMPLE HERE
+
+### The SMTP server section
+
+CQM does not have any kind of central server that can send out email, so you
+need to provide it with the information for an SMTP (Simple Mail Transfer
+Protocol) server that can be used to send the mail. The good news is that if
+you have any kind of email account, you probably have access to an SMTP server.
+Alternatively, if you’d rather use a different email account from your main
+one, you can open a new free email account; Gmail allows you to send up to 500
+emails via SMTP per day (max 200 per hour), and most other services are
+probably similar.
+
+If you’re not sure what settings you need to use for your email account, you
+can poke around in the help for your email service or search Google for
+something like `Gmail SMTP settings`.
+
+
+# Recipes and Supplementary Material
+
+## The clicker quiz cycle
+
+Show all the steps you have to take to move things to TurningPoint, etc.
+
+## Setting up LaTeX
+
+To produce PDF output, CQM requires the LaTeX document preparation system to be
+installed on your computer. On Linux, installing LaTeX through your
+distribution’s package manager should work. On Windows, you can install MiKTeX.
+
+Whatever your operating system, you will also need the following LaTeX packages
+to create PDF quizzes with CQM: `fontspec`, `xunicode`, `geometry`, `setspace`,
+`titlesec`, `microtype`, `ebgaramond`, `ifluatex`, `ifxetex`. Some of these will probably come with any installation of LaTeX, but some may not. If you’re using MiKTeX, you can find the “package manager” in your start menu and install each of the packages.
+
+I NEED TO MAKE A PREFERENCE TO SET THE EXECUTABLE AND TALK ABOUT THAT
 
 
 # Keyboard shortcuts
