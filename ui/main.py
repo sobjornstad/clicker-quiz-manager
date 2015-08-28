@@ -204,7 +204,7 @@ class MainWindow(QMainWindow):
                               "passwords for all classes?", "Clear passwords?")
         if r == QMessageBox.Yes:
             ui.prefs.wipeAllPasswords(self.databaseConfig)
-        utils.informationBox("All saved passwords have been cleared.", "Success")
+            utils.informationBox("All saved passwords have been cleared.", "Success")
 
     def _configureDebugMode(self):
         debugMenu = self.form.menuBar.addMenu('&Debug');
