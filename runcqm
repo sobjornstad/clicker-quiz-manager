@@ -3,5 +3,8 @@
 import os
 from ui import main
 
-os.chdir(main.__file__.split('/ui/')[0])
+if 'nt' in os.name:
+    os.chdir(main.__file__.split('\\ui\\')[0])
+else:
+    os.chdir(main.__file__.split('/ui/')[0])
 main.start()
