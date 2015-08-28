@@ -117,7 +117,7 @@ Your answer: (d) favorite color
 	c. cc
 	d. dd
 Answer: (d) dd
-Your answer: (None) None (!)
+[You did not answer this question.] (!)
 
 4. der Familienname (fooset)
 	a. aa

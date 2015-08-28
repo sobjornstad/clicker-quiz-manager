@@ -26,6 +26,10 @@ class DbTestsOnDisk(utils.DbTestCase):
 
     def dbSetUp(self):
         # reimplemented
+        try:
+            os.remove(self.dbname)
+        except OSError:
+            pass
         db.tools.create_database.makeDatabase(self.dbname)
         conn = d.DatabaseInterface.connectToFile(self.dbname)
     def dbTearDown(self):
