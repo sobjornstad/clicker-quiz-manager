@@ -23,7 +23,7 @@ import ui.history
 import ui.prefs
 import ui.utils as utils
 
-APPLICATION_VERSION = "1.0.3"
+APPLICATION_VERSION = "1.0.4"
 
 class MainWindow(QMainWindow):
     def __init__(self):
