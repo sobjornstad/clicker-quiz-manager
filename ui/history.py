@@ -87,7 +87,7 @@ class HistoryDialog(QDialog):
     def defaultSort(self):
         self.form.tableView.sortByColumn(0, QtCore.Qt.AscendingOrder)
 
-    def onViewQuiz(self, isModal=True):
+    def onViewQuiz(self):
         obj = self.tableModel.getObj(self.form.tableView.currentIndex())
         d = ui.quizgen.PreviewDialog(self)
         d.setupForRePreview(self._currentClass(), obj.seq)
@@ -98,10 +98,7 @@ class HistoryDialog(QDialog):
         quizPreviewText = db.output.genPlainText(
                 self.quiz.fetchQuestionsForOutput())
         d.setText(quizPreviewText)
-        if isModal:
-            d.exec_()
-        else:
-            d.show()
+        d.exec_()
 
     def onEmailResults(self):
         obj = self.tableModel.getObj(self.form.tableView.currentIndex())

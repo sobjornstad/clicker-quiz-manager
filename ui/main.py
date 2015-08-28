@@ -95,7 +95,7 @@ class MainWindow(QMainWindow):
 
     def onClasses(self):
         cw = ui.classes.ClassesWindow(self)
-        cw.show()
+        cw.exec_()
 
     def onQuizGen(self):
         if not utils.ensureClassExists():
@@ -103,19 +103,19 @@ class MainWindow(QMainWindow):
                     "No Classes")
             return False
         qw = ui.quizgen.QuizWindow(self, self.config)
-        qw.show()
+        qw.exec_()
 
     def onSets(self):
         qsw = ui.questionsets.QuestionSetsDialog(self, self.config)
-        qsw.show()
+        qsw.exec_()
 
     def onStudents(self):
         stw = ui.students.StudentsDialog(self)
-        stw.show()
+        stw.exec_()
 
     def onHistory(self):
         hiw = ui.history.HistoryDialog(self, self.databaseConfig, self.config)
-        hiw.show()
+        hiw.exec_()
 
     def closeEvent(self, event):
         self.quit()
