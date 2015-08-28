@@ -12,9 +12,10 @@ import db.sets
 from db.questions import getBySet as getQuestionsBySet
 
 class QuestionSetsDialog(QDialog):
-    def __init__(self, mw):
+    def __init__(self, mw, config):
         QDialog.__init__(self)
         self.mw = mw
+        self.config = config
         self.form = Ui_Dialog()
         self.form.setupUi(self)
 
@@ -61,7 +62,7 @@ class QuestionSetsDialog(QDialog):
 
     def edit(self):
         import editset
-        se = editset.SetEditor(self)
+        se = editset.SetEditor(self, self.config)
         se.exec_()
 
     def delete(self):

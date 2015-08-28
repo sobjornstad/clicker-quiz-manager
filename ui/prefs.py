@@ -23,7 +23,7 @@ class ConfigurationManager(object):
     def writeConf(self, key, value):
         "Write a *value* to the persistent config under key *key*."
         self.qs.setValue(key, value)
-    def readConf(self, key):
+    def readConf(self, key, default=None):
         """
         Return a value from the persistent config stored under key *key*. In
         order to use the value usefully, you need to call its .toInt() or
@@ -33,7 +33,10 @@ class ConfigurationManager(object):
         If the key does not exist, a value of 0 or an empty string will be
         returned, respectively; keep that in mind when designing the values.
         """
-        return self.qs.value(key)
+        if default is not None:
+            return self.qs.value(key, default)
+        else:
+            return self.qs.value(key)
 
     def allKeys(self):
         "Return Python list of all keys in existence."
@@ -108,6 +111,8 @@ class PrefsDialog(QDialog):
         self.options['autoAnsA'] = conf.readConf('autoAnsA').toBool()
         self.options['saveInterval'] = conf.readConf('saveInterval').toInt()[0]
         self.options['savePasswords'] = conf.readConf('savePasswords').toBool()
+        self.options['latexexe'] = conf.readConf(
+                'latexExecutable', 'xelatex').toString()
 
         # note: don't use setCheckState(), that makes a tri-state box!
         self.form.debugMode.setChecked(self.options['debugMode'])
@@ -115,6 +120,7 @@ class PrefsDialog(QDialog):
         self.form.saveInterval.setValue(self.options['saveInterval'])
         self.form.savePasswords.setChecked(self.options['savePasswords'])
         self.form.savePasswords.toggled.connect(self.onPasswordCheck)
+        self.form.xelatexCommand.setText(self.options['latexexe'])
 
     def dumpPrefsState(self):
         conf = self.mw.config
@@ -138,6 +144,11 @@ class PrefsDialog(QDialog):
         if newSavePasswords != self.options['savePasswords']:
             conf.writeConf('savePasswords', newSavePasswords)
 
+        newLatex = unicode(self.form.xelatexCommand.text())
+        if newLatex != self.options['latexexe']:
+            conf.writeConf('latexExecutable', newLatex)
+
+        conf.sync()
         self.accept()
         if self.restartSuggested:
             utils.informationBox("The changes will take effect when you " \
@@ -153,12 +164,12 @@ class PrefsDialog(QDialog):
                     "extract the password from there. If this makes you "
                     "uncomfortable, please do not use this option.\n\n"
                     "You can clear saved passwords at any time by running "
-                    "Tools -> Clear Saved Passwords.",
+                    "Tools -> Forget Saved Passwords.",
                     "Security advisory")
         else:
             utils.warningBox("Disabling password saving does not immediately "
                     "clear any passwords that are already saved. To do so, "
-                    "please choose Tools -> Clear Saved Passwords.",
+                    "please choose Tools -> Forget Saved Passwords.",
                     "Security advisory")
 
 def wipeAllPasswords(manager):

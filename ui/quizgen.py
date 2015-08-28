@@ -18,7 +18,7 @@ import ui.utils as utils
 from db.output import LatexError
 
 class QuizWindow(QDialog):
-    def __init__(self, mw, selectedNewSet=None):
+    def __init__(self, mw, config, selectedNewSet=None):
         # mw is not always mw: it can also be the question dialog! I have not
         # copied it into self to ensure that we notice this if we want to use
         # some mw method/attribute in the future.
@@ -26,6 +26,7 @@ class QuizWindow(QDialog):
         self.autoselectSet = selectedNewSet
         self.form = Ui_Dialog()
         self.form.setupUi(self)
+        self.config = config
 
         self.form.genButton.clicked.connect(self.onGenerate)
         self.form.cancelButton.clicked.connect(self.reject)
@@ -119,7 +120,7 @@ class QuizWindow(QDialog):
                                  sns)
 
         prevText = '\n\n'.join([topText, prevText])
-        d = PreviewDialog(self)
+        d = PreviewDialog(self, self.config)
         d.setText(prevText)
         d.exec_()
 
@@ -150,9 +151,10 @@ class PreviewDialog(QDialog):
               'txt': 'Text files (*)',
              }
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, config=None):
         QDialog.__init__(self)
         self.parent = parent
+        self.config = config
         self.form = forms.qprev.Ui_Dialog()
         self.form.setupUi(self)
 
@@ -210,20 +212,34 @@ class PreviewDialog(QDialog):
                 quizNum = db.genquiz.getSetsUsed(cls) + 1
                 if fname:
                     QApplication.setOverrideCursor(QCursor(QtCore.Qt.WaitCursor))
+                    lcommand = unicode(self.config.readConf(
+                        'latexExecutable', 'xelatex').toString())
                     try:
-                        db.output.renderPdf(questions, cls, quizNum, doOpen=False,
-                                doCopy=True, copyTo=fname)
+                        db.output.renderPdf(questions, cls, quizNum,
+                                latexCommand=lcommand,
+                                doOpen=False, doCopy=True, copyTo=fname)
                     except LatexError as err:
                         QApplication.restoreOverrideCursor()
-                        txt = """
+                        if 'unable to find' in str(err):
+                            txt = "The XeLaTeX executable was not found at '%s'."\
+                                  " You can change the path in the preferences"\
+                                  " to fix this problem. Please consult the"\
+                                  " manual for further information." % (
+                                  lcommand)
+                        else:
+                            txt = """
 An error occurred while running LaTeX to create the paper quiz. Please check the error and contact the developer if you are unsure how to correct it. The error text is as follows:
 
 %s
 """.strip()
-                        txt = txt % str(err)
+                            txt = txt % str(err)
                         ebw = utils.ErrorBoxWindow()
                         ebw.setErrorText(txt, includeErrorBoilerplate=False)
+                        ebw.setErrorTitle("Error running LaTeX")
                         ebw.exec_()
+                    except:
+                        QApplication.restoreOverrideCursor()
+                        raise
                     else:
                         QApplication.restoreOverrideCursor()
                 else:

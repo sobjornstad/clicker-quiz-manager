@@ -102,11 +102,11 @@ class MainWindow(QMainWindow):
             utils.errorBox("Please create at least one class first.",
                     "No Classes")
             return False
-        qw = ui.quizgen.QuizWindow(self)
+        qw = ui.quizgen.QuizWindow(self, self.config)
         qw.exec_()
 
     def onSets(self):
-        qsw = ui.questionsets.QuestionSetsDialog(self)
+        qsw = ui.questionsets.QuestionSetsDialog(self, self.config)
         qsw.exec_()
 
     def onStudents(self):

@@ -14,9 +14,10 @@ from db.questions import Question, QuestionFormatError, DuplicateError
 import db.sets, db.questions
 
 class SetEditor(QDialog):
-    def __init__(self, setList):
+    def __init__(self, setList, config):
         QDialog.__init__(self)
         self.sl = setList
+        self.config = config
         self.form = Ui_Dialog()
         self.form.setupUi(self)
 
@@ -433,7 +434,7 @@ class SetEditor(QDialog):
             self.tooManyAsMessage()
 
         import quizgen
-        qsw = quizgen.QuizWindow(self, self._currentSet())
+        qsw = quizgen.QuizWindow(self, self.config, self._currentSet())
         qsw.exec_()
 
     def onRandomize(self):
