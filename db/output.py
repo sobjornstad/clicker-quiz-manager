@@ -25,6 +25,7 @@ Abbreviations used in this module:
     cwd: current working directory
 """
 
+import codecs
 import os
 import re
 import tempfile
@@ -184,7 +185,7 @@ def renderTxt(questions, cls, quizNum, filename, forQuiz=False):
     className = cls.getName()
     title = "%s, Quiz %i" % (className, quizNum)
     title = title + '\n' + ('-' * len(title)) + '\n\n'
-    with open(filename, 'wb') as f:
+    with codecs.open(filename, 'wb', 'utf-8') as f:
         f.write(title)
         f.write(content)
 
@@ -271,9 +272,9 @@ def renderHtml(questions, cls, quizNum, fname, forQuiz=False,
     """
     content = _htmlText(questions, forQuiz)
 
-    with open(headerPath) as f:
+    with codecs.open(headerPath, 'r', 'utf-8') as f:
         header = f.read()
-    with open(footerPath) as f:
+    with codecs.open(footerPath, 'r', 'utf-8') as f:
         footer = f.read()
 
     className = cls.getName()
@@ -282,7 +283,7 @@ def renderHtml(questions, cls, quizNum, fname, forQuiz=False,
     header = header.replace('%%% REPLACE WITH QUIZ TITLE %%%', titleStr)
     header += '<h2>%s</h2>' % titleStr
     output = header + content + footer
-    with open(fname, 'wb') as f:
+    with codecs.open(fname, 'wb', 'utf-8') as f:
         f.write(output)
 
 
@@ -368,7 +369,7 @@ def renderPdf(questions, cls, quiznum,
     fnamebase = "quiz"
     tfile = os.path.join(tdir, '.'.join([fnamebase, 'tex']))
     pdfFile = os.path.join(tdir, '.'.join([fnamebase, 'pdf']))
-    with open(tfile, 'wb') as f:
+    with codecs.open(tfile, 'wb', 'utf-8') as f:
         f.write(latex)
     try:
         subprocess.check_output([latexCommand, '-halt-on-error', tfile])
@@ -459,9 +460,9 @@ def _prepareLaTeXString(questions, cls, quizNum, headerPath, footerPath):
         text.append(txt)
         qNum += 1
 
-    with open(headerPath) as f:
+    with codecs.open(headerPath, 'r', 'utf-8') as f:
         header = f.read()
-    with open(footerPath) as f:
+    with codecs.open(footerPath, 'r', 'utf-8') as f:
         footer = f.read()
 
     className = cls.getName()
