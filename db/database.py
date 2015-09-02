@@ -39,6 +39,11 @@ class DatabaseInterface(object):
         self._fname = filename
         self.auxConnection = None
         inter = self
+        self._defaultCursor.execute('PRAGMA foreign_keys = ON')
+        self._defaultCursor.execute('PRAGMA foreign_keys')
+        assert self._defaultCursor.fetchall()[0][0] == 1, \
+                "CQM cannot run without foreign key constraints available. "\
+                "Please contact the developer for more information."
 
     @classmethod
     def connectToFile(cls, fname, autosaveInterval=60):

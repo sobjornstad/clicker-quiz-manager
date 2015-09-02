@@ -48,7 +48,7 @@ class ClassesWindow(QDialog):
             utils.errorBox("You already have a class by that name.",
                     "Duplicate Entry")
         else:
-            newClass = db.classes.Class(text) # create db entry
+            newClass = db.classes.Class.createNew(text)
             self.fillList() # reread from db so it is sorted alphabetically
 
     def rename(self):
@@ -82,9 +82,9 @@ class ClassesWindow(QDialog):
         classToDelete = self.form.listWidget.currentItem()
         nameToDelete = classToDelete.text()
         resp = utils.confirmDeleteBox("class",
-                "This will delete all associated quiz history for the class " \
-                "\"%s\"! Your sets and questions will be unaffected." \
-                % nameToDelete)
+                "This will delete all students, results, and quiz history "\
+                "for the class \"%s\"! Your sets and questions will be "\
+                "unaffected." % nameToDelete)
 
         if resp == QMessageBox.Yes: # "yes"
             row = self.form.listWidget.currentRow()

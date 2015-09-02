@@ -47,7 +47,7 @@ class Class(object):
 
     @classmethod
     def createNew(cls, name):
-        q = '''INSERT INTO classes (name) VALUES (?)'''
+        q = '''INSERT INTO classes (name, setsUsed) VALUES (?, 0)'''
         d.inter.exQuery(q, (name,))
         return cls(d.inter.getLastRowId())
 

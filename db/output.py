@@ -125,7 +125,13 @@ def genPlainText(questions, forQuiz=False, includeStudentResults=None):
         q = q.replace('[...]', OCCLUSION_OUTPUT)
         a = question.getAnswersList()
         ca = question.getCorrectAnswer()
-        st = question.getSet().getName()
+        try:
+            st = question.getSet().getName()
+        except AttributeError as e:
+            if "'NoneType' object has no attribute 'getName'" in e:
+                # this comes up if we're viewing a past quiz that uses a set
+                # that has since been deleted
+                st = "(set deleted)"
 
         if forQuiz:
             prev.append("%s" % q)
@@ -209,7 +215,13 @@ def _htmlText(questions, forQuiz=False):
         q = q.replace('[...]', OCCLUSION_OUTPUT)
         a = question.getAnswersList()
         ca = question.getCorrectAnswer()
-        st = question.getSet().getName()
+        try:
+            st = question.getSet().getName()
+        except AttributeError as e:
+            if "'NoneType' object has no attribute 'getName'" in e:
+                # this comes up if we're viewing a past quiz that uses a set
+                # that has since been deleted
+                st = "(set deleted)"
 
         quesIsMultiPart = False
         qparts = q.split('//')

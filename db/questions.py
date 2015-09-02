@@ -327,11 +327,11 @@ def getById(qid):
     exist."""
 
     c = d.inter.exQuery('SELECT * FROM questions WHERE qid=?', (qid,))
-    qid, order, q, ca, answers, sid = c.fetchall()[0]
-    if qid:
+    try:
+        qid, order, q, ca, answers, sid = c.fetchall()[0]
         answers = json.loads(answers)
         return Question(q, answers, ca, sets.findSet(sid=sid), order, qid)
-    else:
+    except IndexError:
         return None
 
 def getByName(name):

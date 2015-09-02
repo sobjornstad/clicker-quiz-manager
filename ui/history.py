@@ -90,7 +90,7 @@ class HistoryDialog(QDialog):
 
     def onViewQuiz(self):
         obj = self.tableModel.getObj(self.form.tableView.currentIndex())
-        d = ui.quizgen.PreviewDialog(self)
+        d = ui.quizgen.PreviewDialog(self, config=self.qConf)
         d.setupForRePreview(self._currentClass(), obj.seq)
         # Fetch quiz preview and set text. self.quiz (accessed through parent
         # -- i.e., the present object) is here a QuizProvider, emulating an

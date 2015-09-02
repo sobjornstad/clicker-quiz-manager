@@ -50,7 +50,8 @@ class Set(object):
         d.inter.checkAutosave()
 
     def delete(self):
-        d.inter.exQuery('DELETE FROM questions WHERE sid=?', (self._sid,))
+        # commented out: trying foreign key constraints instead
+        #d.inter.exQuery('DELETE FROM questions WHERE sid=?', (self._sid,))
         d.inter.exQuery('DELETE FROM sets WHERE sid=?', (self._sid,))
         d.inter.checkAutosave()
         # we shouldn't use this instance again of course, but the class does

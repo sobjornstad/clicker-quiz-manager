@@ -70,8 +70,9 @@ class QuestionSetsDialog(QDialog):
         st = db.sets.findSet(num=cRow)
         numQuestions = len(getQuestionsBySet(st))
         r = utils.confirmDeleteBox("set",
-                "The %i question%s in it will be deleted." %
-                ( numQuestions, '' if numQuestions == 1 else 's'))
+                "The %i question%s in it will be deleted, and any classes that"\
+                " have this set scheduled for review will no longer display"
+                " it." % ( numQuestions, '' if numQuestions == 1 else 's'))
         if r != QMessageBox.Yes:
             return
 
