@@ -15,6 +15,8 @@ import db.students
 import db.classes
 
 class StudentTableModel(QAbstractTableModel):
+    valueRejected = QtCore.pyqtSignal(str, name="valueRejected")
+
     def __init__(self, parent, l=[], *args):
         QAbstractTableModel.__init__(self, parent, *args)
         self.parent = parent
@@ -58,7 +60,13 @@ class StudentTableModel(QAbstractTableModel):
         elif colNum == 1:
             robj.setFn(value)
         elif colNum == 2:
-            robj.setTpid(value)
+            # don't allow duplicate tpids
+            if db.students.findStudentByTpid(value, robj.getClass()):
+                self.valueRejected.emit("TP IDs must be unique for all "
+                                        "students in a class.")
+                return False
+            else:
+                robj.setTpid(value)
         elif colNum == 3:
             robj.setTpdev(value)
         elif colNum == 4:
@@ -170,6 +178,7 @@ class StudentsDialog(QDialog):
         self.sm.selectionChanged.connect(self.checkButtonEnablement)
         self.reFillStudents()
         self.form.classCombo.activated.connect(self.reFillStudents)
+        self.tableModel.valueRejected.connect(self.onValueRejected)
 
         self.tableModel.rowsRemoved.connect(self._updateStudentTotal)
         self.tableModel.rowsInserted.connect(self._updateStudentTotal)
@@ -208,6 +217,10 @@ class StudentsDialog(QDialog):
 
     def defaultSort(self):
         self.form.tableView.sortByColumn(0, QtCore.Qt.AscendingOrder)
+
+    def onValueRejected(self, errorMsg):
+        utils.errorBox(errorMsg, "Invalid entry")
+
 
     def onAdd(self):
         self.tableModel.setNextClassInsert(self._currentClass())
@@ -276,4 +289,3 @@ class StudentsDialog(QDialog):
     def _updateStudentTotal(self):
         numStudents = self.tableModel.numItems()
         self.form.studentsLabel.setText("Students: %i" % numStudents)
-        #TODO: connect rowsInserted and rowsRemoved signals to this function
