@@ -89,6 +89,10 @@ ol {
 ul {
     list-style: outside disc;
 }
+ul ul {
+    list-style: inside square;
+}
+
 ol, ul {
     padding-left:0;
     margin-bottom:24px;
@@ -97,8 +101,12 @@ ol li {
     margin-left:28px;
 }
 ul li {
-    margin-bottom:8px;
+    margin-top: 5px;
+    margin-bottom:0px;
     margin-left:16px;
+}
+ul ul li {
+    margin-top: 0px;
 }
 ol:last-child, ul:last-child {
     margin:0;
