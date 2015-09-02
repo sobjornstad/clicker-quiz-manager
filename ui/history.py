@@ -24,6 +24,7 @@ class HistoryDialog(QDialog):
         self.form.setupUi(self)
         self.dbConf = dbConf
         self.qConf = qConf
+        self.form.tableView.horizontalHeader().setMovable(True)
 
         self.form.closeButton.clicked.connect(self.reject)
         self.form.viewQuizButton.clicked.connect(self.onViewQuiz)

@@ -162,6 +162,7 @@ class StudentsDialog(QDialog):
         QDialog.__init__(self)
         self.form = Ui_Dialog()
         self.form.setupUi(self)
+        self.form.tableView.horizontalHeader().setMovable(True)
 
         self.form.addButton.clicked.connect(self.onAdd)
         self.form.deleteButton.clicked.connect(self.onDelete)
