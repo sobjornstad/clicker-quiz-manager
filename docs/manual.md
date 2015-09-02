@@ -93,8 +93,6 @@ may also be a question-mark button in the title bar of the window. If you have
 this button, you can click it and then click the item you want help on.)  If in
 doubt about which method to use, simply try both methods.
 
-<!--- screenshot of tooltips and what’s this? -->
-
 
 # Opening, creating, and saving database files
 
@@ -242,11 +240,10 @@ you want to put similar topics together. If you want to move a set a long
 distance, it may be more convenient to drag and drop it to its new location
 than to use the buttons.
 
-Deleting a set will delete all of its questions, but will not touch your review
-history. To be honest, I'm completely uncertain as to what will happen if you
-delete a set that has review history, though, so don't do that yet.
+Deleting a set will delete all of its questions, and it will no longer come up
+for review in any classes where it is a review set. Past quizzes that included
+that set can still be viewed, although their set name is no longer available.
 
-<!-- check the above! -->
 
 ## The question editor
 
