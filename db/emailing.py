@@ -12,6 +12,12 @@ from db.students import studentsInClass
 import db.results
 import db.output
 
+class NoResultsError(Exception):
+    def __init__(self):
+        pass
+    def __str__(self):
+        return "This student doesn't have any results!"
+
 class EmailManager(object):
     """
     Sample format of required /optsDict/:
@@ -53,17 +59,27 @@ class EmailManager(object):
     def closeSMTPConnection(self):
         self.connection.quit()
 
-    def sendEmail(self, student):
+    def sendEmail(self, student, sendNoResultsMessage=False):
         fromStr = "%s <%s>" % (self.opts['fromName'], self.opts['fromAddr'])
         toStr = "%s %s <%s>" % (
                 student.getFn(), student.getLn(), student.getEmail())
-        subjectStr = self._expandFormatStr(self.opts['subject'], student, False)
-        emailStr = self._expandFormatStr(self.opts['body'], student, True)
-
-        msg = MIMEText(emailStr.encode('utf-8'), _charset='utf-8')
-        msg['From'] = fromStr
-        msg['To'] = toStr
-        msg['Subject'] = subjectStr
+        if not sendNoResultsMessage:
+            subjectStr = self._expandFormatStr(self.opts['subject'], student, False)
+            emailStr = self._expandFormatStr(self.opts['body'], student, True)
+            msg = MIMEText(emailStr.encode('utf-8'), _charset='utf-8')
+            msg['From'] = fromStr
+            msg['To'] = toStr
+            msg['Subject'] = subjectStr
+        else:
+            txt = "You do not have any recorded results for quiz %i. If you "\
+                  "think this is incorrect, please contact your instructor." % (
+                      self.historyItem.seq)
+            subj = "Results missing for quiz %i in class %s" % (
+                      self.historyItem.seq, self.cls.getName())
+            msg = MIMEText(txt.encode('utf-8'), _charset='utf-8')
+            msg['From'] = fromStr
+            msg['To'] = toStr
+            msg['Subject'] = subj
 
         if self.connection is None:
             self.openSMTPConnection()
@@ -117,6 +133,8 @@ class EmailManager(object):
         text = text.replace('$S', "%s, %s" % (ln, fn))
 
         results = db.results.readResults(student, self.historyItem.zid)
+        if results is None:
+            raise NoResultsError()
 
         resultsStats = db.results.calcCorrectValues(results)
         text = text.replace('$r', "%i" % resultsStats[0])

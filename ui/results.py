@@ -80,10 +80,14 @@ class ResultsDialog(QDialog):
             selectedStudent.getLn(), selectedStudent.getFn()))
 
         results = db.results.readResults(selectedStudent, self.zid)
-        self.tableModel.replaceContents(results)
-        numCorrect, numTotal, percent = db.results.calcCorrectValues(results)
-        scoreStr = "%i/%i (%.01f%%)" % (numCorrect, numTotal, percent)
-        self.form.stuScoreLabel.setText(scoreStr)
+        if results is not None:
+            self.tableModel.replaceContents(results)
+            numCorrect, numTotal, percent = db.results.calcCorrectValues(results)
+            scoreStr = "%i/%i (%.01f%%)" % (numCorrect, numTotal, percent)
+            self.form.stuScoreLabel.setText(scoreStr)
+        else:
+            self.tableModel.replaceContents([])
+            self.form.stuScoreLabel.setText("(no results)")
 
     def onViewQuiz(self):
         self.parent.onViewQuiz()
@@ -109,7 +113,7 @@ class AnswersTableModel(QAbstractTableModel):
         self.headerdata = ["#", "Answer", "Correct"]
 
     def rowCount(self, parent):
-        return len(self.l)
+        return len(self.l) if self.l is not None else 0
     def columnCount(self, parent):
         return len(self.headerdata)
 

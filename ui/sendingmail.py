@@ -179,6 +179,11 @@ class WorkerThread(QtCore.QThread):
                 self.em.sendEmail(stu)
             except smtplib.SMTPRecipientsRefused as e:
                 self.recipientRefused.emit(e)
+            except db.emailing.NoResultsError:
+                try:
+                    self.em.sendEmail(stu, sendNoResultsMessage=True)
+                except smtplib.SMTPRecipientsRefused as e:
+                    self.recipientRefused.emit(e)
 
         # done; clean up
         self.tearDown()

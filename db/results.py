@@ -293,13 +293,16 @@ def calcClassAverages(studentList, zid):
     """
 
     allResults = []
+    # in case the last student doesn't *have* results, we have to save this
+    lastResultsContent = None
     for stu in studentList:
         results = readResults(stu, zid)
         if results is None:
             # there are no results for this student; ignore them
             continue
         allResults.append(calcCorrectValues(results)[0])
-    totalNum = len(results) # it should be the same for all students
+        lastResultsContent = results
+    totalNum = len(lastResultsContent) # it should be the same for all students
     avgCorrect = float(sum(allResults)) / len(allResults)
     avgPercentage = 100 * avgCorrect / totalNum
     return (avgCorrect, totalNum, avgPercentage)

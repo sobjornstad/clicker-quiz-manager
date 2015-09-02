@@ -701,6 +701,11 @@ only his or her own score and answers (and information about the class average,
 if you wish). The precise format of the email and what is sent in it are very
 customizable.
 
+If a student doesn’t have any results for a quiz (for instance, if they were
+absent, or they added the class after the quiz was given), a quick message will
+be sent indicating that no results were recorded for that quiz number and they
+should contact their instructor if they think this is wrong.
+
 You can access the email function by clicking the **Email results** button.
 
 ### Email options
