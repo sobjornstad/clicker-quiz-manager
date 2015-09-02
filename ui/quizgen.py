@@ -133,7 +133,7 @@ class QuizWindow(QDialog):
 
     def onSets(self):
         import questionsets
-        qsw = questionsets.QuestionSetsDialog(self)
+        qsw = questionsets.QuestionSetsDialog(self, self.config)
         qsw.exec_()
 
 
