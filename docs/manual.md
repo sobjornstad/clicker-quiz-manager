@@ -918,14 +918,22 @@ other operating systems should work as well.
    compile the first argument passed to it into a pdf. If the argument is named
    `foobar`, the script should call LaTeX on the file `foobar.tex`, and a file
    `foobar.pdf` should be present in the same directory when the script exits.
-   You may also want to add some kind of logging so you can keep track of
-   what’s being compiled on your server and what might be causing errors. A
-   sample script is listed below.
+   If the script is unable to do this (e.g., because the input was not valid
+   LaTeX source, or the system’s LaTeX installation is broken), then it should
+   write something to stderr to notify the client that an error occurred. (If
+   stderr is empty, success is assumed.) You may also want to add some kind of
+   logging so you can keep track of what’s being compiled on your server and
+   what might be causing errors. A sample script is listed below.
 5. Create a `remote-latex-cleanup.sh` script, make it executable, and place it
    somewhere in the new user account’s path. This script receives the same
    argument as `remote-latex.sh`, once the output file has been successfully
    copied back to the client computer, and should delete input, output, and
-   intermediary files.
+   intermediary files. Note that this script will not be executed if there is
+   an error in the compilation, so you may want to add code to the error
+   handler of `remote-latex.sh` to do that, or regularly clear the directory
+   using a cron job; alternatively, you might want to save them and take a look
+   periodically to confirm that no jobs are failing and diagnose the problem if
+   some are (CQM should not produce invalid LaTeX code).
 6. Follow the directions under [Client-side setup][client-side-setup] and test
    creating a pdf.
 
@@ -960,6 +968,11 @@ compilation, it takes the following steps:
     echo -e "\n-----Beginning job at $(date '+%Y-%m-%d %H:%M:%S UTC %z')-----"
     echo -e "(Client at $SSH_CLIENT logged into $(whoami))"
     xelatex -halt-on-error $1.tex
+
+    if [ $? != 0 ]; then
+        remote-latex-cleanup.sh $1
+        echo "texing failed" >&2
+    fi
 
 
 #### Sample `remote-latex-cleanup.sh` script
