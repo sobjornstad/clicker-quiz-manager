@@ -27,11 +27,13 @@ Abbreviations used in this module:
 
 import codecs
 import os
+import paramiko
 import re
-import tempfile
 import shutil
 import subprocess
 import sys
+import tempfile
+from uuid import uuid4
 
 # pylint doesn't see that this is used in .encode()
 import rtfunicode # pylint: disable=W0611
@@ -340,7 +342,7 @@ def autoOpen(path):
 
 def renderPdf(questions, cls, quiznum,
         headerPath=DEFAULT_LATEX_HEADER, footerPath=DEFAULT_LATEX_FOOTER,
-        latexCommand='xelatex',
+        latexCommand='xelatex', serverOpts=None,
         doOpen=True, doCopy=False, copyTo=None):
     """
     Create a PDF of a quiz to be printed out using LaTeX. XeLaTeX must be
@@ -357,6 +359,10 @@ def renderPdf(questions, cls, quiznum,
             useful except to properly finish the document).
         latexCommand: (optionally) path to the executable location of the LaTeX
             parser we want to use (default 'xelatex')
+        serverOpts: (optionally) Dictionary with options 'hostname', 'username',
+            and 'password' for connecting to a LaTeX server. Setting this
+            option to anything enables using the server. latexCommand is
+            not meaningful and is ignored if using this option.
         doOpen: (optionally) whether to open the PDF automatically upon render
             (default True)
         doCopy: (optionally) whether to copy the temp-file PDF to a given
@@ -383,19 +389,56 @@ def renderPdf(questions, cls, quiznum,
     pdfFile = os.path.join(tdir, '.'.join([fnamebase, 'pdf']))
     with codecs.open(tfile, 'wb', 'utf-8') as f:
         f.write(latex)
-    try:
-        subprocess.check_output([latexCommand, '-halt-on-error', tfile])
-    except subprocess.CalledProcessError as e:
-        raise LatexError("LaTeX Error %i:\n\n%s" % (e.returncode, e.output))
-    except OSError as e:
-        raise LatexError("LaTeX Error: unable to find LaTeX executable")
+
+    if serverOpts is None:
+        # local compilation
+        try:
+            subprocess.check_output([latexCommand, '-halt-on-error', tfile])
+        except subprocess.CalledProcessError as e:
+            raise LatexError("LaTeX Error %i:\n\n%s" % (e.returncode, e.output))
+        except OSError as e:
+            raise LatexError("LaTeX Error: unable to find LaTeX executable")
+        else:
+            if doOpen:
+                autoOpen(pdfFile)
+            if doCopy:
+                assert copyTo is not None, "No destination location given!"
+                shutil.copyfile(pdfFile, copyTo)
+        finally:
+            os.chdir(oldcwd)
+
     else:
+        # remote compilation
+        localPdfFilename = '.'.join([fnamebase, 'pdf'])
+        serverBasename = str(uuid4())
+        serverTexFilename = '.'.join([serverBasename, 'tex'])
+        serverPdfFilename = '.'.join([serverBasename, 'pdf'])
+
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy()) # change later?
+        ssh.connect(serverOpts['hostname'],
+                    username=serverOpts['username'],
+                    password=serverOpts['password'])
+
+        ftp = ssh.open_sftp()
+        ftp.put(tfile, serverTexFilename)
+
+        stdin, stdout, stderr = ssh.exec_command(
+                'remote-latex.sh ' + serverBasename)
+        print "stdout:\n", stdout.readlines()
+        print "stderr:\n", stderr.readlines()
+
+        ftp.get(serverPdfFilename, localPdfFilename)
+        ftp.close()
+
+        ssh.exec_command('remote-latex-cleanup.sh ' + serverBasename)
+        ssh.close()
+
         if doOpen:
-            autoOpen(pdfFile)
+            autoOpen(localPdfFilename)
         if doCopy:
             assert copyTo is not None, "No destination location given!"
-            shutil.copyfile(pdfFile, copyTo)
-    finally:
+            shutil.copyfile(localPdfFilename, copyTo)
         os.chdir(oldcwd)
 
     # ignore errors: it's not worth being a bother when we're just leaving a

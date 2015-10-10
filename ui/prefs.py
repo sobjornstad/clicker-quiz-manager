@@ -192,6 +192,7 @@ class PrefsDialog(QDialog):
             dconf.put('serverPassword', newPassword)
 
         conf.sync()
+        dconf.sync()
         self.accept()
         if self.restartSuggested:
             utils.informationBox("The changes will take effect when you " \

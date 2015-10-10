@@ -18,7 +18,7 @@ import ui.utils as utils
 from db.output import LatexError
 
 class QuizWindow(QDialog):
-    def __init__(self, mw, config, selectedNewSet=None):
+    def __init__(self, mw, config, dbConfig, selectedNewSet=None):
         # mw is not always mw: it can also be the question dialog! I have not
         # copied it into self to ensure that we notice this if we want to use
         # some mw method/attribute in the future.
@@ -27,6 +27,7 @@ class QuizWindow(QDialog):
         self.form = Ui_Dialog()
         self.form.setupUi(self)
         self.config = config
+        self.dbConfig = dbConfig
 
         self.form.genButton.clicked.connect(self.onGenerate)
         self.form.cancelButton.clicked.connect(self.reject)
@@ -120,7 +121,7 @@ class QuizWindow(QDialog):
                                  sns)
 
         prevText = '\n\n'.join([topText, prevText])
-        d = PreviewDialog(self, self.config)
+        d = PreviewDialog(self, self.config, self.dbConfig)
         d.setText(prevText)
         d.exec_()
 
@@ -151,10 +152,11 @@ class PreviewDialog(QDialog):
               'txt': 'Text files (*)',
              }
 
-    def __init__(self, parent=None, config=None):
+    def __init__(self, parent=None, config=None, dconf=None):
         QDialog.__init__(self)
         self.parent = parent
         self.config = config
+        self.dconf  = dconf
         self.form = forms.qprev.Ui_Dialog()
         self.form.setupUi(self)
 
@@ -214,9 +216,19 @@ class PreviewDialog(QDialog):
                     QApplication.setOverrideCursor(QCursor(QtCore.Qt.WaitCursor))
                     lcommand = unicode(self.config.readConf(
                         'latexExecutable', 'xelatex').toString())
+                    if not self.config.readConf('localLatex', True).toBool():
+                        # compile LaTeX remotely
+                        dconf = self.dconf
+
+                        serverOpts = {'hostname': dconf.get('serverHostname'),
+                                      'username': dconf.get('serverUsername'),
+                                      'password': dconf.get('serverPassword')}
+                    else:
+                        serverOpts = None
+
                     try:
                         db.output.renderPdf(questions, cls, quizNum,
-                                latexCommand=lcommand,
+                                latexCommand=lcommand, serverOpts=serverOpts,
                                 doOpen=False, doCopy=True, copyTo=fname)
                     except LatexError as err:
                         QApplication.restoreOverrideCursor()

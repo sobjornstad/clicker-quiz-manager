@@ -69,6 +69,7 @@ change, and changes in report and file formats may require updates to CQM.
 - [**Preferences**][preferences-window]
 - [**Miscellaneous and supplementary material**][miscellaneous]
     - [Setting up LaTeX][setting-up-latex]
+    - [LaTeX servers][latex-servers]
     - [Keyboard shortcuts](#keyboard_shortcuts)
 
 
@@ -844,16 +845,17 @@ You can change CQM’s preferences by choosing **Tools → Preferences** in the
 ## Setting up LaTeX
 
 To produce PDF output, CQM requires the [LaTeX document preparation
-system][latex-wikipedia] to be installed on your computer. On Linux, installing
-LaTeX through your distribution’s package manager should work. On Windows, you
-can [install MiKTeX][miktex-download].
+system][latex-wikipedia] to be installed on your computer. (Alternatively, you
+can [use a LaTeX server][latex-servers].) On Linux, installing LaTeX through
+your distribution’s package manager should work. On Windows, you can [install
+MiKTeX][miktex-download].
 
 [miktex-download]: http://www.miktex.org/download
 
 Whatever your operating system, you will also need the following LaTeX packages
 to create PDF quizzes with CQM: `fontspec`, `xunicode`, `geometry`, `setspace`,
-`titlesec`, `microtype`, `ebgaramond`, `ifluatex`, `ifxetex`. Some of these
-will probably come with any installation of LaTeX, but some may not. If you’re
+`titlesec`, `microtype`, `ebgaramond`, `ifluatex`, `ifxetex`. It appears that in recent versions of TeX Live, you may also need to install `l3kernel` and `l3packages` as dependencies of the packages listed above. Some of these
+will probably come with any installation of LaTeX, but some will not. If you’re
 using MiKTeX, you can find the “package manager” in your start menu and install
 each of the packages.
 
@@ -862,6 +864,123 @@ on OS X, and definitely will not be on Windows unless you set it up that way),
 you need to set the **XeLaTeX command** in the
 [preferences][preferences-window] before trying to generate a PDF quiz, or you
 will get an error indicating that the LaTeX executable could not be found.
+
+## LaTeX servers
+
+[latex-servers]: #latex_servers
+
+It can sometimes be difficult or annoying to set up LaTeX on a computer
+(especially if there are configuration issues, low disk space, or the
+application needs to be used on a number of different computers that otherwise
+do not need LaTeX installed). As a result, CQM offers an alternative method: compiling the document on a *LaTeX server*. Any server that can support a LaTeX installation and accept incoming SSH connections can be configured as a LaTeX server.
+
+### Client-side setup
+
+[client-side-setup]: #client_side_setup
+
+This section explains how to set up your copy of CQM to connect to a LaTeX
+server; it assumes you have already set up this server or had an administrator
+set it up for you.
+
+1. In the preferences dialog, choose the **Use a LaTeX server** radio button.
+2. Fill in the hostname of the server you want to connect to and your username
+   and password on the server. If you didn’t set up the server and don’t know
+   these, ask the server administrator.
+3. Make sure you’re connected to the Internet.
+4. Choose to create a paper quiz as usual. If everything goes well, the PDF
+   will be created just as if LaTeX was installed on your local machine
+   (depending on how fast your internet connection and the server are,
+   it may be slower and take up to a few seconds, so be patient).
+
+### Server setup
+
+This section explains how to configure a server to compile LaTeX for client
+copies of CQM. This is somewhat complex, so it is much more technical than the
+rest of this manual. A UNIX-style server is assumed by the instructions, but
+other operating systems should work as well.
+
+1. Install LaTeX on the server, with all the required packages, and make sure
+   that you can compile the test file
+   `db/tests/resources/test_latex_against.tex` (or a similar test file, if
+   you’re using custom headers and footers to create a different format than
+   the standard).
+2. Create a new user account to be used for LaTeX compilation. Depending on who
+   is going to be using the account, you may wish to lock down this account so
+   that it can’t access anything on the system that it doesn’t need to. Note
+   that the home directory of this user will be used to temporarily hold files
+   that are being processed.
+3. Set a password for the new account and try an SSH connection to that account
+   to confirm that CQM will be able to access it. (Currently CQM only supports
+   password-based authentication; if there’s need for it in the future,
+   key-based authentication may be added.)
+4. Create a `remote-latex.sh` script, make it executable, and place it
+   somewhere in the new user account’s path. This script should, at a minimum,
+   compile the first argument passed to it into a pdf. If the argument is named
+   `foobar`, the script should call LaTeX on the file `foobar.tex`, and a file
+   `foobar.pdf` should be present in the same directory when the script exits.
+   You may also want to add some kind of logging so you can keep track of
+   what’s being compiled on your server and what might be causing errors. A
+   sample script is listed below.
+5. Create a `remote-latex-cleanup.sh` script, make it executable, and place it
+   somewhere in the new user account’s path. This script receives the same
+   argument as `remote-latex.sh`, once the output file has been successfully
+   copied back to the client computer, and should delete input, output, and
+   intermediary files.
+6. Follow the directions under [Client-side setup][client-side-setup] and test
+   creating a pdf.
+
+#### How the client performs remote compilation
+
+When compiling through a LaTeX server, CQM creates a `.tex` file to be
+compiled. Then, rather than running `xelatex` on that file as in local
+compilation, it takes the following steps:
+
+1. Open an SSH connection to the server.
+2. Open an SFTP channel using that connection and put the tex file into the
+   home directory of the account on the server. The base filename used,
+   hereafter referred to as `[filename]`, is composed of a UUID to ensure there
+   will be no conflicts if there are other files being processed at the same
+   time. The file put onto the server is named `[filename].tex`.
+3. Call `remote-latex.sh [filename]` and block until the script exits.
+4. Get the pdf file `[filename].pdf` to a local temporary file.
+5. Call `remote-latex-cleanup.sh [filename]` and close the ssh connection.
+6. Copy the received PDF file into the folder selected by the user as the save
+   location.
+
+#### Sample `remote-latex.sh` script
+
+    #!/bin/bash
+    
+    # http://stackoverflow.com/questions/3173131/
+    # redirect-copy-of-stdout-to-log-file-from-within-bash-script-itself
+    LOGFILE=/home/latex-user/remote-latexing.log
+    exec >  >(tee -a $LOGFILE)
+    exec 2> >(tee -a $LOGFILE >&2)
+    
+    echo -e "\n-----Beginning job at $(date '+%Y-%m-%d %H:%M:%S UTC %z')-----"
+    echo -e "(Client at $SSH_CLIENT logged into $(whoami))"
+    xelatex -halt-on-error $1.tex
+
+
+#### Sample `remote-latex-cleanup.sh` script
+
+    #!/bin/bash
+    
+    LOGFILE=/home/latex-user/remote-latexing.log
+    
+    # basic sanity checks to be sure we don’t go deleting the wrong things
+    if [ $(pwd) != '/home/latex-user' ]; then
+        echo "This script may only be used within the LaTeX user's homedir."
+        exit
+    fi
+    if [ "$1" == "" ]; then
+        echo "You must provide an argument."
+        exit
+    fi
+    
+    rm -f "$1".*
+    echo -e "Cleanup completed successfully at $(date '+%Y-%m-%d %H:%M:%S UTC %z')." >> $LOGFILE
+
 
 ## Keyboard shortcuts
 

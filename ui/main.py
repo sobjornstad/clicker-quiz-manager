@@ -102,7 +102,7 @@ class MainWindow(QMainWindow):
             utils.errorBox("Please create at least one class first.",
                     "No Classes")
             return False
-        qw = ui.quizgen.QuizWindow(self, self.config)
+        qw = ui.quizgen.QuizWindow(self, self.config, self.databaseConfig)
         qw.exec_()
 
     def onSets(self):
