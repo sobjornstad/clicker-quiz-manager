@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>416</width>
-    <height>213</height>
+    <width>432</width>
+    <height>426</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,8 +15,26 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QFormLayout" name="formLayout">
-     <item row="0" column="0">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="9" column="2">
+      <widget class="QLineEdit" name="usernameBox">
+       <property name="whatsThis">
+        <string>Enter your username on the LaTeX server.</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0" colspan="2">
+      <widget class="QRadioButton" name="remoteLatexRadio">
+       <property name="toolTip">
+        <string>Compile LaTeX on a remote server, connecting over SSH.
+See the manual for more information.</string>
+       </property>
+       <property name="text">
+        <string>Use a LaTeX ser&amp;ver</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" colspan="3">
       <widget class="QCheckBox" name="debugMode">
        <property name="toolTip">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show debug menu and functions, for use in active development.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -29,27 +47,27 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QCheckBox" name="autoAnsA">
-       <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When adding new questions, start with A selected as the correct answer rather than a blank.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
+     <item row="6" column="1">
+      <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>&amp;Auto-select answer A</string>
+        <string>Xe&amp;LaTeX command</string>
+       </property>
+       <property name="buddy">
+        <cstring>xelatexCommand</cstring>
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
-      <widget class="QCheckBox" name="savePasswords">
+     <item row="8" column="2">
+      <widget class="QLineEdit" name="hostnameBox">
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Save entered SMTP server passwords in the database. Passwords are stored in plaintext but are not viewable except by directly accessing the database.&lt;/body&gt;&lt;/html&gt;</string>
+        <string/>
        </property>
-       <property name="text">
-        <string>Save email &amp;passwords</string>
+       <property name="whatsThis">
+        <string>Enter the hostname (domain or IP address) of the LaTeX server (e.g., latex.example.com).</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
+     <item row="3" column="0" colspan="2">
       <widget class="QLabel" name="label">
        <property name="text">
         <string>Minutes between &amp;saves</string>
@@ -59,7 +77,17 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item row="1" column="0" colspan="3">
+      <widget class="QCheckBox" name="autoAnsA">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When adding new questions, start with A selected as the correct answer rather than a blank.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>&amp;Auto-select answer A</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
       <widget class="QSpinBox" name="saveInterval">
        <property name="toolTip">
         <string/>
@@ -75,17 +103,97 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Xe&amp;LaTeX command</string>
+     <item row="6" column="0">
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
-       <property name="buddy">
-        <cstring>xelatexCommand</cstring>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>30</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="4" column="0">
+      <spacer name="verticalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="5" column="0" colspan="2">
+      <widget class="QRadioButton" name="localLatexRadio">
+       <property name="toolTip">
+        <string>Create PDF quizzes using an installation of LaTeX on your local computer.
+LaTeX must be installed separately from CQM.</string>
+       </property>
+       <property name="text">
+        <string>Compile LaTeX locall&amp;y</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
+     <item row="10" column="2">
+      <widget class="QLineEdit" name="passwordBox">
+       <property name="whatsThis">
+        <string>Enter your password on the LaTeX server. The password will be stored in plain text in your database (like class email passwords). You can leave this blank, in which case you'll be asked to enter the password when it is needed.</string>
+       </property>
+       <property name="echoMode">
+        <enum>QLineEdit::Password</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>&amp;Hostname</string>
+       </property>
+       <property name="buddy">
+        <cstring>hostnameBox</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="1">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>&amp;Username</string>
+       </property>
+       <property name="buddy">
+        <cstring>usernameBox</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="1">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>&amp;Password</string>
+       </property>
+       <property name="buddy">
+        <cstring>passwordBox</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="3">
+      <widget class="QCheckBox" name="savePasswords">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Save entered SMTP server passwords in the database. Passwords are stored in plaintext but are not viewable except by directly accessing the database.&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>Save &amp;email passwords</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="2">
       <widget class="QLineEdit" name="xelatexCommand">
        <property name="whatsThis">
         <string>When making a PDF version of a quiz, run this command to produce the PDF. This should be some form of XeLaTeX to produce the correct output; see the manual for information on installing LaTeX.</string>
@@ -140,6 +248,20 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>debugMode</tabstop>
+  <tabstop>autoAnsA</tabstop>
+  <tabstop>savePasswords</tabstop>
+  <tabstop>saveInterval</tabstop>
+  <tabstop>localLatexRadio</tabstop>
+  <tabstop>xelatexCommand</tabstop>
+  <tabstop>remoteLatexRadio</tabstop>
+  <tabstop>hostnameBox</tabstop>
+  <tabstop>usernameBox</tabstop>
+  <tabstop>passwordBox</tabstop>
+  <tabstop>okButton</tabstop>
+  <tabstop>cancelButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

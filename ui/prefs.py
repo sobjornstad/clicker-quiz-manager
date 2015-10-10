@@ -101,11 +101,19 @@ class PrefsDialog(QDialog):
         self.form.cancelButton.clicked.connect(self.reject)
         self.form.okButton.clicked.connect(self.dumpPrefsState)
 
+    def changeLocalOrServer(self):
+        doEnableLocal = self.form.localLatexRadio.isChecked()
+        self.form.hostnameBox.setEnabled(not doEnableLocal)
+        self.form.usernameBox.setEnabled(not doEnableLocal)
+        self.form.passwordBox.setEnabled(not doEnableLocal)
+        self.form.xelatexCommand.setEnabled(doEnableLocal)
+
     def markRestartRequired(self):
         self.restartSuggested = True
 
     def setupPrefsState(self):
         conf = self.mw.config
+        dconf = self.mw.databaseConfig
 
         self.options['debugMode'] = conf.readConf('debugMode').toBool()
         self.options['autoAnsA'] = conf.readConf('autoAnsA').toBool()
@@ -113,6 +121,13 @@ class PrefsDialog(QDialog):
         self.options['savePasswords'] = conf.readConf('savePasswords').toBool()
         self.options['latexexe'] = conf.readConf(
                 'latexExecutable', 'xelatex').toString()
+        self.options['localLatex'] = conf.readConf('localLatex').toBool()
+
+        hn, us, sp = dconf.get('serverHostname'), dconf.get('serverUsername'), \
+                dconf.get('serverPassword')
+        self.options['serverHostname'] = hn if hn is not None else ""
+        self.options['serverUsername'] = us if us is not None else ""
+        self.options['serverPassword'] = sp if sp is not None else ""
 
         # note: don't use setCheckState(), that makes a tri-state box!
         self.form.debugMode.setChecked(self.options['debugMode'])
@@ -121,9 +136,21 @@ class PrefsDialog(QDialog):
         self.form.savePasswords.setChecked(self.options['savePasswords'])
         self.form.savePasswords.toggled.connect(self.onPasswordCheck)
         self.form.xelatexCommand.setText(self.options['latexexe'])
+        self.form.hostnameBox.setText(self.options['serverHostname'])
+        self.form.usernameBox.setText(self.options['serverUsername'])
+        self.form.passwordBox.setText(self.options['serverPassword'])
+
+        if self.options['localLatex']:
+            self.form.localLatexRadio.setChecked(True)
+        else:
+            self.form.remoteLatexRadio.setChecked(True)
+        self.form.localLatexRadio.toggled.connect(self.changeLocalOrServer)
+        self.changeLocalOrServer()
+
 
     def dumpPrefsState(self):
         conf = self.mw.config
+        dconf = self.mw.databaseConfig
 
         newDebug = self.form.debugMode.isChecked()
         if newDebug != self.options['debugMode']:
@@ -144,9 +171,25 @@ class PrefsDialog(QDialog):
         if newSavePasswords != self.options['savePasswords']:
             conf.writeConf('savePasswords', newSavePasswords)
 
+        newLocalLatex = self.form.localLatexRadio.isChecked()
+        if newLocalLatex != self.options['localLatex']:
+            conf.writeConf('localLatex', newLocalLatex)
+
         newLatex = unicode(self.form.xelatexCommand.text())
         if newLatex != self.options['latexexe']:
             conf.writeConf('latexExecutable', newLatex)
+
+        newHostname = unicode(self.form.hostnameBox.text())
+        if newHostname != self.options['serverHostname']:
+            dconf.put('serverHostname', newHostname)
+
+        newUsername = unicode(self.form.usernameBox.text())
+        if newUsername != self.options['serverUsername']:
+            dconf.put('serverUsername', newUsername)
+
+        newPassword = unicode(self.form.passwordBox.text())
+        if newPassword != self.options['serverPassword']:
+            dconf.put('serverPassword', newPassword)
 
         conf.sync()
         self.accept()
@@ -174,14 +217,18 @@ class PrefsDialog(QDialog):
 
 def wipeAllPasswords(manager):
     """
-    Search through all keys available in DatabaseConfManager /manager/ for
-    keys beginning with 'optionsForClass_' (indicating class email options),
-    wipe any saved passwords from them, and sync and save the database.
+    Search through all keys available in DatabaseConfManager /manager/ for keys
+    beginning with 'optionsForClass_' (indicating class email options), and
+    wipe any saved passwords from them. Also wipe LaTeX server password. Then
+    sync and save the database.
     """
     for key in manager.allKeys():
         if key.startswith('optionsForClass_'):
             oldVals = manager.get(key)
             oldVals['password'] = ''
             manager.put(key, oldVals)
+        if key == 'serverPassword':
+            manager.put(key, '')
+
     manager.sync()
     d.inter.forceSave()

@@ -200,7 +200,8 @@ class MainWindow(QMainWindow):
         utils.informationBox(APPLICATION_VERSION, "Version")
 
     def onClearPW(self):
-        r = utils.questionBox("Do you really want to clear all saved email "
+        r = utils.questionBox("Do you really want to clear your LaTeX server "
+                              "password and all saved email "
                               "passwords for all classes?", "Clear passwords?")
         if r == QMessageBox.Yes:
             ui.prefs.wipeAllPasswords(self.databaseConfig)
