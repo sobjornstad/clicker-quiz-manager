@@ -15,7 +15,7 @@ import db.genquiz
 import db.sets
 import db.questions
 import ui.utils as utils
-from db.output import LatexError
+from db.output import LatexError, RemoteLatexError
 
 class QuizWindow(QDialog):
     def __init__(self, mw, config, dbConfig, selectedNewSet=None):
@@ -230,7 +230,7 @@ class PreviewDialog(QDialog):
                         db.output.renderPdf(questions, cls, quizNum,
                                 latexCommand=lcommand, serverOpts=serverOpts,
                                 doOpen=False, doCopy=True, copyTo=fname)
-                    except LatexError as err:
+                    except (LatexError, RemoteLatexError) as err:
                         QApplication.restoreOverrideCursor()
                         if 'unable to find' in str(err):
                             txt = "The XeLaTeX executable was not found at '%s'."\
@@ -238,6 +238,8 @@ class PreviewDialog(QDialog):
                                   " to fix this problem. Please consult the"\
                                   " manual for further information." % (
                                   lcommand)
+                        elif 'Could not contact' in str(err):
+                            txt = str(err)[1:-1] # slice: remove quotes
                         else:
                             txt = """
 An error occurred while running LaTeX to create the paper quiz. Please check the error and contact the developer if you are unsure how to correct it. The error text is as follows:

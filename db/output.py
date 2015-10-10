@@ -34,6 +34,7 @@ import subprocess
 import sys
 import tempfile
 from uuid import uuid4
+from socket import gaierror
 
 # pylint doesn't see that this is used in .encode()
 import rtfunicode # pylint: disable=W0611
@@ -315,6 +316,16 @@ class LatexError(Exception):
     def __str__(self):
         return repr(self.emsg)
 
+class RemoteLatexError(Exception):
+    """
+    Indicates that an error occurred while attempting compilation on a LaTeX
+    server.
+    """
+    def __init__(self, emsg):
+        self.emsg = emsg
+    def __str__(self):
+        return repr(self.emsg)
+
 class UnopenableError(Exception):
     """
     Indicates that CQM was unable to open a generated PDF file (when using
@@ -414,32 +425,49 @@ def renderPdf(questions, cls, quiznum,
         serverTexFilename = '.'.join([serverBasename, 'tex'])
         serverPdfFilename = '.'.join([serverBasename, 'pdf'])
 
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy()) # change later?
-        ssh.connect(serverOpts['hostname'],
-                    username=serverOpts['username'],
-                    password=serverOpts['password'])
+        try:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy()) # change later?
+            try:
+                ssh.connect(serverOpts['hostname'],
+                            username=serverOpts['username'],
+                            password=serverOpts['password'])
+            except gaierror:
+                raise RemoteLatexError("Could not contact the remote server. "
+                        "Are you connected to the Internet? Otherwise, please "
+                        "check the hostname you entered.")
+            except paramiko.ssh_exception.AuthenticationException:
+                raise RemoteLatexError("The remote server rejected your "
+                        "username and password. Please try re-entering them "
+                        "and contact the server administrator if problems "
+                        "continue.")
 
-        ftp = ssh.open_sftp()
-        ftp.put(tfile, serverTexFilename)
+            ftp = ssh.open_sftp()
+            ftp.put(tfile, serverTexFilename)
 
-        stdin, stdout, stderr = ssh.exec_command(
-                'remote-latex.sh ' + serverBasename)
-        print "stdout:\n", stdout.readlines()
-        print "stderr:\n", stderr.readlines()
+            stdin, stdout, stderr = ssh.exec_command(
+                    'remote-latex.sh ' + serverBasename)
+            if stderr.readlines():
+                raise RemoteLatexError("The LaTeX run on the remote server was "
+                        "not successful. Here is the LaTeX output:\n\n" +
+                        '\n'.join(stdout.readlines()))
 
-        ftp.get(serverPdfFilename, localPdfFilename)
-        ftp.close()
+            ftp.get(serverPdfFilename, localPdfFilename)
+            ftp.close()
 
-        ssh.exec_command('remote-latex-cleanup.sh ' + serverBasename)
-        ssh.close()
+            ssh.exec_command('remote-latex-cleanup.sh ' + serverBasename)
+            ssh.close()
 
-        if doOpen:
-            autoOpen(localPdfFilename)
-        if doCopy:
-            assert copyTo is not None, "No destination location given!"
-            shutil.copyfile(localPdfFilename, copyTo)
-        os.chdir(oldcwd)
+            if doOpen:
+                autoOpen(localPdfFilename)
+            if doCopy:
+                assert copyTo is not None, "No destination location given!"
+                shutil.copyfile(localPdfFilename, copyTo)
+
+        finally:
+            # make sure we don't break the rest of the application if
+            # something goes wrong...
+            os.chdir(oldcwd)
 
     # ignore errors: it's not worth being a bother when we're just leaving a
     # temporary file lying around
