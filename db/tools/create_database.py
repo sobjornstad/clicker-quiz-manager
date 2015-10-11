@@ -39,6 +39,7 @@ def makeDatabase(fname):
          FOREIGN KEY(stid) REFERENCES students(stid) ON DELETE CASCADE)''')
     x('CREATE TABLE conf (conf TEXT)')
     x('INSERT INTO conf (conf) VALUES (?)', (pickle.dumps({}),))
+    connection.commit()
     return connection
 
 if __name__ == "__main__":
