@@ -7,7 +7,7 @@ copyright 2014-2015 Soren Bjornstad.
 
 # Clicker Quiz Manager: Introduction
 
-This is the manual for the **Clicker Quiz Manager**, version 1.1.0. This
+This is the manual for the **Clicker Quiz Manager**, version 1.1.1. This
 application allows you to manage classes, sets of questions, and review history
 in order to generate daily quizzes for your students. CQM interfaces with
 Turning Technologies’ [TurningPoint][turningpoint-website] clicker response
@@ -901,7 +901,7 @@ other operating systems should work as well.
 
 1. Install LaTeX on the server, with all the required packages, and make sure
    that you can compile the test file
-   `db/tests/resources/test_latex_against.tex` (or a similar test file, if
+   `tests/resources/test_latex_against.tex` (or a similar test file, if
    you’re using custom headers and footers to create a different format than
    the standard).
 2. Create a new user account to be used for LaTeX compilation. Depending on who
