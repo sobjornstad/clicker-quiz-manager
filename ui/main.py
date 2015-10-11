@@ -106,7 +106,7 @@ class MainWindow(QMainWindow):
         qw.exec_()
 
     def onSets(self):
-        qsw = ui.questionsets.QuestionSetsDialog(self, self.config)
+        qsw = ui.questionsets.QuestionSetsDialog(self, self.config, self.databaseConfig)
         qsw.exec_()
 
     def onStudents(self):
