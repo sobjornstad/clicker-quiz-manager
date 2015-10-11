@@ -121,7 +121,7 @@ class PrefsDialog(QDialog):
         self.options['savePasswords'] = conf.readConf('savePasswords').toBool()
         self.options['latexexe'] = conf.readConf(
                 'latexExecutable', 'xelatex').toString()
-        self.options['localLatex'] = conf.readConf('localLatex').toBool()
+        self.options['localLatex'] = conf.readConf('localLatex', True).toBool()
 
         hn, us, sp = dconf.get('serverHostname'), dconf.get('serverUsername'), \
                 dconf.get('serverPassword')
