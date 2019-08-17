@@ -1,3 +1,21 @@
+DESCRIPTION
+-----------
+
+Clicker Quiz Manager is a tool I wrote some years ago
+for creating and tracking students' results on quizzes administered
+with remote-control "clickers" like those offered by Turning Technologies
+(specifically, this tool integrates with their TurningPoint software).
+
+The tool never went into production for the client I wrote it for,
+and I have not even attempted to use the software for 4 years at this point,
+so there are no guarantees it works perfectly.
+However, I wanted to get it out here in the event it's useful to somebody;
+at the least, it might be a good starting point.
+
+Feel free to email me with questions (`contact@sorenbjornstad.com`),
+but I will not be doing further development or debugging on CQM.
+
+
 RUNNING
 -------
 
